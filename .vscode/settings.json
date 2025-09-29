@@ -1,0 +1,12 @@
+{
+    "folder-color.pathColors": [
+        {
+            "folderPath": "ParkPal\\backend\\",
+            "color": "foldercolorizer.color_66ccff"
+        },
+        {
+            "folderPath": "ParkPal\\mobile\\",
+            "color": "foldercolorizer.color_66cc99"
+        }
+    ]
+}
