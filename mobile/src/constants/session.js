@@ -1,6 +1,4 @@
-/**
- * Session-related constants and configuration
- */
+
 
 export const STORAGE_KEYS = {
     SESSION: 'parking_session_v2',

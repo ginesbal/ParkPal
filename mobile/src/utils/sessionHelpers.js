@@ -3,9 +3,9 @@
  */
 
 /**
- * Calculate session state based on remaining time
- * @param {number|null} remainingMinutes - Minutes remaining in session
- * @returns {string} Session state: 'active', 'expiring', or 'expired'
+ * calculate session state based on remaining time
+ * @param {number|null} remainingMinutes - mins remaining, null if unknown
+ * @returns {string} session state: 'active', 'expiring', 'expired'
  */
 export const calculateSessionState = (remainingMinutes) => {
     if (remainingMinutes === null || remainingMinutes === undefined) {
@@ -24,10 +24,10 @@ export const calculateSessionState = (remainingMinutes) => {
 };
 
 /**
- * Calculate progress percentage for session
- * @param {number} elapsed - Elapsed minutes
- * @param {number} total - Total duration in minutes
- * @returns {number} Progress from 0 to 1
+ * calculate progress percentage for session
+ * @param {number} elapsed - elapsed minutes
+ * @param {number} total - total duration in minutes
+ * @returns {number} progress from 0 to 1
  */
 export const calculateProgress = (elapsed, total) => {
     if (!total || total <= 0) return 0;
@@ -38,10 +38,10 @@ export const calculateProgress = (elapsed, total) => {
 };
 
 /**
- * Calculate cost for a given duration and rate
- * @param {number} minutes - Duration in minutes
- * @param {number} hourlyRate - Rate per hour
- * @returns {number} Total cost
+ * calculate cost for a given duration and rate
+ * @param {number} minutes - duration in minutes
+ * @param {number} hourlyRate - rate per hour
+ * @returns {number} total cost
  */
 export const calculateCost = (minutes, hourlyRate) => {
     if (!minutes || !hourlyRate) return 0;
@@ -51,9 +51,9 @@ export const calculateCost = (minutes, hourlyRate) => {
 };
 
 /**
- * Validate session data
- * @param {object} session - Session object
- * @returns {boolean} Whether session is valid
+ * validate session data
+ * @param {object} session - session object
+ * @returns {boolean} session is valid or not
  */
 export const isValidSession = (session) => {
     if (!session) return false;
@@ -71,43 +71,44 @@ export const isValidSession = (session) => {
 };
 
 /**
- * Check if session needs attention (expiring soon)
- * @param {number} remainingMinutes - Minutes remaining
- * @returns {boolean} Whether user should be alerted
+ * check if session needs attention (expiring soon)
+ * @param {number} remainingMinutes - mins remaining
+ * @returns {boolean} session needs attention or not
  */
 export const needsAttention = (remainingMinutes) => {
     return remainingMinutes !== null && remainingMinutes <= 10 && remainingMinutes > 0;
 };
 
 /**
- * Get recommended extension duration based on current state
- * @param {number} remainingMinutes - Current remaining time
- * @returns {number[]} Array of recommended extension durations in minutes
+ * get recommended extension duration based on current state
+ * @param {number} remainingMinutes - current remaining mins
+ * @returns {number[]} array of recommended extension durations in minutes
  */
 export const getRecommendedExtensions = (remainingMinutes) => {
     if (remainingMinutes <= 5) {
-        // Urgent: offer shorter extensions first
+        // urgent: offer shorter extensions first
         return [15, 30, 60, 120];
     }
 
     if (remainingMinutes <= 15) {
-        // Getting low: balanced options
+        // getting low: balanced options
         return [30, 60, 120, 180];
     }
 
-    // Plenty of time: longer extensions
+    // plenty of time: longer extensions
     return [60, 120, 180, 240];
 };
 
 /**
- * Create session summary for notifications or history
- * @param {object} session - Session object
- * @param {number} elapsedMinutes - Elapsed time
- * @returns {object} Summary object
+ * create session summary for notifications or history
+ * @param {object} session - session object
+ * @param {number} elapsedMinutes - elapsed time
+ * @returns {object} summary object
  */
 export const createSessionSummary = (session, elapsedMinutes) => {
     if (!session) return null;
 
+    // return formatted summary
     return {
         location: `${session.spotId} - ${session.locationName}`,
         vehicle: session.vehiclePlate,

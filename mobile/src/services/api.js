@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Use environment variable or fallback to your local IP
+// use environment variable or fallback to your local IP
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.81:3000';
 
-// Cache configuration
+// cache configuration
 const CACHE_PREFIX = '@ParkPal:';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const OFFLINE_TTL = 24 * 60 * 60 * 1000; // 24 hours for offline mode
@@ -14,12 +14,12 @@ class ParkingAPI {
     this.pendingRequests = new Map();
   }
 
-  // Generate cache key
+  // generate cache key
   getCacheKey(endpoint, params) {
     return `${CACHE_PREFIX}${endpoint}_${JSON.stringify(params)}`;
   }
 
-  // Cache management
+  // cache management
   async setCache(key, data) {
     try {
       const cacheData = {
@@ -41,7 +41,7 @@ class ParkingAPI {
       const { data, timestamp } = JSON.parse(cached);
       const age = Date.now() - timestamp;
 
-      // Return cached data if within TTL or offline
+      // return cached data if within TTL or offline
       if (age < maxAge || !this.isOnline) {
         console.log(`Cache hit for ${key} (age: ${Math.round(age / 1000)}s)`);
         return data;
@@ -54,16 +54,16 @@ class ParkingAPI {
     }
   }
 
-  // Network request with retry and fallback
+  // network request with retry and fallback
   async request(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
     const cacheKey = this.getCacheKey(endpoint, options.params);
 
-    // Check cache first
+    // check cache first
     const cached = await this.getCache(cacheKey);
     if (cached) return cached;
 
-    // Dedup concurrent requests
+    // deduplicate requests
     if (this.pendingRequests.has(cacheKey)) {
       return this.pendingRequests.get(cacheKey);
     }
@@ -108,7 +108,7 @@ class ParkingAPI {
         throw new Error(data.error || 'Request failed');
       }
 
-      // Cache successful response
+      // cache successful response
       this.isOnline = true;
       await this.setCache(cacheKey, data);
 
@@ -117,19 +117,19 @@ class ParkingAPI {
       clearTimeout(timeout);
       console.error('Request failed:', error);
 
-      // Mark as offline
+      // mark as offline
       if (error.message === 'Network request failed' || error.name === 'AbortError') {
         this.isOnline = false;
       }
 
-      // Try to get stale cache data
+      // try to get stale cache data
       const staleCache = await this.getCache(cacheKey, OFFLINE_TTL);
       if (staleCache) {
         console.log('Using stale cache due to network error');
         return staleCache;
       }
 
-      // Return mock data for development
+      // return mock data for development
       if (__DEV__ && endpoint.includes('/nearby')) {
         return this.getMockData();
       }
@@ -138,7 +138,7 @@ class ParkingAPI {
     }
   }
 
-  // Mock data for development/testing
+  // mock data for development/testing
   getMockData() {
     return {
       success: true,
@@ -231,7 +231,7 @@ class ParkingAPI {
     return this.request(`/api/parking/predict/${spotId}`);
   }
 
-  // Utilities
+  // utilities
   clearCache() {
     return AsyncStorage.getAllKeys().then(keys => {
       const cacheKeys = keys.filter(key => key.startsWith(CACHE_PREFIX));

@@ -1,3 +1,5 @@
+// App.js
+
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -7,14 +9,18 @@ import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-// Screens
+// screens
 import HomeScreen from './src/screens/HomeScreen/index';
 import MapScreen from './src/screens/MapScreen/index';
 import SessionScreen from './src/screens/SessionScreen/index';
 
-// Services
-import { getDeviceId } from './src/utils/device';
+// services
 import { PALETTE } from './src/constants/theme';
+import { getDeviceId } from './src/utils/device';
+
+// important: hook log mirroring before app mounts
+import { logFile } from './src/utils/loggers/LogFile';
+logFile.hook();
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -23,7 +29,7 @@ function MainTabs() {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
-                headerShown: false, // Removes all tab headers
+                headerShown: false,
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
                     if (route.name === 'Home') {
@@ -51,26 +57,20 @@ function MainTabs() {
                 },
             })}
         >
-            <Tab.Screen 
-                name="Home" 
+            <Tab.Screen
+                name="Home"
                 component={HomeScreen}
-                options={{
-                    tabBarLabel: 'Home',
-                }}
+                options={{ tabBarLabel: 'Home' }}
             />
-            <Tab.Screen 
-                name="Map" 
+            <Tab.Screen
+                name="Map"
                 component={MapScreen}
-                options={{
-                    tabBarLabel: 'Find Parking',
-                }}
+                options={{ tabBarLabel: 'Find Parking' }}
             />
-            <Tab.Screen 
-                name="Session" 
+            <Tab.Screen
+                name="Session"
                 component={SessionScreen}
-                options={{
-                    tabBarLabel: 'Session',
-                }}
+                options={{ tabBarLabel: 'Session' }}
             />
         </Tab.Navigator>
     );
@@ -82,20 +82,31 @@ export default function App() {
 
     useEffect(() => {
         (async () => {
-            // Get device ID
+            // important: capture a few bootstrap events
+            console.log('[app] bootstrap start');
+
+            // device id
             const id = await getDeviceId();
             setDeviceId(id);
+            console.log('[app] device id ready', { id });
 
-            // Request location permission
-            let { status } = await Location.requestForegroundPermissionsAsync();
+            // location permission + cache
+            const { status } = await Location.requestForegroundPermissionsAsync();
             if (status === 'granted') {
-                let loc = await Location.getCurrentPositionAsync({});
+                const loc = await Location.getCurrentPositionAsync({});
                 setLocation(loc.coords);
-
-                // Store in context or global state
                 await AsyncStorage.setItem('userLocation', JSON.stringify(loc.coords));
+                console.log('[app] location cached', { lat: loc.coords.latitude, lon: loc.coords.longitude });
+            } else {
+                console.warn('[app] location permission denied');
             }
+
+            // optional: ensure first buffer flush soon after launch
+            setTimeout(() => { logFile.flushNow(); }, 1500);
         })();
+
+        // important: flush remaining logs on unmount
+        return () => { logFile.flushNow(); };
     }, []);
 
     return (

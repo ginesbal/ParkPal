@@ -1,8 +1,4 @@
 
-/**
- * Parking-related constants and configuration
- */
-
 export const DEFAULT_SEARCH_RADIUS = 250; // meters
 export const LOCATION_STORAGE_KEY = 'userLocation';
 

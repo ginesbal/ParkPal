@@ -1,13 +1,11 @@
-// =====================================
-// FILE: src/components/ParkingCard/cardStyles.js
-// IMPROVED: Enhanced visual hierarchy with theme alignment
-// =====================================
+// src/components/ParkingCard/cardStyles.js
+
 import { StyleSheet } from 'react-native';
 import { PALETTE, TOKENS, alpha } from '../../constants/theme';
 import { CARD_WIDTH, CARD_HEIGHT } from './cardConstants';
 
 export const styles = StyleSheet.create({
-  // Subtle overlay for focus
+  // subtle overlay for focus
   overlay: {
     position: 'absolute',
     top: 0,
@@ -49,7 +47,7 @@ export const styles = StyleSheet.create({
     zIndex: 1,
   },
 
-  // Front header - cleaner design
+  // front header
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -59,7 +57,7 @@ export const styles = StyleSheet.create({
     borderBottomColor: alpha(PALETTE.earth_yellow[400], 0.15),
   },
 
-  // Back header - improved layout
+  // back header
   cardHeaderBack: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -70,7 +68,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
 
-  // Spot type tag - better visual weight
+  // spot type tag
   spotTypeTag: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -85,7 +83,7 @@ export const styles = StyleSheet.create({
     borderColor: alpha(PALETTE.earth_yellow[400], 0.2),
   },
 
-  // Page title for back - matches front style
+  // page title tag
   pageTitleTag: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -107,7 +105,7 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
 
-  // Action buttons - more prominent
+  // action buttons
   backBtn: {
     width: 36,
     height: 36,
@@ -128,7 +126,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Front content - better spacing
+  // front content
   frontContent: {
     flex: 1,
     marginTop: 4,
@@ -143,7 +141,7 @@ export const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
 
-  // Quick stats - visual hierarchy improvement
+  // quick stats
   quickStatsLarge: {
     backgroundColor: alpha(PALETTE.vanilla[700], 0.5),
     borderRadius: 16,
@@ -207,7 +205,7 @@ export const styles = StyleSheet.create({
     marginVertical: 2,
   },
 
-  // Badges - improved design
+  // badges
   badgesLarge: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -225,7 +223,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
   },
 
-  // Badge variants with theme colors
+  // badge types
   badgeDefault: {
     backgroundColor: alpha(PALETTE.vanilla[500], 0.15),
     borderColor: alpha(PALETTE.vanilla[500], 0.3),
@@ -256,7 +254,7 @@ export const styles = StyleSheet.create({
   badgeTextInfo: { color: PALETTE.straw[300] },
   badgeTextDanger: { color: PALETTE.flame.DEFAULT },
 
-  // Actions - better visual hierarchy
+  // actions
   actionsLarge: {
     flexDirection: 'row',
     gap: 12,
@@ -294,7 +292,6 @@ export const styles = StyleSheet.create({
     paddingVertical: 13,
     borderRadius: 14,
     gap: 6,
-    // Add subtle shadow for primary button
     shadowColor: TOKENS.primary,
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -308,7 +305,7 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  // Back (details) styles - improved
+  // back details pages
   pagesContainer: {
     flex: 1,
     marginTop: 8,
@@ -330,7 +327,7 @@ export const styles = StyleSheet.create({
     rowGap: 6,
   },
 
-  // Detail rows - cleaner design
+  // detail rows
   detailRowLarge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -380,7 +377,7 @@ export const styles = StyleSheet.create({
     color: PALETTE.flame[600],
   },
 
-  // Pager controls - much clearer
+  // page controls
   pagerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -463,7 +460,7 @@ export const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 
-  // Back actions - consistent with front
+  // back actions
   backActionsLarge: {
     marginTop: 'auto',
     paddingTop: 16,
@@ -479,7 +476,6 @@ export const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     gap: 6,
-    // Consistent shadow with front
     shadowColor: TOKENS.primary,
     shadowOpacity: 0.25,
     shadowRadius: 8,

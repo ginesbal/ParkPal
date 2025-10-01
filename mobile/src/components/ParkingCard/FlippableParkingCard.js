@@ -1,21 +1,19 @@
-// =====================================
-// FILE: src/components/ParkingCard/FlippableParkingCard.js
-// IMPROVED: Enhanced navigation and visual hierarchy
-// =====================================
+// src/components/ParkingCard/FlippableParkingCard.js
+
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import {
     Animated,
     Linking,
+    Platform,
     ScrollView,
     Text,
     TouchableOpacity,
-    View,
-    Platform,
-    Vibration
+    Vibration,
+    View
 } from 'react-native';
 import { PALETTE, TOKENS } from '../../constants/theme';
-import logger from '../../utils/DebugLogger';
+import logger from '../../utils/loggers/DebugLogger';
 import {
     CARD_HEIGHT,
     CARD_WIDTH,
@@ -46,7 +44,7 @@ function FlippableParkingCard({
     const scaleAnim = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    // Horizontal pager
+    // horizontal pager
     const pagesScrollRef = useRef(null);
     const pageWidth = CONTENT_WIDTH;
 
@@ -62,11 +60,6 @@ function FlippableParkingCard({
     useEffect(() => {
         if (visible && spot) {
             logger.logSpotData(spot, 'FlippableParkingCard opened');
-            
-            // Add subtle haptic feedback
-            if (Platform.OS === 'ios') {
-                Vibration.vibrate(10);
-            }
 
             Animated.parallel([
                 Animated.spring(scaleAnim, {
@@ -104,8 +97,7 @@ function FlippableParkingCard({
 
     const flip = () => {
         const toValue = isFlipped ? 0 : 1;
-        logger.logCardFlip(spot, !isFlipped);
-        
+
         if (!isFlipped) {
             pagesScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
             setCurrentPage(0);
@@ -122,26 +114,26 @@ function FlippableParkingCard({
 
     if (!visible || !spot) return null;
 
-    // Smart positioning
+    // smart positioning
     const cardX = Math.min(Math.max(10, position.x - CARD_WIDTH / 2), SCREEN_WIDTH - CARD_WIDTH - 10);
     const cardY = Math.max(
         60,
         Math.min(position.y - CARD_HEIGHT - 40, SCREEN_HEIGHT - CARD_HEIGHT - 140)
     );
 
-    // Animations
+    // animations
     const frontRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
     const backRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
     const frontOpacity = flipAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] });
     const backOpacity = flipAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0, 1] });
 
-    // Get parsed data
+    // get parsed data
     const zoneInfo = parseZoneInfo(spot);
     const metadata = parseMetadata(spot);
     const detailsPages = getDetailsPages(spot);
     const priceDisplay = getCurrentPrice(spot, zoneInfo);
 
-    // Determine status for visual feedback
+    // determine status for visual feedback
     const getStatusColor = () => {
         if (spot.no_stopping) return PALETTE.flame.DEFAULT;
         if (spot.permit_zone || zoneInfo.permit_zone) return PALETTE.earth_yellow[300];
@@ -151,9 +143,9 @@ function FlippableParkingCard({
 
     const statusColor = getStatusColor();
 
-    // Get badge styles based on type
+    // get badge styles based on type
     const getBadgeStyle = (type) => {
-        switch(type) {
+        switch (type) {
             case 'danger': return [styles.badgeLarge, styles.badgeDanger];
             case 'warning': return [styles.badgeLarge, styles.badgeWarning];
             case 'info': return [styles.badgeLarge, styles.badgeInfo];
@@ -162,7 +154,7 @@ function FlippableParkingCard({
     };
 
     const getBadgeTextStyle = (type) => {
-        switch(type) {
+        switch (type) {
             case 'danger': return [styles.badgeTextLarge, styles.badgeTextDanger];
             case 'warning': return [styles.badgeTextLarge, styles.badgeTextWarning];
             case 'info': return [styles.badgeTextLarge, styles.badgeTextInfo];
@@ -172,7 +164,7 @@ function FlippableParkingCard({
 
     return (
         <>
-            {/* Subtle overlay */}
+            {/* subtle overlay */}
             {visible && (
                 <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
                     <View />
@@ -192,7 +184,7 @@ function FlippableParkingCard({
                 ]}
                 pointerEvents="box-none"
             >
-                {/* Front of card */}
+                {/* front of card */}
                 <Animated.View
                     style={[
                         styles.card,
@@ -203,7 +195,7 @@ function FlippableParkingCard({
                         },
                     ]}
                 >
-                    {/* Header with improved design */}
+                    {/* header */}
                     <View style={styles.cardHeader}>
                         <View style={styles.spotTypeTag}>
                             <MaterialCommunityIcons
@@ -230,14 +222,14 @@ function FlippableParkingCard({
                         </TouchableOpacity>
                     </View>
 
-                    {/* Front content with better hierarchy */}
+                    {/* front content */}
                     <View style={styles.frontContent}>
                         <Text style={styles.address} numberOfLines={2}>
                             {spot.address || spot.address_desc || 'Parking Spot'}
                         </Text>
 
                         <View style={styles.quickStatsLarge}>
-                            {/* Walk Time */}
+                            {/* walk Time */}
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
@@ -250,7 +242,7 @@ function FlippableParkingCard({
 
                             <View style={styles.statDividerLarge} />
 
-                            {/* Distance */}
+                            {/* distance */}
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
@@ -263,7 +255,7 @@ function FlippableParkingCard({
 
                             <View style={styles.statDividerLarge} />
 
-                            {/* Rate - highlighted as primary info */}
+                            {/* rate */}
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
@@ -277,7 +269,7 @@ function FlippableParkingCard({
                             </View>
                         </View>
 
-                        {/* Badges with improved styling */}
+                        {/* badges */}
                         <View style={styles.badgesLarge}>
                             {(spot.camera || metadata.camera) && (
                                 <View style={getBadgeStyle('default')}>
@@ -312,7 +304,7 @@ function FlippableParkingCard({
                         </View>
                     </View>
 
-                    {/* Actions with better visual hierarchy */}
+                    {/* actions */}
                     <View style={styles.actionsLarge}>
                         <TouchableOpacity style={styles.detailsBtnLarge} onPress={flip}>
                             <MaterialCommunityIcons name="information-outline" size={18} color={TOKENS.text} />
@@ -325,7 +317,7 @@ function FlippableParkingCard({
                     </View>
                 </Animated.View>
 
-                {/* Back of card - Improved navigation */}
+                {/* back of card */}
                 <Animated.View
                     style={[
                         styles.card,
@@ -336,7 +328,7 @@ function FlippableParkingCard({
                         },
                     ]}
                 >
-                    {/* Back header with better layout */}
+                    {/* back header */}
                     <View style={styles.cardHeaderBack}>
                         <TouchableOpacity
                             onPress={flip}
@@ -359,7 +351,7 @@ function FlippableParkingCard({
                         </TouchableOpacity>
                     </View>
 
-                    {/* Horizontal pages with improved styling */}
+                    {/* horizontal pages */}
                     <ScrollView
                         ref={pagesScrollRef}
                         horizontal
@@ -434,7 +426,7 @@ function FlippableParkingCard({
                         ))}
                     </ScrollView>
 
-                    {/* Improved pager controls */}
+                    {/* page controls */}
                     {detailsPages.length > 1 && (
                         <View style={styles.pagerContainer}>
                             <TouchableOpacity

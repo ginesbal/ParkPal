@@ -5,25 +5,20 @@ import { DEFAULT_VALUES, STORAGE_KEYS } from '../constants/session.js';
 import { formatEndTime, formatTime } from '../utils/formatters';
 import { calculateProgress, calculateSessionState } from '../utils/sessionHelpers';
 
-/**
- * Custom hook for managing parking session state and logic
- * - Ticks every 1s (so seconds can update in UI)
- * - Exposes minute *and* millisecond values
- */
 export const useSessionManager = () => {
-    // Core state
+    // core state
     const [session, setSession] = useState(null);
     const [now, setNow] = useState(Date.now()); // ms
 
-    // Form state for new sessions
+    // form state for new sessions
     const [vehiclePlate, setVehiclePlate] = useState('');
     const [selectedRate, setSelectedRate] = useState(DEFAULT_VALUES.RATE);
     const [selectedDuration, setSelectedDuration] = useState(DEFAULT_VALUES.DURATION);
 
-    // Animation values
+    // animation values
     const pulseAnim = useState(new Animated.Value(1))[0];
 
-    // Load session from storage on mount
+    // load session from storage on mount
     const loadSession = useCallback(async () => {
         try {
             const raw = await AsyncStorage.getItem(STORAGE_KEYS.SESSION);
@@ -35,7 +30,7 @@ export const useSessionManager = () => {
         }
     }, []);
 
-    // Save session to storage
+    // save session to storage
     const saveSession = useCallback(async (sessionData) => {
         try {
             if (!sessionData) {
@@ -50,18 +45,18 @@ export const useSessionManager = () => {
         }
     }, []);
 
-    // Initialize on mount
+    // initialize on mount
     useEffect(() => {
         loadSession();
     }, [loadSession]);
 
-    // Update timer every 1 second (so seconds tick in UI)
+    // update timer every 1 second
     useEffect(() => {
         const interval = setInterval(() => setNow(Date.now()), 1000);
         return () => clearInterval(interval);
     }, []);
 
-    // Derived timestamps
+    // derived timestamps
     const startTime = useMemo(
         () => (session ? new Date(session.startedAt) : null),
         [session]
@@ -72,7 +67,7 @@ export const useSessionManager = () => {
         [session]
     );
 
-    // Millisecond precision (for UI that shows seconds)
+    // millisecond precision
     const elapsedMs = useMemo(
         () => (startTime ? Math.max(0, now - startTime.getTime()) : 0),
         [now, startTime]
@@ -83,7 +78,7 @@ export const useSessionManager = () => {
         return Math.max(0, endTime.getTime() - now);
     }, [now, endTime]);
 
-    // Minute granularity (for helpers that expect minutes)
+    // minute granularity (for helpers that expect minutes)
     const elapsedTime = useMemo(
         () => Math.floor(elapsedMs / 60000),
         [elapsedMs]
@@ -111,7 +106,7 @@ export const useSessionManager = () => {
         [timeRemaining]
     );
 
-    // Handle expiring animation
+    // handle expiring animation
     useEffect(() => {
         if (sessionState === 'expiring') {
             Animated.loop(
@@ -133,7 +128,7 @@ export const useSessionManager = () => {
         }
     }, [sessionState, pulseAnim]);
 
-    // Action handlers
+    // action handlers
     const startSession = useCallback(async () => {
         if (!vehiclePlate.trim()) {
             Alert.alert(
@@ -209,24 +204,24 @@ export const useSessionManager = () => {
     }, [session, timeRemaining, saveSession]);
 
     return {
-        // Session data
+        // session data
         session,
         sessionState,
-        timeRemaining,      // minutes (for helpers)
-        timeRemainingMs,    // ms (for UI seconds)
+        timeRemaining,      // minutes
+        timeRemainingMs,    // ms
         elapsedTime,        // minutes
-        elapsedMs,          // ms (optional for UI)
+        elapsedMs,          // ms
         progress,
         totalCost,
         startTime,
         endTime,
 
-        // Actions
+        // actions
         startSession,
         endSession,
         extendSession,
 
-        // Form state
+        // form state
         vehiclePlate,
         setVehiclePlate,
         selectedRate,
@@ -234,7 +229,6 @@ export const useSessionManager = () => {
         selectedDuration,
         setSelectedDuration,
 
-        // Animation
         pulseAnim,
     };
 };

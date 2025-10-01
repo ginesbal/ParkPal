@@ -1,3 +1,5 @@
+// src/screens/MapScreen/index.js
+
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
@@ -15,16 +17,18 @@ import {
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// Your existing shared components
+// shared components
 import FlippableParkingCard from '../../components/ParkingCard/FlippableParkingCard';
 
-// App constants/services
+// app constants/services
 import { DEFAULT_LOCATION } from '../../constants/config';
 import { TOKENS } from '../../constants/theme';
 import { parkingAPI } from '../../services/api';
-import { logger } from '../../utils/DebugLogger';
 
-// Local refactor pieces
+// logs
+import { debugLogger as logger } from '../../utils/loggers';
+
+// files specific to this screen
 import MapBottomSheet from './components/MapBottomSheet';
 import MapHeader from './components/MapHeader';
 import MapOverlays from './components/MapOverlays';
@@ -38,23 +42,21 @@ function MapScreen() {
     const insets = useSafeAreaInsets();
     const NAVIGATION_HEIGHT = 100 + insets.top;
 
-    // Tab bar configuration
-    const TAB_BAR_HEIGHT = 80; // must match your App.js tabBarStyle.height
+    // tab bar sizing to keep ui elements clear
+    const TAB_BAR_HEIGHT = 80;
     const BOTTOM_UI_OFFSET = TAB_BAR_HEIGHT + (insets.bottom || 0) + 14;
-    const CARD_ESTIMATED_HEIGHT = 220; // adjust if your card is taller/shorter
+    const CARD_ESTIMATED_HEIGHT = 220;
 
-    // Calculate available space for the sheet (between header and tab bar)
+    // available space for the sheet
     const SHEET_AVAILABLE_SPACE = SCREEN_HEIGHT - NAVIGATION_HEIGHT - TAB_BAR_HEIGHT - insets.bottom;
-    
-    // Calculate how much the sheet needs to move down when collapsed
     const SHEET_COLLAPSED_OFFSET = SHEET_AVAILABLE_SPACE - SHEET_MIN_HEIGHT;
 
-    // Refs
+    // refs
     const mapRef = useRef(null);
     const lastMapInteraction = useRef(null);
     const hideControlsTimer = useRef(null);
 
-    // Initialize the bottom sheet hook with updated configuration
+    // bottom sheet
     const {
         isSheetExpanded,
         setIsSheetExpanded,
@@ -70,28 +72,25 @@ function MapScreen() {
         showControls,
         hideControls,
         panHandlers,
-        toggleSheet,  // New toggle function from updated hook
+        toggleSheet,
     } = useBottomSheet({ collapsedOffset: SHEET_COLLAPSED_OFFSET });
 
-    // Calculate dynamic map padding based on sheet position
+    // map padding reacts to sheet position
     const [mapPaddingBottom, setMapPaddingBottom] = useState(SHEET_MIN_HEIGHT + 20);
-    
+
     useEffect(() => {
         const listener = bottomSheetTranslateY.addListener(({ value }) => {
-            // Calculate visible sheet height
             const visibleHeight = SHEET_AVAILABLE_SPACE - value;
-            // Add some padding above the sheet
             const paddingValue = Math.max(20, Math.min(SHEET_AVAILABLE_SPACE, visibleHeight + 20));
             setMapPaddingBottom(paddingValue);
         });
-        
-        // Initialize the padding
+
         setMapPaddingBottom(SHEET_MIN_HEIGHT + 20);
-        
+
         return () => bottomSheetTranslateY.removeListener(listener);
     }, [SHEET_AVAILABLE_SPACE, bottomSheetTranslateY]);
 
-    // Data state
+    // data state
     const [spots, setSpots] = useState([]);
     const [loading, setLoading] = useState(false);
     const [region, setRegion] = useState(DEFAULT_LOCATION);
@@ -101,28 +100,34 @@ function MapScreen() {
     const [selectedSpot, setSelectedSpot] = useState(null);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-    // Pin state
+    // pin state
     const [pinnedLocation, setPinnedLocation] = useState(null);
     const [searchMode, setSearchMode] = useState('current'); // 'current' | 'pinned'
     const [showPinInstructions, setShowPinInstructions] = useState(false);
 
-    // Flippable card state
+    // flippable card state
     const [flippableCardVisible, setFlippableCardVisible] = useState(false);
     const [flippableCardPosition, setFlippableCardPosition] = useState({ x: 0, y: 0 });
     const [flippableCardSpot, setFlippableCardSpot] = useState(null);
 
-    // Initialize location
+    // get initial location and record permission outcome
     useEffect(() => {
         (async () => {
             try {
                 const { status } = await Location.requestForegroundPermissionsAsync();
+                // important: permission result explains empty data scenarios
+                logger.log('location_permission', { status }, 'INFO');
+
                 if (status !== 'granted') {
                     setUserLocation(DEFAULT_LOCATION);
                     setRegion(DEFAULT_LOCATION);
+                    // important: fallback location to keep app usable
+                    logger.log('location_fallback_default', DEFAULT_LOCATION, 'WARN');
                     return;
                 }
+
                 const loc = await Location.getCurrentPositionAsync({
-                    accuracy: Location.Accuracy.Balanced
+                    accuracy: Location.Accuracy.Balanced,
                 });
                 const coords = {
                     latitude: loc.coords.latitude,
@@ -133,9 +138,13 @@ function MapScreen() {
                 setUserLocation(coords);
                 setRegion(coords);
                 await AsyncStorage.setItem('userLocation', JSON.stringify(coords));
+                // important: capture starting coordinates for debugging
+                logger.log('location_acquired', { lat: coords.latitude, lng: coords.longitude }, 'INFO');
             } catch {
                 setUserLocation(DEFAULT_LOCATION);
                 setRegion(DEFAULT_LOCATION);
+                // important: catch-all failure path with fallback
+                logger.log('location_error_fallback_default', DEFAULT_LOCATION, 'ERROR');
             }
         })();
 
@@ -144,7 +153,7 @@ function MapScreen() {
         };
     }, []);
 
-    // Search when ready/filters change
+    // trigger search when prerequisites change
     useEffect(() => {
         if (userLocation || pinnedLocation) searchArea();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,7 +170,7 @@ function MapScreen() {
         }, 3000);
     }, [hideControls, isSheetExpanded, showControls]);
 
-    // Long press: drop pin
+    // long press to drop pin and switch mode
     const handleMapLongPress = (event) => {
         const { coordinate } = event.nativeEvent;
         setPinnedLocation({
@@ -181,9 +190,12 @@ function MapScreen() {
 
         setSearchMode('pinned');
         setShowPinInstructions(false);
+        // important: record pin placement and mode shift
         logger.log('Pin dropped', coordinate, 'UI_EVENT');
+        logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
     };
 
+    // perform nearby search and summarize results
     const searchArea = async () => {
         const searchLocation =
             (searchMode === 'pinned' && pinnedLocation) ? pinnedLocation : userLocation;
@@ -193,13 +205,14 @@ function MapScreen() {
         try {
             const params = filterType !== 'all' ? { type: filterType } : {};
 
+            // important: record search parameters to reproduce issues
             logger.log('Searching for parking spots', {
                 mode: searchMode,
                 latitude: searchLocation.latitude,
                 longitude: searchLocation.longitude,
                 radius: searchRadius,
                 filterType,
-                params
+                params,
             }, 'API_CALL');
 
             const res = await parkingAPI.findNearbySpots(
@@ -209,7 +222,14 @@ function MapScreen() {
                 params
             );
 
-            setSpots(res?.data || []);
+            const list = res?.data || [];
+            setSpots(list);
+
+            // important: quick result sanity to catch empty/short lists
+            logger.log('api_parking_spots_result', {
+                count: Array.isArray(list) ? list.length : 0,
+                sampleIds: Array.isArray(list) ? list.slice(0, 3).map(s => s?.id) : [],
+            }, 'API_RESPONSE');
         } catch (e) {
             logger.log('Search error', e, 'ERROR');
             console.error('Search error:', e);
@@ -219,6 +239,7 @@ function MapScreen() {
     };
 
     const selectSpot = async (spot, fromList = false) => {
+        // important: deep snapshot of the chosen spot for diagnostics
         logger.logSpotData(spot, `Selected from ${fromList ? 'LIST' : 'MAP'}`);
         setSelectedSpot(spot);
         setFlippableCardVisible(false);
@@ -228,13 +249,13 @@ function MapScreen() {
             const lng = spot.coordinates.coordinates[0];
 
             await centerCamera(mapRef, region, lat, lng, 140);
+            // important: confirm camera move for traceability
+            logger.log('camera_centered_on_spot', { id: spot?.id, lat, lng }, 'INFO');
 
             setTimeout(async () => {
                 const delay = fromList ? 400 : 200;
                 setTimeout(async () => {
                     const screenPos = await getMarkerScreenPosition(mapRef, spot);
-
-                    // Clamp the card's Y so it never sits under the tab bar
                     const yCap = SCREEN_HEIGHT - BOTTOM_UI_OFFSET - CARD_ESTIMATED_HEIGHT;
 
                     if (screenPos) {
@@ -270,6 +291,8 @@ function MapScreen() {
         const lat = spot?.coordinates?.coordinates?.[1];
         const lng = spot?.coordinates?.coordinates?.[0];
         if (typeof lat === 'number' && typeof lng === 'number') {
+            // important: record external handoff to maps
+            logger.log('open_external_navigation', { lat, lng, provider: 'google' }, 'UI_EVENT');
             Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
         }
     };
@@ -297,7 +320,7 @@ function MapScreen() {
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-            {/* Header */}
+            {/* header */}
             <View style={dynamicStyles.topNavigation}>
                 <MapHeader
                     insetsTop={insets.top}
@@ -309,7 +332,11 @@ function MapScreen() {
                     showPinInstructions={showPinInstructions}
                     setShowPinInstructions={setShowPinInstructions}
                     searchMode={searchMode}
-                    setSearchMode={setSearchMode}
+                    // important: track mode changes from the header controls
+                    setSearchMode={(mode) => {
+                        logger.log('search_mode_changed', { to: mode }, 'INFO');
+                        setSearchMode(mode);
+                    }}
                     filterType={filterType}
                     setFilterType={setFilterType}
                     searchRadius={searchRadius}
@@ -326,13 +353,14 @@ function MapScreen() {
                             mapRef.current?.animateToRegion(newRegion, 300);
                             setPinnedLocation(newRegion);
                             setSearchMode('pinned');
+                            logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
                             searchArea();
                         }
                     }}
                 />
             </View>
 
-            {/* Pin instruction tooltip */}
+            {/* pin instruction tooltip */}
             {showPinInstructions && !pinnedLocation && (
                 <Animated.View style={dynamicStyles.tooltip}>
                     <View style={styles.tooltipArrow} />
@@ -342,7 +370,7 @@ function MapScreen() {
                 </Animated.View>
             )}
 
-            {/* Map */}
+            {/* map */}
             <MapView
                 ref={mapRef}
                 style={dynamicStyles.map}
@@ -356,7 +384,6 @@ function MapScreen() {
                 onPress={() => {
                     setSelectedSpot(null);
                     setFlippableCardVisible(false);
-                    // Optionally collapse sheet when map is tapped
                     if (isSheetExpanded) {
                         collapseSheet();
                     }
@@ -366,11 +393,11 @@ function MapScreen() {
                 showsMyLocationButton={false}
                 showsCompass={false}
                 paddingAdjustmentBehavior="always"
-                mapPadding={{ 
-                    left: 0, 
-                    right: 0, 
-                    top: 0, 
-                    bottom: mapPaddingBottom 
+                mapPadding={{
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: mapPaddingBottom
                 }}
             >
                 <MapOverlays
@@ -387,22 +414,25 @@ function MapScreen() {
                 />
             </MapView>
 
-            {/* FAB Controls - positioned above the collapsed sheet */}
+            {/* floating actions above collapsed sheet */}
             <Animated.View
                 style={[
                     styles.fabContainer,
                     {
                         opacity: controlsOpacity,
                         transform: [{ translateY: Animated.multiply(controlsTranslateY, -1) }],
-                        // Position FABs above the collapsed sheet and tab bar
-                        bottom: SHEET_MIN_HEIGHT + TAB_BAR_HEIGHT + 16,  // Reduced from 20 to 16 for tighter spacing
+                        bottom: SHEET_MIN_HEIGHT + TAB_BAR_HEIGHT + 16,
                     }
                 ]}
                 pointerEvents={isSheetExpanded ? 'none' : 'auto'}
             >
                 <Pressable
                     style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
-                    onPress={searchArea}
+                    onPress={() => {
+                        // important: explicit user-driven refresh for analytics
+                        logger.log('ui_refresh_pressed', { radius: searchRadius, filterType }, 'UI_EVENT');
+                        searchArea();
+                    }}
                 >
                     {loading ? (
                         <ActivityIndicator color={TOKENS.primary} size="small" />
@@ -414,15 +444,15 @@ function MapScreen() {
                 <Pressable
                     style={({ pressed }) => [styles.fab, styles.fabPrimary, pressed && styles.fabPressed]}
                     onPress={() => {
+                        // important: users often tap recenter when lost
+                        logger.log('ui_recenter_pressed', { mode: searchMode }, 'UI_EVENT');
+
                         const targetLocation =
                             (searchMode === 'pinned' && pinnedLocation) ? pinnedLocation : userLocation;
 
                         if (targetLocation) {
                             mapRef.current?.animateCamera(
-                                { center: { 
-                                    latitude: targetLocation.latitude, 
-                                    longitude: targetLocation.longitude 
-                                }},
+                                { center: { latitude: targetLocation.latitude, longitude: targetLocation.longitude } },
                                 { duration: 180 }
                             );
                             setSelectedSpot(null);
@@ -431,17 +461,17 @@ function MapScreen() {
                     }}
                 >
                     <MaterialCommunityIcons
-                        name={searchMode === 'pinned' ? "map-marker" : "crosshairs-gps"}
+                        name={searchMode === 'pinned' ? 'map-marker' : 'crosshairs-gps'}
                         size={22}
                         color="#fff"
                     />
                 </Pressable>
             </Animated.View>
 
-            {/* Bottom Sheet - properly positioned above tab bar */}
+            {/* bottom sheet */}
             <MapBottomSheet
                 topOffset={NAVIGATION_HEIGHT}
-                tabBarHeight={TAB_BAR_HEIGHT + insets.bottom}  // Changed from bottomOffset
+                tabBarHeight={TAB_BAR_HEIGHT + insets.bottom}
                 bottomSheetTranslateY={bottomSheetTranslateY}
                 panHandlers={panHandlers}
                 spots={spots}
@@ -451,11 +481,11 @@ function MapScreen() {
                     selectSpot(spot, true);
                     collapseSheet();
                 }}
-                isExpanded={isSheetExpanded}  // Added
-                onToggle={toggleSheet}         // Added
+                isExpanded={isSheetExpanded}
+                onToggle={toggleSheet}
             />
 
-            {/* Flippable card */}
+            {/* flippable card */}
             <FlippableParkingCard
                 visible={flippableCardVisible}
                 spot={flippableCardSpot}

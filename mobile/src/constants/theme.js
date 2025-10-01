@@ -1,6 +1,4 @@
-// =====================================
-// FILE: src/constants/theme.js
-// =====================================
+
 export const PALETTE = {
     vanilla: {
         DEFAULT: '#ece4b7',
@@ -64,16 +62,15 @@ export const PALETTE = {
     },
 };
 
-// Semantic tokens
 export const TOKENS = {
-    bg: PALETTE.vanilla[800],        // app background
-    surface: '#ffffff',              // cards, sheets
+    bg: PALETTE.vanilla[800],
+    surface: '#ffffff',
     surfaceMuted: PALETTE.vanilla[800],
     surfaceRaised: PALETTE.vanilla[900],
     stroke: `${PALETTE.vanilla[600]}`,
     text: PALETTE.bistre.DEFAULT,
     textMuted: '#b8703c',
-    primary: PALETTE.flame.DEFAULT,  // CTAs
+    primary: PALETTE.flame.DEFAULT,
     primaryAlt: PALETTE.flame[300],
     accent: PALETTE.earth_yellow.DEFAULT,
     accentAlt: PALETTE.straw.DEFAULT,

@@ -1,11 +1,7 @@
 /**
- * Formatting utilities for consistent display across the app
- */
-
-/**
- * Format minutes into human-readable duration
- * @param {number} mins - Duration in minutes
- * @returns {string} Formatted duration (e.g., "1h 30min", "45min")
+ * format duration from minutes to "X HR Y MIN"
+ * @param {number} mins - duration in minutes
+ * @returns {string} formatted duration ( e.g., "1h 30min", "45min")
  */
 export const formatTime = (mins) => {
     if (!mins && mins !== 0) return '--:--';
@@ -25,9 +21,9 @@ export const formatTime = (mins) => {
 };
 
 /**
- * Format currency amount
- * @param {number} amount - Amount in dollars
- * @returns {string} Formatted currency (e.g., "$12.50")
+ * format currency amount
+ * @param {number} amount - amount in dollars
+ * @returns {string} formatted currency (e.g., "$12.50")
  */
 export const formatMoney = (amount) => {
     if (!amount || amount <= 0) return '$0.00';
@@ -54,9 +50,9 @@ export const formatEndTime = (date) => {
 };
 
 /**
- * Format date to relative time
- * @param {Date} date - Date object
- * @returns {string} Relative time (e.g., "2 hours ago")
+ * format date to relative time
+ * @param {Date} date - date object
+ * @returns {string} relative time (e.g., "2 hours ago")
  */
 export const formatRelativeTime = (date) => {
     if (!date) return '';
@@ -76,17 +72,17 @@ export const formatRelativeTime = (date) => {
 };
 
 /**
- * Format license plate for display
- * @param {string} plate - Raw plate string
- * @returns {string} Formatted plate (e.g., "ABC-1234")
+ * format license plate for display
+ * @param {string} plate - raw plate string
+ * @returns {string} formatted plate (e.g., "ABC-1234")
  */
 export const formatPlate = (plate) => {
     if (!plate) return '';
 
-    // Remove all non-alphanumeric characters and uppercase
+    // remove all non-alphanumeric characters and uppercase
     const cleaned = plate.replace(/[^A-Z0-9]/gi, '').toUpperCase();
 
-    // Add hyphen after 3 characters if length > 3
+    // add hyphen after 3 characters if length > 3
     if (cleaned.length > 3) {
         return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
     }

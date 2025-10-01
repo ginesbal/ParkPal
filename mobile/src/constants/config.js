@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 
-// Get values from app.config.js extra field
+// get values from app.config.js extra field
 const { apiUrl, googleMapsApiKey, supabaseUrl, supabaseAnonKey } = Constants.expoConfig.extra || {};
 
 export const API_URL = apiUrl || 'http://192.168.1.81:3000';

@@ -1,5 +1,7 @@
+// src/components/ParkingList/ParkingListItem.js
+
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
     Animated,
     Pressable,
@@ -8,8 +10,9 @@ import {
     View,
 } from 'react-native';
 import { PALETTE, TOKENS, alpha } from '../../constants/theme';
+import { debugLogger as logger } from '../../utils/loggers';
 
-// Local config (feel free to move to constants/parking.js later)
+// local config
 const PARKING_CONFIG = {
     on_street: {
         color: PALETTE.flame[600],
@@ -42,44 +45,14 @@ export default function ParkingListItem({
     price,
     onPress,
     onViewOnMap,
-    onOpenDetails,    // kept for API compatibility (not used here)
-    showActions = true, // kept for API compatibility (not used here)
+    onOpenDetails,    // kept for api compatibility (not used here)
+    showActions = true, // kept for api compatibility (not used here)
 }) {
+    // press feedback animation
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const config = PARKING_CONFIG[spot.spot_type] || PARKING_CONFIG.on_street;
 
-    // --- UX: subtle press feedback
-    const handlePressIn = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 0.98,
-            speed: 20,
-            bounciness: 0,
-            useNativeDriver: true,
-        }).start();
-    };
-    const handlePressOut = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 1,
-            speed: 16,
-            bounciness: 0,
-            useNativeDriver: true,
-        }).start();
-    };
-
-    const handleRowPress = () => onPress?.(spot, { stayInList: true });
-    const handleMorePress = (e) => {
-        e.stopPropagation();
-        onViewOnMap?.(spot);
-    };
-
-    // --- Visual: walking-time stripe color
-    const getWalkingColor = (minutes) => {
-        if (minutes <= 2) return PALETTE.flame[300];
-        if (minutes <= 5) return PALETTE.earth_yellow[300];
-        return PALETTE.straw[300];
-    };
-
-    // --- Price formatting (keeps your intent)
+    // simple price formatting
     const formatPrice = (val) => {
         if (!val || val === '0' || val === 0 || val === 'FREE') return 'FREE';
 
@@ -100,6 +73,73 @@ export default function ParkingListItem({
     const isFree = displayPrice === 'FREE';
     const isCheckSigns = displayPrice === 'Check signs';
 
+    // log notable price flags once per render change
+    useEffect(() => {
+        if (isFree) {
+            logger.log('list item price flag', { spotId: spot?.id, price: 'FREE' }, 'DATA_FLAG');
+        } else if (isCheckSigns) {
+            logger.log('list item price flag', { spotId: spot?.id, price: 'Check signs' }, 'DATA_FLAG');
+        }
+    }, [isFree, isCheckSigns, spot?.id]);
+
+    // log low capacity hint
+    const lowCapacity = spot.capacity > 0 && spot.capacity <= 5;
+    useEffect(() => {
+        if (lowCapacity) {
+            logger.log('list item low capacity', { spotId: spot?.id, capacity: spot.capacity }, 'DATA_FLAG');
+        }
+    }, [lowCapacity, spot?.id, spot?.capacity]);
+
+    // press handlers (log user intent)
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.98,
+            speed: 20,
+            bounciness: 0,
+            useNativeDriver: true,
+        }).start();
+    };
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            speed: 16,
+            bounciness: 0,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handleRowPress = () => {
+        logger.log(
+            'list item tap',
+            {
+                spotId: spot?.id,
+                address: spot?.address,
+                distance: spot?.distance,
+                walkingTime: spot?.walkingTime,
+                price: displayPrice,
+            },
+            'UI_EVENT'
+        );
+        onPress?.(spot, { stayInList: true });
+    };
+
+    const handleMorePress = (e) => {
+        e.stopPropagation();
+        logger.log(
+            'list item view on map',
+            { spotId: spot?.id, address: spot?.address },
+            'UI_EVENT'
+        );
+        onViewOnMap?.(spot);
+    };
+
+    // walking-time color ramp
+    const getWalkingColor = (minutes) => {
+        if (minutes <= 2) return PALETTE.flame[300];
+        if (minutes <= 5) return PALETTE.earth_yellow[300];
+        return PALETTE.straw[300];
+    };
+
     return (
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <Pressable
@@ -112,22 +152,22 @@ export default function ParkingListItem({
                 accessibilityLabel={`Parking at ${spot.address}, ${spot.distance} meters away, ${isFree ? 'free' : `price ${displayPrice} per hour`}`}
                 hitSlop={6}
             >
-                {/* Priority stripe (walking time) */}
+                {/* priority stripe (walking time) */}
                 <View
                     style={[styles.priorityStripe, { backgroundColor: getWalkingColor(spot.walkingTime) }]}
                 />
 
-                {/* Main content */}
+                {/* main content */}
                 <View style={styles.content}>
-                    {/* Row: time badge • address/distance • price */}
+                    {/* row: time badge • address/distance • price */}
                     <View style={styles.primaryRow}>
-                        {/* Time */}
+                        {/* time */}
                         <View style={styles.walkingTimeBadge} accessibilityLabel={`${spot.walkingTime} minutes walk`}>
                             <Text style={styles.walkingTimeValue}>{spot.walkingTime}</Text>
                             <Text style={styles.walkingTimeUnit}>MIN</Text>
                         </View>
 
-                        {/* Address + meta */}
+                        {/* address + meta */}
                         <View style={styles.primaryInfo}>
                             <Text style={styles.address} numberOfLines={1}>
                                 {spot.address}
@@ -136,7 +176,7 @@ export default function ParkingListItem({
                             <View style={styles.metaRow}>
                                 <Text style={styles.distance}>{spot.distance}m</Text>
 
-                                {spot.capacity > 0 && spot.capacity <= 5 && (
+                                {lowCapacity && (
                                     <View style={styles.lowCapacityWarning} accessibilityLabel={`${spot.capacity} spots left`}>
                                         <View style={styles.warningDot} />
                                         <Text style={styles.warningText}>{spot.capacity} left</Text>
@@ -145,7 +185,7 @@ export default function ParkingListItem({
                             </View>
                         </View>
 
-                        {/* Price badge */}
+                        {/* price badge */}
                         <View style={[styles.priceContainer, isFree && styles.freeContainer]}>
                             {isFree ? (
                                 <>
@@ -160,31 +200,25 @@ export default function ParkingListItem({
                             ) : (
                                 <>
                                     <Text
-                                        style={[
-                                            styles.priceValue,
-                                            isCheckSigns && styles.priceNote, // smaller for "Check signs"
-                                        ]}
+                                        style={[styles.priceValue, isCheckSigns && styles.priceNote]}
                                         numberOfLines={1}
                                     >
                                         {isCheckSigns ? displayPrice : displayPrice.replace('/hr', '')}
                                     </Text>
-                                    {!isCheckSigns && (
-                                        <Text style={styles.priceUnit}>/HR</Text>
-                                    )}
+                                    {!isCheckSigns && <Text style={styles.priceUnit}>/HR</Text>}
                                 </>
                             )}
                         </View>
                     </View>
 
-                    {/* Type indicator */}
+                    {/* type indicator */}
                     <View style={styles.typeIndicator}>
                         <MaterialCommunityIcons name={config.icon} size={12} color={alpha(config.color, 0.6)} />
                         <Text style={styles.typeText}>{config.label}</Text>
                     </View>
                 </View>
 
-                {/* Optional: more button (map/details) */}
-                {/* If you want a trailing action, uncomment:
+                {/* optional: trailing action button
         <Pressable onPress={handleMorePress} hitSlop={8} style={styles.moreBtn}>
           <MaterialCommunityIcons name="dots-horizontal" size={18} color={alpha(TOKENS.text, 0.5)} />
         </Pressable>
@@ -203,7 +237,7 @@ const styles = StyleSheet.create({
         marginVertical: 2,
         borderRadius: 14,
         overflow: 'hidden',
-        // Subtle elevation
+        // subtle elevation
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.06,
@@ -237,7 +271,6 @@ const styles = StyleSheet.create({
         color: PALETTE.bistre[700],
         lineHeight: 24,
         letterSpacing: 0.2,
-
     },
     walkingTimeUnit: {
         fontSize: 10,
@@ -320,7 +353,7 @@ const styles = StyleSheet.create({
         color: PALETTE.straw[200],
         letterSpacing: 0.6,
     },
-    // Smaller, lighter style for "Check signs"
+    // smaller style for "check signs"
     priceNote: {
         fontSize: 12,
         fontWeight: '700',
@@ -344,7 +377,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
 
-    // Optional "more" button (uncomment in JSX if needed)
+    // optional trailing action
     moreBtn: {
         position: 'absolute',
         right: 6,

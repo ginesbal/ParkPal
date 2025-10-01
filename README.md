@@ -1,345 +1,236 @@
-# ParkPal — Smart Parking Finder for Calgary
+# ParkPal - Smart Parking Finder for Downtown Calgary
 
-A focused React Native + Supabase app that helps drivers find on‑street and lot parking in downtown Calgary. It combines live data with lightweight predictions and clear walking‑time estimates.
+A full-stack mobile application that helps users find and manage parking spots in downtown Calgary, featuring parking availability, interactive maps, and session management.
 
-> Replace `docs/screenshot.png` with your own.
+## Project Overview
 
-![ParkPal Demo](docs/screenshot.png)
+ParkPal addresses the urban challenge of finding parking in downtown Calgary by providing:
+-**Real-time parking spot discovery** with distance-based search
+-**Interactive map interface** with custom markers and filtering
+-**Smart session management** for tracking parking duration and costs
+-**Location-based search** with pin-drop functionality for custom areas
 
----
+This project showcases proficiency in mobile development, backend API design, database management, and third-party service integration.
 
-## Table of Contents
+## Tech Stack
 
-- [Quick Start](#quick-start)
-- [Requirements](#requirements)
-- [Project Structure](#project-structure)
-- [Backend Setup](#backend-setup)
-- [Mobile App Setup](#mobile-app-setup)
-- [Configuration](#configuration)
-- [API](#api)
-- [Database](#database)
-- [Data Sources](#data-sources)
-- [Scripts](#scripts)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
+### Frontend (Mobile)
+-**React Native** with Expo SDK 54
+-**React Navigation** - Tab and stack navigation
+-**React Native Maps** - Google Maps integration
+-**Expo Location** - GPS and geolocation services
+-**AsyncStorage** - Local data persistence
+-**Custom animations** with React Native Animated API
 
----
+### Backend
+-**Node.js** with Express.js framework
+-**PostgreSQL** - Primary database via Supabase
+-**Redis** - Optional caching layer
+-**RESTful API** architecture
+-**CORS-enabled** for cross-origin requests
 
-## Quick Start
+### Services & APIs
+-**Supabase** - Database hosting and real-time features
+-**Google Maps API** - Map rendering and geocoding
+-**Google Places API** - Location search and autocomplete
+-**PostGIS** - Spatial queries for location-based searches
 
-```bash
-# 1) Clone
-git clone https://github.com/yourusername/parkpal.git
-cd parkpal
+## Features
 
-# 2) Backend
-  cd backend
-  node server.js
+### Core Functionality
 
-cd backend
-npm install
-cp .env.example .env
-# Fill in .env (see Configuration below)
-npm run setup:db      # creates tables / types
-npm run load:data     # (optional) seed initial parking data
-npm start             # http://localhost:3000
+#### **Smart Location Search**
+-Current location detection with GPS
+-Pin-drop functionality for custom search areas
+-Radius-based search (150m - 1000m)
+-Google Places autocomplete integration
 
-# 3) Mobile (new terminal)
-cd ../mobile
-npm install
-# Edit src/constants/config.js with your API_URL
-npx expo start --clear      # press i (iOS) or a (Android)
-```
+#### **Interactive Map View**
+-Real-time parking spot markers
+-Custom clustering for dense areas
+-Flippable cards with detailed spot information
+-Dynamic map padding for UI elements
 
-## Requirements
+#### **Home Screen Dashboard**
+-List view of nearby parking spots
+-Quick filtering by type (street/lot/free)
+-Pull-to-refresh functionality
+-Distance and walking time calculations
 
-- Node.js ≥ 20
-- npm or yarn
-- Expo CLI (`npx expo` works, global install optional)
-- Supabase project (free tier is fine)
-- iOS Simulator (macOS) or Android Studio / physical device with Expo Go
+#### **Session Management**
+-Start/end parking sessions
+-Time tracking with countdown timer
+-Cost calculation based on zone rates
+-Session history (planned feature)
+
+### Technical Highlights
+
+- **Optimized Performance**: Debounced search, lazy loading, and efficient re-renders
+- **Error Handling**: Comprehensive error boundaries, fallback UI and thorough logs
+- **Responsive Design**: Adaptive layouts for various screen sizes
+- **State Management**: Custom hooks for business logic separation
+- **Code Organization**: Modular component architecture with clear separation of concerns
 
 ## Project Structure
 
-# Database / Supabase
+PARKPAL/
+├── mobile/                    # React Native app
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   ├── screens/         # Main app screens
+│   │   │   ├── HomeScreen/  # Parking list view
+│   │   │   ├── MapScreen/   # Interactive map
+│   │   │   └── SessionScreen/ # Parking session management
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── services/        # API integration
+│   │   ├── constants/       # App configuration
+│   │   └── utils/           # Helper functions
+│   ├── App.js               # App entry point
+│   └── package.json         # Dependencies
+│
+├── backend/                 # Node.js server
+│   ├── config/              # Database & app config
+│   ├── services/            # Business logic
+│   ├── lib/                 # Utilities
+│   ├── scripts/             # Setup & migration scripts
+│   ├── server.js            # Express server
+│   └── package.json         # Dependencies
+│
+└── README.md
 
-SUPABASE_URL=your-project-url
-SUPABASE_SERVICE_KEY=your-service-role-key
-DATABASE_URL=postgresql://postgres:password@host:5432/postgres
+## Installation & Setup
 
-# External APIs (optional)
+### Prerequisites
+-Node.js 18+ and npm/yarn
+-Expo CLI (`npm install -g expo-cli`)
+-PostgreSQL database (or Supabase account)
+-Google Maps API key
+-iOS Simulator (Mac) or Android Emulator
 
-CALGARY_API_TOKEN=
-GOOGLE_MAPS_API_KEY=
+### Backend Setup
 
-# Server
-
-PORT=3000
-NODE_ENV=development
-
-```
-parkpal/
-├─ backend/                # Express (or Fastify) + Supabase client
-│  ├─ src/
-│  │  ├─ index.js
-│  │  ├─ routes/
-│  │  │  └─ parking.js
-│  │  └─ db/
-│  │     ├─ migrations/
-│  │     │  └─ 001_init.sql
-│  │     └─ seeds/
-│  │        └─ parking_seed.sql
-│  ├─ package.json
-│  └─ .env.example
-├─ mobile/                 # React Native (Expo)
-│  ├─ src/
-│  │  ├─ screens/
-│  │  ├─ components/
-│  │  └─ constants/config.js
-│  ├─ app.json
-│  └─ package.json
-└─ docs/
-   └─ screenshot.png
-```
-
-## Backend Setup
-
-1) **Create a Supabase project** → copy the URL and service key.
-2) **Configure `.env`** in `backend/`:
-
-```env
-# Database / Supabase
-SUPABASE_URL=your-project-url
-SUPABASE_SERVICE_KEY=your-service-role-key
-DATABASE_URL=postgresql://postgres:password@host:5432/postgres
-
-# External APIs (optional)
-CALGARY_API_TOKEN=
-GOOGLE_MAPS_API_KEY=
-
-# Server
-PORT=3000
-NODE_ENV=development
-```
-
-3) **Initialize DB**
-
+1.**Clone and navigate to backend:**
 ```bash
-npm run setup:db   # runs SQL in src/db/migrations
-npm run load:data  # optional seed
+> cd backend
+> npm install
+  or
+> node server.js
 ```
 
-4) **Run**
-
+2.**Configure environment variables:**
 ```bash
-npm start          # http://localhost:3000
+cp .env.example .env
+# Edit .env with credentials:
+# - DATABASE_URL
+# - SUPABASE_URL & SUPABASE_SERVICE_KEY
+# - GOOGLE_MAPS_API_KEY
 ```
 
-## Mobile App Setup
-
-1) Install deps and configure:
-
+3.**Initialize database:**
 ```bash
-cd mobile
-npm install
+npm run setup  # Creates tables and seeds data
 ```
 
-2) `src/constants/config.js`:
-
-```javascript
-export const API_URL = "http://localhost:3000"; // or your deployed backend
-export const MAP_API_KEY = "your-google-maps-key";
-```
-
-3) Start Expo:
-
+4.**Start server:**
 ```bash
-npx expo start
-# i → iOS simulator, a → Android emulator, or scan QR with Expo Go
+npm run dev  # Development with nodemon
+# or
+npm start    # Production
 ```
 
-## Configuration
+### Mobile App Setup
 
-- **Local dev**: keep `API_URL` pointing to `http://localhost:3000`.
-- **Device testing on the same network**: use your computer’s LAN IP, e.g. `http://192.168.0.10:3000`.
-- **Production**: set a hosted URL and disable dev toggles.
+1.**Navigate to mobile directory:**
+```bash
+> cd mobile
+> npm install
+or
+> npx expo start -c
+
+```
+
+2.**Configure environment:**
+Create `.env` file:
+```
+API_URL=http://localhost:3000
+GOOGLE_MAPS_API_KEY=api_key_here
+```
+
+3.**Start Expo:**
+```bash
+npm start
+# Then press 'i' for iOS or 'a' for Android
+```
+
+## API Endpoints
+
+### Parking Spots
+-`GET /api/parking/nearby` - Find spots within radius
+  -Query params: `lat`, `lng`, `radius`, `type`, `free`
+-`GET /api/parking/spot/:id` - Get spot details
+
+### Places Integration
+-`GET /api/places/autocomplete` - Search suggestions
+-`GET /api/places/details` - Place information
+
+### Session Management
+-`POST /api/parking/checkin` - Start parking session
+-`POST /api/parking/checkout` - End session
+
+### Health & Testing
+-`GET /health` - Server health check
+-`GET /api/test-db` - Database connection test
+
+## Design Decisions
+
+### Architecture Choices
+
+**Modular Component Structure**: Each screen has its own directory with co-located styles, components, and logic for better maintainability.
+
+**Custom Hooks Pattern**: Business logic is extracted into reusable hooks (`useLocationManager`, `useParkingSpots`, `useSessionManager`) for separation of concerns.
+
+**Optimistic UI Updates**: The app updates the UI immediately while API calls happen in the background, providing a snappy user experience.
+
+**Progressive Enhancement**: Core features work offline with cached data, with real-time updates when connected.
+
+### Performance Optimizations
+
+- **Spatial Indexing**: PostgreSQL with PostGIS for efficient location queries
+- **Request Debouncing**: Prevents excessive API calls during user interaction
+- **Lazy Loading**: Components and data load on-demand
+- **Memoization**: Heavy computations cached with `useMemo`
+
+
+## Contributing
+
+This is a portfolio project, but feedback and suggestions are welcome! Feel free to open an issue or submit a pull request.
+
+## Project Attribution
+
+This project was developed as a Capstone Project for SAIT  in collaboration with five team members.
+
+## My Contributions
+
+- **UI/UX Redesign:** Completely revamped the user interface with modern design patterns
+- **Map Screen Architecture:** Redesigned and implemented the interactive map functionality with flippable cards and dynamic clustering
+- **Custom Hooks Development:** Created reusable hooks for location management, parking spots, and session handling
+- **Performance Optimization:** Implemented debouncing, memoization, and lazy loading strategies
+- **Component Refactoring:** Restructured the component architecture for better maintainability
+- **API Integration:** Enhanced backend endpoints for efficient spatial queries
+- **Database:** Used a different database development platform (supabase)
+
+## Original Team
+
+- Initial project structure and concept developed with my Capstone Project Team.
+- Base functionality created collaboratively during Year 2 Semester 2 of my program.
+
+## Author
+
+**[Ehrl Balquin]**
+
+**LinkedIn:** [https://www.linkedin.com/in/ehrlbalquin/]
+**GitHub:** [https://github.com/ginesbal]
 
 ---
 
-## API
-
-**Base URL:** `http://localhost:3000/api`
-
-### Find Nearby Parking
-
-**Request**
-
-```http
-GET /api/parking/nearby?lat=51.0447&lng=-114.0719&radius=500
-```
-
-**Response**
-
-```json
-{
-  "success": true,
-  "count": 25,
-  "data": [
-    {
-      "id": "uuid",
-      "address": "123 Centre St",
-      "distance": 120,           // meters
-      "walkingTime": 2,          // minutes
-      "available": 3,
-      "capacity": 5,
-      "pricePerHour": 2.0
-    }
-  ]
-}
-```
-
-### Check In
-
-```http
-POST /api/parking/checkin
-Content-Type: application/json
-
-{
-  "deviceId": "device-uuid",
-  "spotId": "spot-uuid",
-  "duration": 120
-}
-```
-
-### Check Out
-
-```http
-POST /api/parking/checkout
-Content-Type: application/json
-
-{
-  "deviceId": "device-uuid",
-  "checkInId": "checkin-uuid"
-}
-```
-
-> Tip: add an `Authorization` header if you later secure endpoints.
-
----
-
-## Database
-
-Minimal schema in Postgres (Supabase):
-
-```sql
--- parking_spots
-create table if not exists parking_spots (
-  id uuid primary key default gen_random_uuid(),
-  global_id text,
-  spot_type text check (spot_type in ('on_street','lot','residential')),
-  address text,
-  location geography(point, 4326),
-  price_per_hour numeric,
-  capacity int,
-  metadata jsonb default '{}'
-);
-
--- check_ins
-create table if not exists check_ins (
-  id uuid primary key default gen_random_uuid(),
-  spot_id uuid references parking_spots(id) on delete cascade,
-  device_id text not null,
-  checked_in_at timestamptz default now(),
-  checked_out_at timestamptz,
-  status text check (status in ('active','completed','cancelled')) default 'active'
-);
-
-create index if not exists idx_parking_spots_location on parking_spots using gist (location);
-```
-
----
-
-## Data Sources
-
-- **Calgary Open Data Portal** — on/off‑street zones, restrictions, rates.
-- (Optional) **Google Maps** — reverse‑geocoding and walking time fallbacks when city data is missing.
-
-> Keep a small caching layer; city APIs can rate‑limit.
-
----
-
-## Scripts
-
-From `backend/`:
-
-```bash
-npm run setup:db   # apply migrations
-npm run load:data  # seed initial data
-npm start          # start API
-npm test           # backend tests (if configured)
-```
-
-From `mobile/`:
-
-```bash
-npx expo start     # dev server
-npm test           # mobile tests (if configured)
-```
-
----
-
-## Testing
-
-```bash
-# Backend
-cd backend
-npm test
-
-# Mobile
-cd ../mobile
-npm test
-```
-
----
-
-## Deployment
-
-### Backend (Railway/Render/etc.)
-
-```bash
-# Railway example
-npm i -g @railway/cli
-railway login
-railway init
-railway up
-```
-
-Set env vars in your host dashboard. Expose `PORT`.
-
-### Mobile (Expo EAS)
-
-```bash
-# build
-npx expo install eas-cli
-npx eas build --platform ios
-npx eas build --platform android
-
-# submit
-npx eas submit --platform ios
-npx eas submit --platform android
-```
-
----
-
-## Troubleshooting
-
-- **Expo app can’t reach backend**: use your machine’s LAN IP instead of `localhost`.
-- **Hydration/Metro cache issues**: stop dev servers, clear caches (`expo start -c`), reinstall deps.
-- **Supabase auth/permissions**: ensure policies allow your reads/writes or use RLS with service key server‑side only.
-
----
-
-## License
-
-MIT (or your choice).
+*This project showcases proficiency in mobile development, API design, database management, and modern JavaScript ecosystems.*

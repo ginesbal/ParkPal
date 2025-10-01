@@ -3,34 +3,30 @@ import { Alert, Animated } from 'react-native';
 import { parkingAPI } from '../services/api';
 import { calculateQuickInfo } from '../utils/parkingHelpers';
 
-/**
- * Custom hook for managing parking spots data and related state
- * Handles API calls, animations, and data transformations
- */
 export const useParkingSpots = ({ location, activeFilter, searchRadius }) => {
-    // Core state
+    // core state
     const [spots, setSpots] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(null);
     
-    // Animations
+    // animations
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(12)).current;
     
-    // Calculate quick info stats
+    // calculate quick info stats
     const quickInfo = useMemo(() => {
         return calculateQuickInfo(spots);
     }, [spots]);
     
-    // Load nearby spots
+    // load nearby spots
     const loadNearbySpots = useCallback(async () => {
         if (!location) return;
         
         try {
             setLoading(true);
             
-            // Animate in content
+            // animate in content
             Animated.parallel([
                 Animated.timing(fadeAnim, { 
                     toValue: 1, 
@@ -43,13 +39,13 @@ export const useParkingSpots = ({ location, activeFilter, searchRadius }) => {
                     useNativeDriver: true 
                 })
             ]).start();
-            
-            // Build API parameters
-            const params = activeFilter !== 'all' 
-                ? { type: activeFilter } 
+
+            // build API parameters
+            const params = activeFilter !== 'all'
+                ? { type: activeFilter }
                 : {};
-            
-            // Fetch spots from API
+
+            // fetch spots from API
             const response = await parkingAPI.findNearbySpots(
                 location.latitude,
                 location.longitude,
@@ -72,13 +68,13 @@ export const useParkingSpots = ({ location, activeFilter, searchRadius }) => {
         }
     }, [location, activeFilter, searchRadius, fadeAnim, slideAnim]);
     
-    // Handle refresh
+    // handle refresh
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         loadNearbySpots();
     }, [loadNearbySpots]);
     
-    // Load spots when dependencies change
+    // load spots when dependencies change
     useEffect(() => {
         if (location) {
             loadNearbySpots();

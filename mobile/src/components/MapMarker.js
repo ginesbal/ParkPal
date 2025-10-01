@@ -1,6 +1,5 @@
-// =====================================
-// FILE: src/components/MapMarker.jsx
-// =====================================
+// src/components/MapMarker.js
+
 import React, { memo, useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Marker } from 'react-native-maps';

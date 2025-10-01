@@ -1,6 +1,4 @@
-// =====================================
-// FILE: src/components/spotDetailsCard.js
-// =====================================
+// src/components/spotDetailsCard.js
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
@@ -88,7 +86,7 @@ export default function SpotDetailsCard({ visible, spot, details, loading, error
     return () => translateY.removeListener(id);
   }, [translateY]);
 
-  // Precompute pricing regardless of visibility to keep hook order stable
+  // precompute pricing regardless of visibility to keep hook order stable
   const pricing = useMemo(
     () => parseHtmlZoneRate(details?.html_zone_rate || spot?.zone_info?.html_zone_rate),
     [details, spot]
@@ -103,7 +101,6 @@ export default function SpotDetailsCard({ visible, spot, details, loading, error
       translateY.setValue(HIDDEN_Y);
       setSnap('peek');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const animateTo = (to, duration = 200) => {
@@ -142,13 +139,13 @@ export default function SpotDetailsCard({ visible, spot, details, loading, error
         const finalY = clamp(dragStartY.current + g.dy, EXPANDED_Y, HIDDEN_Y);
         const v = g.vy;
 
-        // Dismiss if dragged down fast/far from peek
+        // dismiss logic
         const dismissThreshold = PEEK_Y + 80;
         if (finalY > dismissThreshold || v > 1) {
           return closeWithAnimation();
         }
 
-        // Snap logic
+        // snap logic
         const mid = (PEEK_Y + EXPANDED_Y) / 2;
         if (finalY <= mid || v < -0.5) {
           setSnap('expanded');
@@ -161,7 +158,7 @@ export default function SpotDetailsCard({ visible, spot, details, loading, error
     })
   ).current;
 
-  // After all hooks are defined, it's safe to conditionally render
+  // after all hooks are defined, it's safe to conditionally render
   if (!visible) return null;
 
   const openInMaps = () => {

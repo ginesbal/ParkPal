@@ -8,7 +8,7 @@ export default function usePlacesAutocomplete({
   minChars = 2,
   debounceMs = 250,
   language = 'en',
-  components = 'country:ca', // tighten as needed
+  components = 'country:ca',
 }) {
   const [input, setInput] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -66,7 +66,9 @@ export default function usePlacesAutocomplete({
           fields: 'place_id,geometry/location,formatted_address,name,types'
         }
       });
-      setSessionToken(newSessionToken()); // close session after details
+
+      // reset session token after a successful selection
+      setSessionToken(newSessionToken());
       armSessionReset();
       return res?.result || null;
     } catch (e) {
