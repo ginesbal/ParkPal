@@ -5,27 +5,32 @@ import { PALETTE, TOKENS } from '../../../constants/theme';
 import { styles } from '../styles';
 
 export default function MapHeader({
-    insetsTop,
-    NAVIGATION_HEIGHT,
-    isSearchFocused, setIsSearchFocused,
-    pinnedLocation, setPinnedLocation,
-    showPinInstructions, setShowPinInstructions,
-    searchMode, setSearchMode,
-    filterType, setFilterType,
-    searchRadius, setSearchRadius,
+    shouldDismissSearch,
+    isSearchFocused,
+    setIsSearchFocused,
+    pinnedLocation,
+    showPinInstructions,
+    setShowPinInstructions,
+    searchMode,
+    setSearchMode,
+    filterType,
+    setFilterType,
+    searchRadius,
+    setSearchRadius,
     onPlaceSelected,
 }) {
     return (
         <>
-            {/* Search Section */}
+            {/* search section */}
             <View style={styles.searchSection}>
                 <PlacesSearchBar
+                    shouldDismiss={shouldDismissSearch}
                     onPlaceSelected={onPlaceSelected}
                     onFocusChange={setIsSearchFocused}
-                    containerStyle={styles.searchContainer}
+                    style={styles.searchContainer}
                 />
 
-                {/* Quick Actions - Only show when search not focused */}
+                {/* quick actions - hidden when search is focused */}
                 {!isSearchFocused && (
                     <View style={styles.quickActions}>
                         {pinnedLocation ? (
@@ -45,19 +50,29 @@ export default function MapHeader({
                             </Pressable>
                         ) : (
                             <Pressable
-                                style={({ pressed }) => [styles.quickAction, pressed && styles.quickActionPressed]}
+                                style={({ pressed }) => [
+                                    styles.quickAction,
+                                    pressed && styles.quickActionPressed
+                                ]}
                                 onPress={() => setShowPinInstructions(!showPinInstructions)}
                             >
-                                <MaterialCommunityIcons name="map-marker-plus" size={18} color={TOKENS.text} />
+                                <MaterialCommunityIcons
+                                    name="map-marker-plus"
+                                    size={18}
+                                    color={TOKENS.text}
+                                />
                             </Pressable>
                         )}
                     </View>
                 )}
             </View>
 
-            {/* Filter Pills - Horizontally scrollable */}
+            {/* filter pills */}
             <Animated.View
-                style={[styles.filterSection, { opacity: isSearchFocused ? 0 : 1 }]}
+                style={[
+                    styles.filterSection,
+                    { opacity: isSearchFocused ? 0.3 : 1 }
+                ]}
                 pointerEvents={isSearchFocused ? 'none' : 'auto'}
             >
                 <ScrollView
@@ -65,6 +80,7 @@ export default function MapHeader({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.filterScroll}
                 >
+                    {/* parking type filters */}
                     {[
                         { type: 'all', icon: 'apps', label: 'All' },
                         { type: 'on_street', icon: 'car', label: 'Street' },
@@ -86,13 +102,16 @@ export default function MapHeader({
                                 size={14}
                                 color={filterType === f.type ? '#fff' : TOKENS.text}
                             />
-                            <Text style={[styles.filterText, filterType === f.type && styles.filterTextActive]}>
+                            <Text style={[
+                                styles.filterText,
+                                filterType === f.type && styles.filterTextActive
+                            ]}>
                                 {f.label}
                             </Text>
                         </Pressable>
                     ))}
 
-                    {/* Distance selector integrated into filter row */}
+                    {/* distance radius filters */}
                     <View style={styles.distanceDivider} />
                     {[150, 300, 500].map(r => (
                         <Pressable

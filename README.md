@@ -15,6 +15,7 @@ This project showcases proficiency in mobile development, backend API design, da
 ## Tech Stack
 
 ### Frontend (Mobile)
+
 -**React Native** with Expo SDK 54
 -**React Navigation** - Tab and stack navigation
 -**React Native Maps** - Google Maps integration
@@ -23,6 +24,7 @@ This project showcases proficiency in mobile development, backend API design, da
 -**Custom animations** with React Native Animated API
 
 ### Backend
+
 -**Node.js** with Express.js framework
 -**PostgreSQL** - Primary database via Supabase
 -**Redis** - Optional caching layer
@@ -30,6 +32,7 @@ This project showcases proficiency in mobile development, backend API design, da
 -**CORS-enabled** for cross-origin requests
 
 ### Services & APIs
+
 -**Supabase** - Database hosting and real-time features
 -**Google Maps API** - Map rendering and geocoding
 -**Google Places API** - Location search and autocomplete
@@ -40,24 +43,28 @@ This project showcases proficiency in mobile development, backend API design, da
 ### Core Functionality
 
 #### **Smart Location Search**
+
 -Current location detection with GPS
 -Pin-drop functionality for custom search areas
 -Radius-based search (150m - 1000m)
 -Google Places autocomplete integration
 
 #### **Interactive Map View**
+
 -Real-time parking spot markers
 -Custom clustering for dense areas
 -Flippable cards with detailed spot information
 -Dynamic map padding for UI elements
 
 #### **Home Screen Dashboard**
+
 -List view of nearby parking spots
 -Quick filtering by type (street/lot/free)
 -Pull-to-refresh functionality
 -Distance and walking time calculations
 
 #### **Session Management**
+
 -Start/end parking sessions
 -Time tracking with countdown timer
 -Cost calculation based on zone rates
@@ -101,6 +108,7 @@ PARKPAL/
 ## Installation & Setup
 
 ### Prerequisites
+
 -Node.js 18+ and npm/yarn
 -Expo CLI (`npm install -g expo-cli`)
 -PostgreSQL database (or Supabase account)
@@ -110,6 +118,7 @@ PARKPAL/
 ### Backend Setup
 
 1.**Clone and navigate to backend:**
+
 ```bash
 > cd backend
 > npm install
@@ -118,6 +127,7 @@ PARKPAL/
 ```
 
 2.**Configure environment variables:**
+
 ```bash
 cp .env.example .env
 # Edit .env with credentials:
@@ -127,11 +137,13 @@ cp .env.example .env
 ```
 
 3.**Initialize database:**
+
 ```bash
 npm run setup  # Creates tables and seeds data
 ```
 
 4.**Start server:**
+
 ```bash
 npm run dev  # Development with nodemon
 # or
@@ -141,6 +153,7 @@ npm start    # Production
 ### Mobile App Setup
 
 1.**Navigate to mobile directory:**
+
 ```bash
 > cd mobile
 > npm install
@@ -151,12 +164,14 @@ or
 
 2.**Configure environment:**
 Create `.env` file:
+
 ```
 API_URL=http://localhost:3000
 GOOGLE_MAPS_API_KEY=api_key_here
 ```
 
 3.**Start Expo:**
+
 ```bash
 npm start
 # Then press 'i' for iOS or 'a' for Android
@@ -165,19 +180,23 @@ npm start
 ## API Endpoints
 
 ### Parking Spots
+
 -`GET /api/parking/nearby` - Find spots within radius
   -Query params: `lat`, `lng`, `radius`, `type`, `free`
 -`GET /api/parking/spot/:id` - Get spot details
 
 ### Places Integration
+
 -`GET /api/places/autocomplete` - Search suggestions
 -`GET /api/places/details` - Place information
 
 ### Session Management
+
 -`POST /api/parking/checkin` - Start parking session
 -`POST /api/parking/checkout` - End session
 
 ### Health & Testing
+
 -`GET /health` - Server health check
 -`GET /api/test-db` - Database connection test
 
@@ -199,7 +218,6 @@ npm start
 - **Request Debouncing**: Prevents excessive API calls during user interaction
 - **Lazy Loading**: Components and data load on-demand
 - **Memoization**: Heavy computations cached with `useMemo`
-
 
 ## Contributing
 

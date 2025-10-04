@@ -1,5 +1,3 @@
-// src/screens/MapScreen/index.js
-
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
@@ -99,6 +97,7 @@ function MapScreen() {
     const [searchRadius, setSearchRadius] = useState(150);
     const [selectedSpot, setSelectedSpot] = useState(null);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [shouldDismissSearch, setShouldDismissSearch] = useState(false);
 
     // pin state
     const [pinnedLocation, setPinnedLocation] = useState(null);
@@ -156,7 +155,6 @@ function MapScreen() {
     // trigger search when prerequisites change
     useEffect(() => {
         if (userLocation || pinnedLocation) searchArea();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userLocation, filterType, searchRadius, searchMode, pinnedLocation]);
 
     const handleMapInteraction = useCallback(() => {
@@ -323,6 +321,7 @@ function MapScreen() {
             {/* header */}
             <View style={dynamicStyles.topNavigation}>
                 <MapHeader
+                    shouldDismissSearch={shouldDismissSearch}
                     insetsTop={insets.top}
                     NAVIGATION_HEIGHT={NAVIGATION_HEIGHT}
                     isSearchFocused={isSearchFocused}
@@ -382,6 +381,11 @@ function MapScreen() {
                     setFlippableCardVisible(false);
                 }}
                 onPress={() => {
+                    if (isSearchFocused) {
+                        setShouldDismissSearch(true);
+                        setTimeout(() => setShouldDismissSearch(false), 100);
+                    }
+                    
                     setSelectedSpot(null);
                     setFlippableCardVisible(false);
                     if (isSheetExpanded) {
@@ -497,6 +501,8 @@ function MapScreen() {
                 onNavigate={() => onNavigate(flippableCardSpot)}
             />
         </View>
+
+
     );
 }
 

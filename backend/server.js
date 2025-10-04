@@ -13,11 +13,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ---- logging (pretty, multi-line; writes to backend/utils/loggers/server-activity.log) ----
+// ---- logging configuration ----
 const LOG_DIR = process.env.LOG_DIR || path.resolve(__dirname, '../mobile/src/utils/loggers');
 const LOG_FILE = process.env.LOG_FILE || path.join(LOG_DIR, 'server-activity.log');
 const WRAP_COL = 120;
-const PRETTY = process.env.LOG_PRETTY !== 'false'; // set to "false" for single-line json
+const PRETTY = process.env.LOG_PRETTY !== 'false';
 
 let logDirReady = false;
 async function ensureLogDir() {
@@ -64,8 +64,72 @@ function normalize(val, seen = new WeakSet()) {
   try { return String(val); } catch { return '[Unserializable]'; }
 }
 
+// console logging with colors and readable format for students
+function consoleLog(event, data = {}, level = 'info') {
+  const timestamp = new Date().toLocaleTimeString();
+  
+  // color codes for terminal output
+  const colors = {
+    reset: '\x1b[0m',
+    bright: '\x1b[1m',
+    dim: '\x1b[2m',
+    cyan: '\x1b[36m',
+    green: '\x1b[32m',
+    yellow: '\x1b[33m',
+    red: '\x1b[31m',
+    blue: '\x1b[34m',
+    magenta: '\x1b[35m',
+  };
+
+  // choose color based on level and event type
+  let color = colors.cyan;
+  let prefix = 'INFO';
+  
+  if (level === 'error') {
+    color = colors.red;
+    prefix = 'ERROR';
+  } else if (event.includes('http_request')) {
+    color = colors.blue;
+    prefix = 'REQUEST';
+  } else if (event.includes('http_response')) {
+    color = colors.green;
+    prefix = 'RESPONSE';
+  } else if (event.includes('query')) {
+    color = colors.magenta;
+    prefix = 'DATABASE';
+  } else if (event.includes('places')) {
+    color = colors.yellow;
+    prefix = 'GOOGLE API';
+  }
+
+  // format the log message for readability
+  console.log(`${colors.dim}[${timestamp}]${colors.reset} ${color}${prefix}${colors.reset} ${event}`);
+  
+  // only show relevant data fields to keep it clean
+  const relevantData = { ...data };
+  delete relevantData.id; // request id is noise for students
+  
+  if (Object.keys(relevantData).length > 0) {
+    // format data on separate lines with indentation
+    Object.entries(relevantData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        const displayValue = typeof value === 'object' 
+          ? JSON.stringify(value, null, 2).split('\n').join('\n    ')
+          : value;
+        console.log(`  ${colors.dim}${key}:${colors.reset} ${displayValue}`);
+      }
+    });
+  }
+  console.log(''); // blank line for readability
+}
+
+// unified logging function - writes to both file and console
 async function jlog(event, data = {}, level = 'info') {
   try {
+    // write to console for immediate feedback
+    consoleLog(event, data, level);
+    
+    // write to file for permanent record
     const payload = {
       t: new Date().toISOString(),
       level,
@@ -93,7 +157,6 @@ app.use((req, res, next) => {
   const start = Date.now();
 
   jlog('http_request', {
-    id: req.reqId,
     method: req.method,
     path: req.path,
     query: Object.keys(req.query).length ? req.query : undefined,
@@ -101,48 +164,46 @@ app.use((req, res, next) => {
 
   res.on('finish', () => {
     jlog('http_response', {
-      id: req.reqId,
       status: res.statusCode,
       durationMs: Date.now() - start,
-      contentLength: res.getHeader('content-length') || null,
     });
   });
 
   next();
 });
 
-// ---- db ----
+// ---- database connection ----
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
-// ---- supabase (placeholder) ----
+// ---- supabase client (for future features) ----
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// ---- health ----
+// ---- health check endpoint ----
 app.get('/health', async (req, res) => {
   try {
     await pool.query('SELECT 1');
-    jlog('health_ok', { id: req.reqId });
+    jlog('health_check_ok');
     res.json({ status: 'healthy', message: 'Database connected' });
   } catch (error) {
-    jlog('health_fail', { id: req.reqId, error: error.message }, 'error');
+    jlog('health_check_failed', { error: error.message }, 'error');
     res.status(503).json({ status: 'unhealthy', error: error.message });
   }
 });
 
-// ---- nearby search ----
+// ---- find nearby parking spots ----
 app.get('/api/parking/nearby', async (req, res) => {
   const started = Date.now();
   try {
     const { lat, lng, radius = 500, type, free } = req.query;
 
     if (!lat || !lng) {
-      jlog('nearby_missing_coords', { id: req.reqId });
+      jlog('nearby_search_missing_coordinates', { received: req.query });
       return res.status(400).json({ error: 'lat and lng required' });
     }
 
@@ -150,7 +211,7 @@ app.get('/api/parking/nearby', async (req, res) => {
     const params = [];
     let p = 1;
 
-    // st_dwithin(location, makepoint(lng,lat), radius)
+    // build spatial query - find spots within radius of given coordinates
     where.push(`ST_DWithin(location, ST_MakePoint($${p + 1}, $${p})::geography, $${p + 2})`);
     params.push(lat, lng, radius);
     p += 3;
@@ -208,15 +269,13 @@ app.get('/api/parking/nearby', async (req, res) => {
     const result = await pool.query(sql, params);
     const ms = Date.now() - started;
 
-    jlog('nearby_query_done', {
-      id: req.reqId,
-      lat: Number(lat),
-      lng: Number(lng),
-      radius: Number(radius),
+    jlog('nearby_search_completed', {
+      coordinates: `${lat}, ${lng}`,
+      radius: `${radius}m`,
       type: type || 'all',
-      free: free === 'true',
-      count: result.rows.length,
-      ms,
+      freeOnly: free === 'true',
+      spotsFound: result.rows.length,
+      queryTimeMs: ms,
     });
 
     res.json({
@@ -277,7 +336,7 @@ app.get('/api/parking/nearby', async (req, res) => {
       })),
     });
   } catch (error) {
-    jlog('nearby_query_error', { id: req.reqId, error: error.message }, 'error');
+    jlog('nearby_search_error', { error: error.message }, 'error');
     res.status(500).json({
       success: false,
       error: error.message,
@@ -286,7 +345,7 @@ app.get('/api/parking/nearby', async (req, res) => {
   }
 });
 
-// ---- spot details ----
+// ---- get details for specific parking spot ----
 app.get('/api/parking/spot/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -301,40 +360,43 @@ app.get('/api/parking/spot/:id', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      jlog('spot_not_found', { id: req.reqId, spotId: id });
+      jlog('spot_not_found', { spotId: id });
       return res.status(404).json({ error: 'Spot not found' });
     }
 
-    jlog('spot_found', { id: req.reqId, spotId: id });
+    jlog('spot_details_retrieved', { spotId: id });
     res.json({
       success: true,
       data: result.rows[0],
     });
   } catch (error) {
-    jlog('spot_details_error', { id: req.reqId, error: error.message }, 'error');
+    jlog('spot_details_error', { error: error.message }, 'error');
     res.status(500).json({ error: error.message });
   }
 });
 
-// ---- db count ----
+// ---- test database connection and count records ----
 app.get('/api/test-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT COUNT(*) as count FROM parking_spots');
-    jlog('db_count', { id: req.reqId, count: Number(result.rows[0].count) });
+    const count = Number(result.rows[0].count);
+    
+    jlog('database_test', { totalSpots: count });
+    
     res.json({
       success: true,
-      totalSpots: result.rows[0].count,
-      message: `Database has ${result.rows[0].count} parking spots`,
+      totalSpots: count,
+      message: `Database has ${count} parking spots`,
     });
   } catch (error) {
-    jlog('db_count_error', { id: req.reqId, error: error.message }, 'error');
+    jlog('database_test_error', { error: error.message }, 'error');
     res.status(500).json({ error: error.message });
   }
 });
 
-// ---- placeholders ----
+// ---- placeholder endpoints for future features ----
 app.post('/api/parking/checkin', async (req, res) => {
-  jlog('checkin_placeholder', { id: req.reqId });
+  jlog('checkin_requested', { note: 'feature not yet implemented' });
   res.json({
     success: false,
     message: 'Check-in feature coming soon',
@@ -343,7 +405,7 @@ app.post('/api/parking/checkin', async (req, res) => {
 });
 
 app.post('/api/parking/checkout', async (req, res) => {
-  jlog('checkout_placeholder', { id: req.reqId });
+  jlog('checkout_requested', { note: 'feature not yet implemented' });
   res.json({
     success: false,
     message: 'Checkout feature coming soon',
@@ -351,19 +413,20 @@ app.post('/api/parking/checkout', async (req, res) => {
   });
 });
 
-// ---- places autocomplete ----
+// ---- google places autocomplete proxy ----
+// routes requests through backend to protect api key
 app.get('/api/places/autocomplete', async (req, res) => {
   try {
     const { input, components, sessiontoken } = req.query;
 
     if (!input) {
-      jlog('places_autocomplete_missing_input', { id: req.reqId });
+      jlog('places_autocomplete_missing_input');
       return res.status(400).json({ error: 'Input parameter required' });
     }
 
     const params = {
       input,
-      key: process.env.GOOGLE_PLACES_API_KEY, // not logged
+      key: process.env.GOOGLE_PLACES_API_KEY,
       components: components || 'country:ca',
       sessiontoken: sessiontoken || '',
     };
@@ -373,34 +436,35 @@ app.get('/api/places/autocomplete', async (req, res) => {
       { params }
     );
 
-    jlog('places_autocomplete', {
-      id: req.reqId,
+    jlog('places_autocomplete_completed', {
+      searchTerm: input,
       status: response.data?.status,
-      predictions: Array.isArray(response.data?.predictions)
+      predictionsFound: Array.isArray(response.data?.predictions)
         ? response.data.predictions.length
         : 0,
     });
 
     res.json(response.data);
   } catch (error) {
-    jlog('places_autocomplete_error', { id: req.reqId, error: error.message }, 'error');
+    jlog('places_autocomplete_error', { error: error.message }, 'error');
     res.status(500).json({ error: error.message });
   }
 });
 
-// ---- places details ----
+// ---- google places details proxy ----
+// gets full details for a selected place
 app.get('/api/places/details', async (req, res) => {
   try {
     const { place_id, sessiontoken, fields } = req.query;
 
     if (!place_id) {
-      jlog('places_details_missing_id', { id: req.reqId });
+      jlog('places_details_missing_id');
       return res.status(400).json({ error: 'place_id required' });
     }
 
     const params = {
       place_id,
-      key: process.env.GOOGLE_PLACES_API_KEY, // not logged
+      key: process.env.GOOGLE_PLACES_API_KEY,
       fields: fields || 'geometry,formatted_address,name,place_id,types',
       sessiontoken: sessiontoken || '',
     };
@@ -410,47 +474,50 @@ app.get('/api/places/details', async (req, res) => {
       { params }
     );
 
-    jlog('places_details', {
-      id: req.reqId,
+    jlog('places_details_completed', {
+      placeId: place_id.substring(0, 20) + '...',
       status: response.data?.status,
       hasResult: !!response.data?.result,
     });
 
     res.json(response.data);
   } catch (error) {
-    jlog('places_details_error', { id: req.reqId, error: error.message }, 'error');
+    jlog('places_details_error', { error: error.message }, 'error');
     res.status(500).json({ error: error.message });
   }
 });
 
-// ---- process-level errors ----
+// ---- global error handlers ----
 process.on('unhandledRejection', (err) => {
-  jlog('unhandled_rejection', { error: err?.message || String(err) }, 'error');
+  jlog('unhandled_promise_rejection', { error: err?.message || String(err) }, 'error');
 });
+
 process.on('uncaughtException', (err) => {
   jlog('uncaught_exception', { error: err?.message || String(err) }, 'error');
 });
 
-// ---- final error handler ----
+// express error handler - catches any errors not handled by routes
 app.use((err, req, res, _next) => {
-  jlog('unhandled_error', { id: req.reqId, error: err?.message }, 'error');
+  jlog('express_error', { error: err?.message }, 'error');
   res.status(500).json({ error: 'internal error' });
 });
 
-// ---- start ----
+// ---- start server ----
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  jlog('server_start', {
+  console.log('\n==============================================');
+  console.log('  ParkPal Backend Server');
+  console.log('==============================================\n');
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Logging to: ${LOG_FILE}\n`);
+  console.log('Available endpoints:');
+  console.log(`  Health check: http://localhost:${PORT}/health`);
+  console.log(`  Test DB: http://localhost:${PORT}/api/test-db`);
+  console.log(`  Nearby parking: http://localhost:${PORT}/api/parking/nearby?lat=51.0447&lng=-114.0719&radius=1000`);
+  
+  jlog('server_started', {
     port: PORT,
-    health: '/health',
-    testDb: '/api/test-db',
-    nearbyExample: '/api/parking/nearby?lat=51.0447&lng=-114.0719&radius=1000',
+    environment: process.env.NODE_ENV || 'development',
     logFile: LOG_FILE,
   });
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Test DB: http://localhost:${PORT}/api/test-db`);
-  console.log(
-    `Test nearby: http://localhost:${PORT}/api/parking/nearby?lat=51.0447&lng=-114.0719&radius=1000`
-  );
 });

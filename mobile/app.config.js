@@ -1,3 +1,4 @@
+
 export default {
   expo: {
     name: "ParkPal",
@@ -6,6 +7,10 @@ export default {
     orientation: "portrait",
     icon: "src/utils/assets/icon.png",
     userInterfaceStyle: "light",
+
+
+    platforms: ["ios", "android", "web"],
+
     splash: {
       image: "src/utils/assets/splash.png",
       resizeMode: "contain",
@@ -26,13 +31,24 @@ export default {
       package: "com.parkpal.app"
     },
     web: {
-      favicon: "src/utils/assets/favicon.png"
+      favicon: "src/utils/assets/favicon.png",
+      bundler: "metro",
+      build: {
+        babel: {
+          include: [
+            "react-native-maps",
+            "@react-native-async-storage/async-storage"
+          ]
+        }
+      }
     },
+
     extra: {
       apiUrl: process.env.API_URL || "http://192.168.1.81:3000",
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY
-    }
+    },
+
   }
 };
