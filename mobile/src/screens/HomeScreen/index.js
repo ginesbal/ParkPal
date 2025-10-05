@@ -1,8 +1,6 @@
-// src/screens/HomeScreen/index.js
-
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { FlatList, RefreshControl } from 'react-native';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
+import { FlatList, RefreshControl, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Header from './components/Header';
@@ -16,6 +14,7 @@ import { useLocationManager } from '../../hooks/useLocationManager';
 import { useParkingSpots } from '../../hooks/useParkingSpots';
 
 import { logger } from '../../utils/loggers';
+import { calculateQuickInfo } from '../../utils/parkingHelpers';
 
 import { TOKENS } from '../../constants/theme';
 import { styles } from './HomeScreen.styles';
@@ -35,21 +34,26 @@ export default function HomeScreen({ navigation }) {
     hasActiveFilters,
   } = useFilterState();
 
-  // spots & ui state
-  const {
-    spots,
-    loading,
-    refreshing,
-    quickInfo,
-    lastRefresh,
-    onRefresh,
-    fadeAnim,
-    slideAnim,
-  } = useParkingSpots({
+  // data fetching hook
+  const { spots, loading, error } = useParkingSpots(
     location,
-    activeFilter,
     searchRadius,
-  });
+    activeFilter
+  );
+
+  // local UI state
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [lastRefresh, setLastRefresh] = useState(null);
+
+  // animations (UI concern, not data concern)
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  // calculate stats from spots
+  const quickInfo = useMemo(() => {
+    return calculateQuickInfo(spots);
+  }, [spots]);
 
   // first screen mount + key inputs snapshot
   React.useEffect(() => {
@@ -60,7 +64,7 @@ export default function HomeScreen({ navigation }) {
     });
   }, []);
 
-  // log when list transitions from empty->has data (avoid spamming on every render)
+  // log when list transitions from empty->has data
   const prevCountRef = React.useRef(0);
   React.useEffect(() => {
     const count = Array.isArray(spots) ? spots.length : 0;
@@ -74,7 +78,7 @@ export default function HomeScreen({ navigation }) {
     prevCountRef.current = count;
   }, [spots, activeFilter, searchRadius]);
 
-  // capture empty-state so you can diagnose zero-results scenarios
+  // capture empty-state scenarios
   React.useEffect(() => {
     if (!loading && !refreshing && Array.isArray(spots) && spots.length === 0) {
       logger.log('spots_empty', {
@@ -88,13 +92,11 @@ export default function HomeScreen({ navigation }) {
 
   // navigation handlers
   const handleMapPress = () => {
-    // important: user intent to switch context to map
     logger.log('nav_to_map_from_home', { source: 'fab_or_header' });
     navigation.navigate('Map');
   };
 
   const handleSpotPress = (spot) => {
-    // item selection from list with id/address
     logger.log('spot_selected_from_home', {
       spotId: spot?.id,
       address: spot?.address
@@ -107,7 +109,6 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleExpandSearch = () => {
-    // user widens search after empty/short results
     logger.log('expand_search', {
       oldRadius: searchRadius,
       newRadius: 1000
@@ -117,14 +118,21 @@ export default function HomeScreen({ navigation }) {
     setActiveFilter('all');
   };
 
-  const handleRefresh = () => {
-    // explicit refresh
+  const handleRefresh = useCallback(() => {
     logger.log('home_refresh', {
       filter: activeFilter,
       radius: searchRadius
     });
-    onRefresh();
-  };
+    
+    setRefreshing(true);
+    setRefreshKey(prev => prev + 1);
+    setLastRefresh(new Date());
+    
+    // reset refreshing after delay
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, [activeFilter, searchRadius]);
 
   // filter/radius changes
   React.useEffect(() => {
@@ -139,15 +147,13 @@ export default function HomeScreen({ navigation }) {
     }
   }, [searchRadius]);
 
-  // log when the filter panel is toggled (reveals user exploration)
-  const handleToggleFilters = React.useCallback(() => {
+  const handleToggleFilters = useCallback(() => {
     logger.log('filters_toggled', { to: !showFilters });
     toggleFilters();
   }, [showFilters, toggleFilters]);
 
   // initial loading state
   if ((loading && !refreshing) || isLoadingLocation) {
-    // first-load spinner indicates dependency readiness
     logger.log('home_loading_state', {
       loading,
       refreshing,
@@ -184,7 +190,7 @@ export default function HomeScreen({ navigation }) {
               searchRadius={searchRadius}
               setSearchRadius={setSearchRadius}
               showFilters={showFilters}
-              toggleFilters={handleToggleFilters}   // wrap to log panel toggles
+              toggleFilters={handleToggleFilters}
               filterHeight={filterHeight}
               hasActiveFilters={hasActiveFilters}
               lastRefresh={lastRefresh}

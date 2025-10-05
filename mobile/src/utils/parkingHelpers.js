@@ -1,31 +1,24 @@
-
-export const calculateQuickInfo = (spots) => {
-    if (!spots || spots.length === 0) {
-        return {
-            total: 0,
-            nearest: null,
-            averagePrice: null
-        };
+// calculate quick stats from parking spots
+export function calculateQuickInfo(spots) {
+    if (!Array.isArray(spots) || spots.length === 0) {
+        return { closest: null, cheapest: null, available: 0 };
     }
 
-    // find nearest spot
-    const nearest = spots.reduce(
+    const closest = spots.reduce(
         (min, spot) => (spot.distance < min.distance ? spot : min),
         spots[0]
     );
 
-    // calculate average price
-    const spotsWithPrice = spots.filter(s => s.price !== undefined && s.price > 0);
-    const averagePrice = spotsWithPrice.length > 0
-        ? spotsWithPrice.reduce((sum, s) => sum + parseFloat(s.price), 0) / spotsWithPrice.length
-        : null;
+    const cheapest = [...spots].sort((a, b) =>
+        (a.price_per_hour || 0) - (b.price_per_hour || 0)
+    )[0];
 
     return {
-        total: spots.length,
-        nearest,
-        averagePrice
+        closest,
+        cheapest,
+        available: spots.length
     };
-};
+}
 
 // format price for display
 export const formatPrice = (price) => {
@@ -52,21 +45,20 @@ export const getDistanceLabel = (meters) => {
     return `${(meters / 1000).toFixed(1)}km`;
 };
 
-
 // calculate walking time from distance
 export const calculateWalkingTime = (meters) => {
     if (!meters) return null;
-    // average walking speed: 5 km/h
-    const minutes = Math.round(meters / 83); // 83 meters per minute
+    // Average walking speed: 5 km/h = 83 meters/minute
+    const minutes = Math.round(meters / 83);
     return minutes;
 };
 
-// sort spots by distance
+// Sort spots by distance
 export const sortByDistance = (spots) => {
     return [...spots].sort((a, b) => a.distance - b.distance);
 };
 
-// sort spots by price (free spots last)
+// sort spots by price
 export const sortByPrice = (spots) => {
     return [...spots].sort((a, b) => {
         if (!a.price) return 1;

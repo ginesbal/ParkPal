@@ -21,12 +21,12 @@ import FlippableParkingCard from '../../components/ParkingCard/FlippableParkingC
 // app constants/services
 import { DEFAULT_LOCATION } from '../../constants/config';
 import { TOKENS } from '../../constants/theme';
-import { parkingAPI } from '../../services/api';
 
 // logs
 import { debugLogger as logger } from '../../utils/loggers';
 
 // files specific to this screen
+import { useParkingSpots } from '../../hooks/useParkingSpots';
 import MapBottomSheet from './components/MapBottomSheet';
 import MapHeader from './components/MapHeader';
 import MapOverlays from './components/MapOverlays';
@@ -89,8 +89,6 @@ function MapScreen() {
     }, [SHEET_AVAILABLE_SPACE, bottomSheetTranslateY]);
 
     // data state
-    const [spots, setSpots] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [region, setRegion] = useState(DEFAULT_LOCATION);
     const [userLocation, setUserLocation] = useState(null);
     const [filterType, setFilterType] = useState('all');
@@ -109,6 +107,14 @@ function MapScreen() {
     const [flippableCardPosition, setFlippableCardPosition] = useState({ x: 0, y: 0 });
     const [flippableCardSpot, setFlippableCardSpot] = useState(null);
 
+    // calculate search spots
+    const searchLocation = (searchMode === 'pinned' && pinnedLocation) ? pinnedLocation : userLocation;
+
+    const { spots, loading, error } = useParkingSpots(
+        searchLocation,
+        searchRadius,
+        filterType
+    );
     // get initial location and record permission outcome
     useEffect(() => {
         (async () => {
@@ -152,10 +158,6 @@ function MapScreen() {
         };
     }, []);
 
-    // trigger search when prerequisites change
-    useEffect(() => {
-        if (userLocation || pinnedLocation) searchArea();
-    }, [userLocation, filterType, searchRadius, searchMode, pinnedLocation]);
 
     const handleMapInteraction = useCallback(() => {
         lastMapInteraction.current = Date.now();
@@ -191,49 +193,6 @@ function MapScreen() {
         // important: record pin placement and mode shift
         logger.log('Pin dropped', coordinate, 'UI_EVENT');
         logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
-    };
-
-    // perform nearby search and summarize results
-    const searchArea = async () => {
-        const searchLocation =
-            (searchMode === 'pinned' && pinnedLocation) ? pinnedLocation : userLocation;
-        if (!searchLocation) return;
-
-        setLoading(true);
-        try {
-            const params = filterType !== 'all' ? { type: filterType } : {};
-
-            // important: record search parameters to reproduce issues
-            logger.log('Searching for parking spots', {
-                mode: searchMode,
-                latitude: searchLocation.latitude,
-                longitude: searchLocation.longitude,
-                radius: searchRadius,
-                filterType,
-                params,
-            }, 'API_CALL');
-
-            const res = await parkingAPI.findNearbySpots(
-                searchLocation.latitude,
-                searchLocation.longitude,
-                searchRadius,
-                params
-            );
-
-            const list = res?.data || [];
-            setSpots(list);
-
-            // important: quick result sanity to catch empty/short lists
-            logger.log('api_parking_spots_result', {
-                count: Array.isArray(list) ? list.length : 0,
-                sampleIds: Array.isArray(list) ? list.slice(0, 3).map(s => s?.id) : [],
-            }, 'API_RESPONSE');
-        } catch (e) {
-            logger.log('Search error', e, 'ERROR');
-            console.error('Search error:', e);
-        } finally {
-            setLoading(false);
-        }
     };
 
     const selectSpot = async (spot, fromList = false) => {
@@ -353,7 +312,6 @@ function MapScreen() {
                             setPinnedLocation(newRegion);
                             setSearchMode('pinned');
                             logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
-                            searchArea();
                         }
                     }}
                 />
@@ -385,7 +343,7 @@ function MapScreen() {
                         setShouldDismissSearch(true);
                         setTimeout(() => setShouldDismissSearch(false), 100);
                     }
-                    
+
                     setSelectedSpot(null);
                     setFlippableCardVisible(false);
                     if (isSheetExpanded) {
@@ -433,9 +391,12 @@ function MapScreen() {
                 <Pressable
                     style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
                     onPress={() => {
-                        // important: explicit user-driven refresh for analytics
                         logger.log('ui_refresh_pressed', { radius: searchRadius, filterType }, 'UI_EVENT');
-                        searchArea();
+                        if (searchMode === 'pinned' && pinnedLocation) {
+                            setPinnedLocation({ ...pinnedLocation });
+                        } else if (userLocation) {
+                            setUserLocation({ ...userLocation });
+                        }
                     }}
                 >
                     {loading ? (

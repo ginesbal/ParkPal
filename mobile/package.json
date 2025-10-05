@@ -6,7 +6,10 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "export:web": "npx expo export --platform web",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -33,7 +36,9 @@
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@testing-library/react-native": "^13.3.3",
+    "jest": "^30.2.0"
   },
   "private": true,
   "overrides": {

@@ -33,6 +33,10 @@ export default {
     web: {
       favicon: "src/utils/assets/favicon.png",
       bundler: "metro",
+      output: "single",
+      config: {
+        googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_PLACES_KEY
+      },
       build: {
         babel: {
           include: [

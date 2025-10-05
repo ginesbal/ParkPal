@@ -1,94 +1,68 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Alert, Animated } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
 import { parkingAPI } from '../services/api';
-import { calculateQuickInfo } from '../utils/parkingHelpers';
 
-export const useParkingSpots = ({ location, activeFilter, searchRadius }) => {
-    // core state
+export function useParkingSpots(location, radius, filterType = 'all') {
     const [spots, setSpots] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
-    const [lastRefresh, setLastRefresh] = useState(null);
-    
-    // animations
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-    const slideAnim = useRef(new Animated.Value(12)).current;
-    
-    // calculate quick info stats
-    const quickInfo = useMemo(() => {
-        return calculateQuickInfo(spots);
-    }, [spots]);
-    
-    // load nearby spots
-    const loadNearbySpots = useCallback(async () => {
-        if (!location) return;
-        
-        try {
-            setLoading(true);
-            
-            // animate in content
-            Animated.parallel([
-                Animated.timing(fadeAnim, { 
-                    toValue: 1, 
-                    duration: 300, 
-                    useNativeDriver: true 
-                }),
-                Animated.timing(slideAnim, { 
-                    toValue: 0, 
-                    duration: 300, 
-                    useNativeDriver: true 
-                })
-            ]).start();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-            // build API parameters
-            const params = activeFilter !== 'all'
-                ? { type: activeFilter }
-                : {};
+    // track if component is mounted to prevent state updates after unmount
+    const isMountedRef = useRef(true);
 
-            // fetch spots from API
-            const response = await parkingAPI.findNearbySpots(
-                location.latitude,
-                location.longitude,
-                searchRadius,
-                params
-            );
-            
-            setSpots(response.data || []);
-            setLastRefresh(new Date());
-            
-        } catch (error) {
-            console.error('Error loading parking spots:', error);
-            Alert.alert(
-                'Connection Issue', 
-                'Unable to load parking spots. Pull down to retry.'
-            );
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    }, [location, activeFilter, searchRadius, fadeAnim, slideAnim]);
-    
-    // handle refresh
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        loadNearbySpots();
-    }, [loadNearbySpots]);
-    
-    // load spots when dependencies change
     useEffect(() => {
-        if (location) {
-            loadNearbySpots();
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        // do not fetch if no location
+        if (!location?.latitude || !location?.longitude) {
+            return;
         }
-    }, [location, activeFilter, searchRadius, loadNearbySpots]);
-    
-    return {
-        spots,
-        loading,
-        refreshing,
-        quickInfo,
-        lastRefresh,
-        onRefresh,
-        fadeAnim,
-        slideAnim
-    };
-};
+
+        let timeoutId;
+
+        const fetchSpots = async () => {
+            if (!isMountedRef.current) return;
+
+            setLoading(true);
+            setError(null);
+
+            try {
+                const params = filterType !== 'all' ? { type: filterType } : {};
+                const response = await parkingAPI.findNearbySpots(
+                    location.latitude,
+                    location.longitude,
+                    radius,
+                    params
+                );
+
+                if (isMountedRef.current) {
+                    setSpots(response?.data || []);
+                }
+            } catch (err) {
+                if (isMountedRef.current) {
+                    setError(err.message || 'Failed to load parking spots');
+                    setSpots([]);
+                }
+            } finally {
+                if (isMountedRef.current) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        // debounce the API call by 300ms
+        timeoutId = setTimeout(() => {
+            fetchSpots();
+        }, 300);
+
+        // cleanup: cancel the timeout if dependencies change
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [location?.latitude, location?.longitude, radius, filterType]);
+
+    return { spots, loading, error };
+}   
