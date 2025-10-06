@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+const API_URL = Constants.expoConfig.extra.API_URL
 
-// use environment variable or fallback to your local IP
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.81:3000';
 
 // cache configuration
 const CACHE_PREFIX = '@ParkPal:';

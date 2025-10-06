@@ -48,7 +48,7 @@ export default {
     },
 
     extra: {
-      apiUrl: process.env.API_URL || "http://192.168.1.81:3000",
+      apiUrl: "https://parkpal-production.up.railway.app",
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY

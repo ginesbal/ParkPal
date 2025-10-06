@@ -6,7 +6,10 @@
     "scripts": {
         "start": "node server.js",
         "dev": "nodemon server.js",
-        "setup": "node scripts/setup.js"
+        "setup": "node scripts/setup.js",
+        "test": "jest --verbose",
+        "test:performance": "jest performance.test.js",
+        "test:coverage": "jest --coverage"
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.57.4",
@@ -22,6 +25,9 @@
         "winston": "^3.17.0"
     },
     "devDependencies": {
-        "nodemon": "^3.0.2"
+        "@testing-library/react-native": "^13.3.3",
+        "jest": "^30.2.0",
+        "nodemon": "^3.0.2",
+        "supertest": "^7.1.4"
     }
 }

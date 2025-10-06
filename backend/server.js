@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // ---- logging configuration ----
-const LOG_DIR = process.env.LOG_DIR || path.resolve(__dirname, '../mobile/src/utils/loggers');
+const LOG_DIR = process.env.LOG_DIR || path.resolve(__dirname, 'logs');
 const LOG_FILE = process.env.LOG_FILE || path.join(LOG_DIR, 'server-activity.log');
 const WRAP_COL = 120;
 const PRETTY = process.env.LOG_PRETTY !== 'false';
@@ -67,7 +67,7 @@ function normalize(val, seen = new WeakSet()) {
 // console logging with colors and readable format for students
 function consoleLog(event, data = {}, level = 'info') {
   const timestamp = new Date().toLocaleTimeString();
-  
+
   // color codes for terminal output
   const colors = {
     reset: '\x1b[0m',
@@ -84,7 +84,7 @@ function consoleLog(event, data = {}, level = 'info') {
   // choose color based on level and event type
   let color = colors.cyan;
   let prefix = 'INFO';
-  
+
   if (level === 'error') {
     color = colors.red;
     prefix = 'ERROR';
@@ -104,16 +104,16 @@ function consoleLog(event, data = {}, level = 'info') {
 
   // format the log message for readability
   console.log(`${colors.dim}[${timestamp}]${colors.reset} ${color}${prefix}${colors.reset} ${event}`);
-  
+
   // only show relevant data fields to keep it clean
   const relevantData = { ...data };
   delete relevantData.id; // request id is noise for students
-  
+
   if (Object.keys(relevantData).length > 0) {
     // format data on separate lines with indentation
     Object.entries(relevantData).forEach(([key, value]) => {
       if (value !== undefined) {
-        const displayValue = typeof value === 'object' 
+        const displayValue = typeof value === 'object'
           ? JSON.stringify(value, null, 2).split('\n').join('\n    ')
           : value;
         console.log(`  ${colors.dim}${key}:${colors.reset} ${displayValue}`);
@@ -128,7 +128,7 @@ async function jlog(event, data = {}, level = 'info') {
   try {
     // write to console for immediate feedback
     consoleLog(event, data, level);
-    
+
     // write to file for permanent record
     const payload = {
       t: new Date().toISOString(),
@@ -138,10 +138,10 @@ async function jlog(event, data = {}, level = 'info') {
     };
     const body = PRETTY
       ? [
-          '=== log entry =============================================================',
-          JSON.stringify(payload, null, 2),
-          '',
-        ].join('\n')
+        '=== log entry =============================================================',
+        JSON.stringify(payload, null, 2),
+        '',
+      ].join('\n')
       : JSON.stringify(payload) + '\n';
 
     await ensureLogDir();
@@ -323,13 +323,13 @@ app.get('/api/parking/nearby', async (req, res) => {
 
         price_per_hour: spot.price_zone
           ? {
-              '1': 1.0,
-              '2': 2.0,
-              '3': 3.0,
-              '4': 4.0,
-              '5': 5.0,
-              '6': 6.0,
-            }[spot.price_zone] || 0
+            '1': 1.0,
+            '2': 2.0,
+            '3': 3.0,
+            '4': 4.0,
+            '5': 5.0,
+            '6': 6.0,
+          }[spot.price_zone] || 0
           : 0,
 
         max_duration_minutes: spot.max_time ? parseFloat(spot.max_time) : null,
@@ -380,9 +380,9 @@ app.get('/api/test-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT COUNT(*) as count FROM parking_spots');
     const count = Number(result.rows[0].count);
-    
+
     jlog('database_test', { totalSpots: count });
-    
+
     res.json({
       success: true,
       totalSpots: count,
@@ -504,20 +504,27 @@ app.use((err, req, res, _next) => {
 
 // ---- start server ----
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log('\n==============================================');
-  console.log('  ParkPal Backend Server');
-  console.log('==============================================\n');
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Logging to: ${LOG_FILE}\n`);
-  console.log('Available endpoints:');
-  console.log(`  Health check: http://localhost:${PORT}/health`);
-  console.log(`  Test DB: http://localhost:${PORT}/api/test-db`);
-  console.log(`  Nearby parking: http://localhost:${PORT}/api/parking/nearby?lat=51.0447&lng=-114.0719&radius=1000`);
-  
-  jlog('server_started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
-    logFile: LOG_FILE,
+
+// only start server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log('\n==============================================');
+    console.log('  ParkPal Backend Server');
+    console.log('==============================================\n');
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Logging to: ${LOG_FILE}\n`);
+    console.log('Available endpoints:');
+    console.log(`  Health check: http://localhost:${PORT}/health`);
+    console.log(`  Test DB: http://localhost:${PORT}/api/test-db`);
+    console.log(`  Nearby parking: http://localhost:${PORT}/api/parking/nearby?lat=51.0447&lng=-114.0719&radius=1000`);
+
+    jlog('server_started', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      logFile: LOG_FILE,
+    });
   });
-});
+}
+
+// export app for testing
+module.exports = app;
