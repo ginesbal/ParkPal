@@ -1,40 +1,38 @@
-import React from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { styles } from './styles';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { TOKENS } from '../../../../constants/theme';
+import { styles } from './styles';
 
 /**
- * LocationSection - Displays current location with map navigation
+ * LocationSection - Minimal location display (Redesigned for clarity)
  */
 const LocationSection = ({ locationName, onPress }) => {
     return (
         <TouchableOpacity
             style={styles.locationSection}
             onPress={onPress}
-            activeOpacity={0.8}
+            activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={`Current location: ${locationName}. Tap to view map`}
         >
-            <View style={styles.locationIcon}>
-                <MaterialCommunityIcons 
-                    name="map-marker" 
-                    size={20} 
-                    color={TOKENS.primary} 
-                />
-            </View>
-            
+            <MaterialCommunityIcons
+                name="map-marker"
+                size={16}
+                color={TOKENS.textMuted}
+                style={styles.locationIcon}
+            />
+
             <View style={styles.locationInfo}>
-                <Text style={styles.locationLabel}>Current Location</Text>
+                <Text style={styles.locationLabel}>LOCATION</Text>
                 <Text style={styles.locationText} numberOfLines={1}>
                     {locationName}
                 </Text>
             </View>
-            
-            <MaterialCommunityIcons 
-                name="map-outline" 
-                size={20} 
-                color={TOKENS.textMuted} 
+
+            <MaterialCommunityIcons
+                name="chevron-right"
+                size={18}
+                color={TOKENS.textLight}
             />
         </TouchableOpacity>
     );

@@ -1,10 +1,20 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { Animated, Pressable, Text, View } from 'react-native';
 import PlacesSearchBar from '../../../components/PlacesAutocomplete/PlacesSearchBar';
 import { PALETTE, TOKENS } from '../../../constants/theme';
 import { styles } from '../styles';
 
-export default function MapHeader({
+const TYPE_FILTERS = [
+    { type: 'all', label: 'All' },
+    { type: 'on_street', label: 'Street' },
+    { type: 'off_street', label: 'Lot' },
+    { type: 'residential', label: 'Permit' },
+];
+
+const DISTANCE_OPTIONS = [150, 250, 500, 750, 1000];
+
+function MapHeader({
     shouldDismissSearch,
     isSearchFocused,
     setIsSearchFocused,
@@ -19,9 +29,19 @@ export default function MapHeader({
     setSearchRadius,
     onPlaceSelected,
 }) {
+    const formatDistance = useCallback((meters) => {
+        return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`;
+    }, []);
+
+    const handleFilterPress = useCallback((type) => {
+        setFilterType(type);
+    }, [setFilterType]);
+
+    const handleDistancePress = useCallback((distance) => {
+        setSearchRadius(distance);
+    }, [setSearchRadius]);
     return (
         <>
-            {/* search section */}
             <View style={styles.searchSection}>
                 <PlacesSearchBar
                     shouldDismiss={shouldDismissSearch}
@@ -30,7 +50,6 @@ export default function MapHeader({
                     style={styles.searchContainer}
                 />
 
-                {/* quick actions - hidden when search is focused */}
                 {!isSearchFocused && (
                     <View style={styles.quickActions}>
                         {pinnedLocation ? (
@@ -67,77 +86,64 @@ export default function MapHeader({
                 )}
             </View>
 
-            {/* filter pills */}
             <Animated.View
                 style={[
-                    styles.filterSection,
+                    styles.filterBar,
                     { opacity: isSearchFocused ? 0.3 : 1 }
                 ]}
                 pointerEvents={isSearchFocused ? 'none' : 'auto'}
             >
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.filterScroll}
-                >
-                    {/* parking type filters */}
-                    {[
-                        { type: 'all', icon: 'apps', label: 'All' },
-                        { type: 'on_street', icon: 'car', label: 'Street' },
-                        { type: 'off_street', icon: 'parking', label: 'Lots' },
-                        { type: 'residential', icon: 'home', label: 'Permit' },
-                        { type: 'school', icon: 'school', label: 'School' }
-                    ].map(f => (
+                <View style={styles.filterRow}>
+                    {TYPE_FILTERS.map(f => (
                         <Pressable
                             key={f.type}
-                            style={({ pressed }) => [
-                                styles.filterPill,
-                                filterType === f.type && styles.filterPillActive,
-                                pressed && styles.filterPillPressed
+                            style={[
+                                styles.filterChip,
+                                filterType === f.type && styles.filterChipActive,
                             ]}
-                            onPress={() => setFilterType(f.type)}
+                            onPress={() => handleFilterPress(f.type)}
                         >
-                            <MaterialCommunityIcons
-                                name={f.icon}
-                                size={14}
-                                color={filterType === f.type ? '#fff' : TOKENS.text}
-                            />
                             <Text style={[
-                                styles.filterText,
-                                filterType === f.type && styles.filterTextActive
+                                styles.filterChipText,
+                                filterType === f.type && styles.filterChipTextActive
                             ]}>
                                 {f.label}
                             </Text>
                         </Pressable>
                     ))}
+                </View>
 
-                    {/* distance radius filters */}
-                    <View style={styles.distanceDivider} />
-                    {[150, 300, 500].map(r => (
-                        <Pressable
-                            key={r}
-                            style={({ pressed }) => [
-                                styles.distancePill,
-                                searchRadius === r && styles.distancePillActive,
-                                pressed && styles.filterPillPressed
-                            ]}
-                            onPress={() => setSearchRadius(r)}
-                        >
-                            <MaterialCommunityIcons
-                                name="map-marker-radius"
-                                size={14}
-                                color={searchRadius === r ? '#fff' : TOKENS.textMuted}
-                            />
-                            <Text style={[
-                                styles.distanceText,
-                                searchRadius === r && styles.distanceTextActive
-                            ]}>
-                                {r}m
-                            </Text>
-                        </Pressable>
-                    ))}
-                </ScrollView>
+                <View style={styles.distanceRow}>
+                    <MaterialCommunityIcons
+                        name="map-marker-distance"
+                        size={14}
+                        color="#999"
+                    />
+                    <View style={styles.distanceTrack}>
+                        {DISTANCE_OPTIONS.map((distance) => {
+                            const isActive = searchRadius === distance;
+                            return (
+                                <Pressable
+                                    key={distance}
+                                    style={[
+                                        styles.distanceMarker,
+                                        isActive && styles.distanceMarkerActive
+                                    ]}
+                                    onPress={() => handleDistancePress(distance)}
+                                >
+                                    {isActive && (
+                                        <Text style={styles.distanceValue}>
+                                            {formatDistance(distance)}
+                                        </Text>
+                                    )}
+                                </Pressable>
+                            );
+                        })}
+                    </View>
+                </View>
             </Animated.View>
         </>
     );
 }
+
+export default React.memo(MapHeader);

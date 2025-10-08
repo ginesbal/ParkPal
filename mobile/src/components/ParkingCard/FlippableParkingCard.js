@@ -5,11 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import {
     Animated,
     Linking,
-    Platform,
     ScrollView,
     Text,
     TouchableOpacity,
-    Vibration,
     View
 } from 'react-native';
 import { PALETTE, TOKENS } from '../../constants/theme';
@@ -44,7 +42,6 @@ function FlippableParkingCard({
     const scaleAnim = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    // horizontal pager
     const pagesScrollRef = useRef(null);
     const pageWidth = CONTENT_WIDTH;
 
@@ -114,26 +111,22 @@ function FlippableParkingCard({
 
     if (!visible || !spot) return null;
 
-    // smart positioning
     const cardX = Math.min(Math.max(10, position.x - CARD_WIDTH / 2), SCREEN_WIDTH - CARD_WIDTH - 10);
     const cardY = Math.max(
         60,
         Math.min(position.y - CARD_HEIGHT - 40, SCREEN_HEIGHT - CARD_HEIGHT - 140)
     );
 
-    // animations
     const frontRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
     const backRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
     const frontOpacity = flipAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] });
     const backOpacity = flipAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0, 1] });
 
-    // get parsed data
     const zoneInfo = parseZoneInfo(spot);
     const metadata = parseMetadata(spot);
     const detailsPages = getDetailsPages(spot);
     const priceDisplay = getCurrentPrice(spot, zoneInfo);
 
-    // determine status for visual feedback
     const getStatusColor = () => {
         if (spot.no_stopping) return PALETTE.flame.DEFAULT;
         if (spot.permit_zone || zoneInfo.permit_zone) return PALETTE.earth_yellow[300];
@@ -143,7 +136,6 @@ function FlippableParkingCard({
 
     const statusColor = getStatusColor();
 
-    // get badge styles based on type
     const getBadgeStyle = (type) => {
         switch (type) {
             case 'danger': return [styles.badgeLarge, styles.badgeDanger];
@@ -164,7 +156,6 @@ function FlippableParkingCard({
 
     return (
         <>
-            {/* subtle overlay */}
             {visible && (
                 <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
                     <View />
@@ -195,7 +186,6 @@ function FlippableParkingCard({
                         },
                     ]}
                 >
-                    {/* header */}
                     <View style={styles.cardHeader}>
                         <View style={styles.spotTypeTag}>
                             <MaterialCommunityIcons
@@ -222,14 +212,12 @@ function FlippableParkingCard({
                         </TouchableOpacity>
                     </View>
 
-                    {/* front content */}
                     <View style={styles.frontContent}>
                         <Text style={styles.address} numberOfLines={2}>
                             {spot.address || spot.address_desc || 'Parking Spot'}
                         </Text>
 
                         <View style={styles.quickStatsLarge}>
-                            {/* walk Time */}
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
@@ -242,7 +230,6 @@ function FlippableParkingCard({
 
                             <View style={styles.statDividerLarge} />
 
-                            {/* distance */}
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
@@ -269,7 +256,6 @@ function FlippableParkingCard({
                             </View>
                         </View>
 
-                        {/* badges */}
                         <View style={styles.badgesLarge}>
                             {(spot.camera || metadata.camera) && (
                                 <View style={getBadgeStyle('default')}>
@@ -304,7 +290,6 @@ function FlippableParkingCard({
                         </View>
                     </View>
 
-                    {/* actions */}
                     <View style={styles.actionsLarge}>
                         <TouchableOpacity style={styles.detailsBtnLarge} onPress={flip}>
                             <MaterialCommunityIcons name="information-outline" size={18} color={TOKENS.text} />
@@ -328,7 +313,6 @@ function FlippableParkingCard({
                         },
                     ]}
                 >
-                    {/* back header */}
                     <View style={styles.cardHeaderBack}>
                         <TouchableOpacity
                             onPress={flip}
@@ -351,7 +335,7 @@ function FlippableParkingCard({
                         </TouchableOpacity>
                     </View>
 
-                    {/* horizontal pages */}
+                    {/* horizontal pager for detail pages */}
                     <ScrollView
                         ref={pagesScrollRef}
                         horizontal
@@ -426,7 +410,6 @@ function FlippableParkingCard({
                         ))}
                     </ScrollView>
 
-                    {/* page controls */}
                     {detailsPages.length > 1 && (
                         <View style={styles.pagerContainer}>
                             <TouchableOpacity

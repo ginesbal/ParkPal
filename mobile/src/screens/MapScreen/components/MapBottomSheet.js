@@ -27,7 +27,6 @@ export default function MapBottomSheet({
 }) {
     const insets = useSafeAreaInsets();
 
-    // Smooth opacity transitions
     const headerOpacity = bottomSheetTranslateY.interpolate({
         inputRange: [0, 150],
         outputRange: [0.3, 1],
@@ -40,14 +39,12 @@ export default function MapBottomSheet({
         extrapolate: 'clamp'
     });
 
-    // Chevron rotation
     const chevronRotate = bottomSheetTranslateY.interpolate({
         inputRange: [0, 150],
         outputRange: ['180deg', '0deg'],
         extrapolate: 'clamp'
     });
 
-    // Button press animation
     const [buttonScale] = React.useState(new Animated.Value(1));
     const handlePressIn = () => {
         Animated.timing(buttonScale, { toValue: 0.97, duration: 100, useNativeDriver: true }).start();
@@ -56,10 +53,7 @@ export default function MapBottomSheet({
         Animated.timing(buttonScale, { toValue: 1, duration: 100, useNativeDriver: true }).start();
     };
 
-    // When expanded, stretch over the tab bar (bottom: 0). When collapsed, keep above it.
     const containerBottom = isExpanded ? 0 : tabBarHeight;
-
-    // Extra bottom padding for the list so content clears the home indicator when expanded
     const listBottomPad = (isExpanded ? insets.bottom : 0) + 24;
 
     return (
@@ -73,9 +67,7 @@ export default function MapBottomSheet({
                 },
             ]}
         >
-            {/* Header Section */}
             <View style={styles.header}>
-                {/* Drag Indicator */}
                 <View style={styles.dragArea} {...panHandlers}>
                     <View style={styles.dragIndicator} />
                 </View>
@@ -92,7 +84,6 @@ export default function MapBottomSheet({
                         style={[styles.headerContent, { transform: [{ scale: buttonScale }] }]}
                     >
                         <View style={styles.headerLeft}>
-                            {/* Results Count - Always Visible */}
                             <View style={styles.resultsContainer}>
                                 <Text style={styles.countNumber}>{spots.length}</Text>
                                 <View>
@@ -101,7 +92,6 @@ export default function MapBottomSheet({
                                 </View>
                             </View>
 
-                            {/* Status Indicator */}
                             <Animated.View style={{ opacity: headerOpacity }}>
                                 <View style={styles.statusPill}>
                                     {searchMode === 'pinned' ? (
@@ -119,7 +109,6 @@ export default function MapBottomSheet({
                             </Animated.View>
                         </View>
 
-                        {/* Expand/Collapse Control */}
                         <View style={styles.controlContainer}>
                             <Animated.View
                                 style={[styles.chevronButton, { transform: [{ rotate: chevronRotate }] }]}
@@ -130,7 +119,6 @@ export default function MapBottomSheet({
                     </Animated.View>
                 </TouchableOpacity>
 
-                {/* Expanded Header Info */}
                 <Animated.View
                     style={[styles.expandedInfo, { opacity: expandedContentOpacity }]}
                     pointerEvents={isExpanded ? 'auto' : 'none'}
@@ -145,10 +133,8 @@ export default function MapBottomSheet({
                 </Animated.View>
             </View>
 
-            {/* Content Separator */}
             <View style={styles.separator} />
 
-            {/* Scrollable List */}
             <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={[styles.scrollContent, { paddingBottom: listBottomPad }]}

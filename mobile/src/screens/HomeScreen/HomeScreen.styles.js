@@ -1,12 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { PALETTE } from '../../constants/theme';
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: PALETTE.vanilla[800]
+        backgroundColor: '#fafafa', // Clean, light background
     },
-    emptyList: { 
-        flexGrow: 1 
+    emptyList: {
+        flexGrow: 1
     }
 });

@@ -15,7 +15,6 @@ import MapScreen from './src/screens/MapScreen/index';
 import SessionScreen from './src/screens/SessionScreen/index';
 
 // services
-import { PALETTE } from './src/constants/theme';
 import { getDeviceId } from './src/utils/device';
 
 // important: hook log mirroring before app mounts
@@ -41,19 +40,25 @@ function MainTabs() {
                     }
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: PALETTE.flame.DEFAULT,
-                tabBarInactiveTintColor: 'gray',
+                tabBarActiveTintColor: '#1a1a1a',
+                tabBarInactiveTintColor: '#a3a3a3',
                 tabBarStyle: {
                     backgroundColor: '#fff',
                     borderTopWidth: 1,
-                    borderTopColor: '#e5e5e5',
+                    borderTopColor: '#f5f5f5',
                     paddingBottom: 30,
-                    paddingTop: 5,
+                    paddingTop: 8,
                     height: 80,
+                    elevation: 8,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: -2 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 8,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: '600',
+                    letterSpacing: 0.3,
                 },
             })}
         >

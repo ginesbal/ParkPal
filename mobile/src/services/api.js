@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
-const API_URL = Constants.expoConfig.extra.API_URL
+const API_URL = Constants.expoConfig.extra.apiUrl
 
 
 // cache configuration

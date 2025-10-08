@@ -174,7 +174,13 @@ export default function ParkingListItem({
                             </Text>
 
                             <View style={styles.metaRow}>
-                                <Text style={styles.distance}>{spot.distance}m</Text>
+                                {/* type indicator - moved inline for cleaner layout */}
+                                <View style={styles.typeIndicator}>
+                                    <MaterialCommunityIcons name={config.icon} size={14} color="#a3a3a3" />
+                                    <Text style={styles.typeText}>{config.label}</Text>
+                                </View>
+
+                                <Text style={styles.distance}>• {spot.distance}m</Text>
 
                                 {lowCapacity && (
                                     <View style={styles.lowCapacityWarning} accessibilityLabel={`${spot.capacity} spots left`}>
@@ -185,15 +191,15 @@ export default function ParkingListItem({
                             </View>
                         </View>
 
-                        {/* price badge */}
+                        {/* price badge - simplified */}
                         <View style={[styles.priceContainer, isFree && styles.freeContainer]}>
                             {isFree ? (
                                 <>
                                     <MaterialCommunityIcons
                                         name="gift"
-                                        size={14}
-                                        color={PALETTE.straw[200]}
-                                        style={{ marginRight: 4 }}
+                                        size={16}
+                                        color="#10b981"
+                                        style={{ marginBottom: 2 }}
                                     />
                                     <Text style={styles.freeLabel}>FREE</Text>
                                 </>
@@ -205,16 +211,10 @@ export default function ParkingListItem({
                                     >
                                         {isCheckSigns ? displayPrice : displayPrice.replace('/hr', '')}
                                     </Text>
-                                    {!isCheckSigns && <Text style={styles.priceUnit}>/HR</Text>}
+                                    {!isCheckSigns && <Text style={styles.priceUnit}>/hr</Text>}
                                 </>
                             )}
                         </View>
-                    </View>
-
-                    {/* type indicator */}
-                    <View style={styles.typeIndicator}>
-                        <MaterialCommunityIcons name={config.icon} size={12} color={alpha(config.color, 0.6)} />
-                        <Text style={styles.typeText}>{config.label}</Text>
                     </View>
                 </View>
 
@@ -228,161 +228,149 @@ export default function ParkingListItem({
     );
 }
 
+// Redesigned styles - Cleaner, list-based layout with less visual noise
 const styles = StyleSheet.create({
     container: {
         position: 'relative',
         flexDirection: 'row',
         backgroundColor: '#fff',
-        marginHorizontal: 8,
-        marginVertical: 2,
-        borderRadius: 14,
-        overflow: 'hidden',
-        // subtle elevation
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 3,
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f5f5f5',
     },
 
     priorityStripe: {
-        width: 3,
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 4,
     },
 
     content: {
         flex: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingLeft: 12,
     },
 
     primaryRow: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
+        marginBottom: 8,
     },
 
     walkingTimeBadge: {
         alignItems: 'center',
-        marginRight: 14,
-        minWidth: 40,
+        marginRight: 16,
+        minWidth: 48,
     },
     walkingTimeValue: {
-        fontSize: 22,
-        fontWeight: '800',
-        color: PALETTE.bistre[700],
-        lineHeight: 24,
-        letterSpacing: 0.2,
+        fontSize: 32,
+        fontWeight: '700',
+        color: '#1a1a1a',
+        lineHeight: 36,
+        letterSpacing: -1,
     },
     walkingTimeUnit: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: alpha(TOKENS.primary, 0.6),
-        letterSpacing: 0.6,
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#737373',
+        letterSpacing: 0.5,
         textTransform: 'uppercase',
-        lineHeight: 12,
-        marginTop: 2,
+        marginTop: 0,
     },
 
     primaryInfo: {
         flex: 1,
+        justifyContent: 'center',
     },
     address: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: TOKENS.text,
-        marginBottom: 4,
-        letterSpacing: -0.1,
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#1a1a1a',
+        marginBottom: 6,
+        letterSpacing: -0.2,
+        lineHeight: 22,
     },
     metaRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: 10,
+        flexWrap: 'wrap',
     },
     distance: {
-        fontSize: 12,
-        color: alpha(TOKENS.text, 0.6),
+        fontSize: 13,
+        color: '#737373',
+        fontWeight: '500',
     },
     lowCapacityWarning: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
+        backgroundColor: alpha(PALETTE.flame[500], 0.08),
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
     },
     warningDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
+        width: 5,
+        height: 5,
+        borderRadius: 2.5,
         backgroundColor: PALETTE.flame[500],
     },
     warningText: {
         fontSize: 11,
         color: PALETTE.flame[600],
-        fontWeight: '700',
-        letterSpacing: 0.2,
+        fontWeight: '600',
     },
 
     priceContainer: {
-        backgroundColor: PALETTE.vanilla[800],
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        marginLeft: 12,
-        minWidth: 64,
+        alignItems: 'center',
         justifyContent: 'center',
+        marginLeft: 12,
+        minWidth: 60,
     },
     freeContainer: {
-        backgroundColor: alpha(PALETTE.straw[500], 0.15),
-        alignItems: 'center',
+        // No special background
     },
     priceValue: {
-        fontSize: 14,
-        fontWeight: '800',
-        color: PALETTE.flame[300],
-        letterSpacing: 0.2,
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1a1a1a',
+        letterSpacing: -0.3,
     },
     priceUnit: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: alpha(TOKENS.primaryAlt, 0.5),
-        marginLeft: 3,
-        letterSpacing: 0.4,
+        fontSize: 11,
+        fontWeight: '500',
+        color: '#a3a3a3',
+        marginTop: 2,
     },
     freeLabel: {
-        fontSize: 12,
-        fontWeight: '800',
-        color: PALETTE.straw[200],
-        letterSpacing: 0.6,
-    },
-    // smaller style for "check signs"
-    priceNote: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '700',
-        color: TOKENS.textMuted,
+        color: '#10b981',
+        letterSpacing: 0.5,
+    },
+    priceNote: {
+        fontSize: 11,
+        fontWeight: '500',
+        color: '#737373',
+        textAlign: 'center',
     },
 
     typeIndicator: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginTop: 10,
-        paddingTop: 8,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: PALETTE.vanilla[600],
+        gap: 4,
+        marginTop: 0,
     },
     typeText: {
-        fontSize: 11,
-        color: alpha(TOKENS.text, 0.55),
-        textTransform: 'uppercase',
-        letterSpacing: 0.6,
-        fontWeight: '700',
+        fontSize: 12,
+        color: '#a3a3a3',
+        fontWeight: '500',
     },
 
-    // optional trailing action
     moreBtn: {
-        position: 'absolute',
-        right: 6,
-        top: 6,
-        padding: 8,
-        borderRadius: 10,
+        display: 'none', // Removed for cleaner design
     },
 });

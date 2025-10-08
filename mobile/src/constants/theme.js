@@ -63,19 +63,21 @@ export const PALETTE = {
 };
 
 export const TOKENS = {
-    bg: PALETTE.vanilla[800],
+    bg: '#fafafa', // Cleaner, lighter background
     surface: '#ffffff',
-    surfaceMuted: PALETTE.vanilla[800],
-    surfaceRaised: PALETTE.vanilla[900],
-    stroke: `${PALETTE.vanilla[600]}`,
-    text: PALETTE.bistre.DEFAULT,
-    textMuted: '#b8703c',
+    surfaceMuted: PALETTE.vanilla[900], // More subtle
+    surfaceRaised: '#ffffff',
+    stroke: '#e5e5e5', // Neutral gray for dividers
+    strokeLight: '#f5f5f5', // Even lighter divider
+    text: '#1a1a1a', // Higher contrast for readability
+    textMuted: '#737373', // Neutral gray instead of warm brown
+    textLight: '#a3a3a3', // For secondary info
     primary: PALETTE.flame.DEFAULT,
     primaryAlt: PALETTE.flame[300],
     accent: PALETTE.earth_yellow.DEFAULT,
     accentAlt: PALETTE.straw.DEFAULT,
     danger: PALETTE.flame.DEFAULT,
-    success: PALETTE.straw.DEFAULT,
+    success: '#10b981', // More standard green for success
     warning: PALETTE.earth_yellow.DEFAULT,
 };
 
