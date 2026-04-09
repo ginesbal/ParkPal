@@ -25,6 +25,14 @@ const QuickInfoBar = ({ quickInfo }) => {
                 <Text style={styles.quickInfoValue}>{displayValue}</Text>
                 <Text style={styles.quickInfoLabel}>{displayLabel}</Text>
             </View>
+            {showPrice ? (
+                <View style={styles.quickInfoMeta}>
+                    <Text style={styles.quickInfoMetaLabel}>Avg.</Text>
+                    <Text style={styles.quickInfoMetaValue}>
+                        ${Number(quickInfo.averagePrice).toFixed(2)}/hr
+                    </Text>
+                </View>
+            ) : null}
         </View>
     );
 };

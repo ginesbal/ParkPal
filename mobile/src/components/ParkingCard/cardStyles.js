@@ -1,7 +1,7 @@
 // src/components/ParkingCard/cardStyles.js
 
 import { StyleSheet } from 'react-native';
-import { PALETTE, alpha } from '../../constants/theme';
+import { PALETTE, SHADOWS, TOKENS, alpha } from '../../constants/theme';
 import { CARD_HEIGHT, CARD_WIDTH } from './cardConstants';
 
 export const styles = StyleSheet.create({
@@ -11,28 +11,28 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    zIndex: 999,
+    backgroundColor: alpha(TOKENS.shadow, 0.18),
+    zIndex: 1500,
+    elevation: 15,
   },
 
   container: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    zIndex: 1001,
-    elevation: 1001,
+    zIndex: 2000,
+    elevation: 20,
   },
 
   card: {
     position: 'absolute',
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    backgroundColor: PALETTE.vanilla[900],
+    backgroundColor: TOKENS.surfaceOverlay,
     borderRadius: 24,
+    borderWidth: 1,
+    borderColor: TOKENS.strokeLight,
     elevation: 20,
-    shadowColor: PALETTE.bistre[500],
-    shadowOpacity: 0.2,
-    shadowRadius: 30,
-    shadowOffset: { width: 0, height: 10 },
+    ...SHADOWS.lg,
     backfaceVisibility: 'hidden',
   },
 
@@ -77,16 +77,18 @@ export const styles = StyleSheet.create({
   spotTypeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: PALETTE.bistre[600],
+    color: TOKENS.primaryAlt,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
+    letterSpacing: 0.9,
   },
 
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: alpha(PALETTE.vanilla[700], 0.8),
+    backgroundColor: TOKENS.surfaceMuted,
+    borderWidth: 1,
+    borderColor: TOKENS.strokeLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -95,7 +97,7 @@ export const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: PALETTE.bistre[500],
+    backgroundColor: TOKENS.text,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -107,7 +109,7 @@ export const styles = StyleSheet.create({
   address: {
     fontSize: 18,
     fontWeight: '700',
-    color: PALETTE.bistre[500],
+    color: TOKENS.text,
     marginBottom: 24,
     lineHeight: 25,
     letterSpacing: -0.4,
@@ -136,7 +138,7 @@ export const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: alpha(PALETTE.vanilla[700], 0.5),
+    backgroundColor: TOKENS.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -144,14 +146,14 @@ export const styles = StyleSheet.create({
   statLabelLeft: {
     fontSize: 14,
     fontWeight: '500',
-    color: PALETTE.bistre[600],
+    color: TOKENS.textMuted,
     letterSpacing: -0.2,
   },
 
   statValueRight: {
     fontSize: 16,
     fontWeight: '700',
-    color: PALETTE.bistre[500],
+    color: TOKENS.text,
     textAlign: 'right',
     marginLeft: 12,
     flexShrink: 0,
@@ -159,7 +161,7 @@ export const styles = StyleSheet.create({
   },
 
   statValuePrimary: {
-    color: PALETTE.flame.DEFAULT,
+    color: TOKENS.primaryAlt,
   },
 
   statDividerLarge: {
@@ -183,19 +185,19 @@ export const styles = StyleSheet.create({
   },
 
   badgeDefault: {
-    backgroundColor: alpha(PALETTE.vanilla[700], 0.6),
+    backgroundColor: TOKENS.primarySoft,
   },
 
   badgeWarning: {
-    backgroundColor: alpha(PALETTE.earth_yellow.DEFAULT, 0.18),
+    backgroundColor: TOKENS.warningSoft,
   },
 
   badgeInfo: {
-    backgroundColor: alpha(PALETTE.straw.DEFAULT, 0.18),
+    backgroundColor: TOKENS.surfaceMuted,
   },
 
   badgeDanger: {
-    backgroundColor: alpha(PALETTE.flame.DEFAULT, 0.15),
+    backgroundColor: TOKENS.dangerSoft,
   },
 
   badgeTextLarge: {
@@ -204,10 +206,10 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  badgeTextDefault: { color: PALETTE.bistre[600] },
-  badgeTextWarning: { color: PALETTE.earth_yellow[100] },
-  badgeTextInfo: { color: PALETTE.straw[100] },
-  badgeTextDanger: { color: PALETTE.flame[100] },
+  badgeTextDefault: { color: TOKENS.primaryAlt },
+  badgeTextWarning: { color: PALETTE.amber[700] },
+  badgeTextInfo: { color: TOKENS.textMuted },
+  badgeTextDanger: { color: TOKENS.danger },
 
   actionsLarge: {
     flexDirection: 'row',
@@ -220,7 +222,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: alpha(PALETTE.vanilla[700], 0.8),
+    backgroundColor: TOKENS.surfaceMuted,
     paddingVertical: 15,
     borderRadius: 16,
     gap: 6,
@@ -229,7 +231,7 @@ export const styles = StyleSheet.create({
   detailsBtnTextLarge: {
     fontSize: 15,
     fontWeight: '600',
-    color: PALETTE.bistre[500],
+    color: TOKENS.text,
   },
 
   navBtnLarge: {
@@ -237,7 +239,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: PALETTE.flame.DEFAULT,
+    backgroundColor: TOKENS.primary,
     paddingVertical: 15,
     borderRadius: 16,
     gap: 7,
@@ -246,7 +248,7 @@ export const styles = StyleSheet.create({
   navBtnTextLarge: {
     fontSize: 15,
     fontWeight: '600',
-    color: PALETTE.vanilla[900],
+    color: '#ffffff',
   },
 
   // horizontal pager
@@ -276,7 +278,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 13,
     borderBottomWidth: 1,
-    borderBottomColor: alpha(PALETTE.earth_yellow[400], 0.12),
+    borderBottomColor: TOKENS.strokeLight,
   },
 
   detailRowHighlightLarge: {
@@ -286,14 +288,14 @@ export const styles = StyleSheet.create({
   detailLabelLarge: {
     fontSize: 14,
     lineHeight: 20,
-    color: PALETTE.bistre[600],
+    color: TOKENS.textMuted,
     flex: 1,
     fontWeight: '500',
     letterSpacing: -0.1,
   },
 
   detailLabelHighlight: {
-    color: PALETTE.bistre[500],
+    color: TOKENS.text,
     fontWeight: '600',
   },
 
@@ -301,7 +303,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '600',
-    color: PALETTE.bistre[500],
+    color: TOKENS.text,
     textAlign: 'right',
     paddingLeft: 16,
     flexShrink: 0,
@@ -311,7 +313,7 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 20,
     fontWeight: '700',
-    color: PALETTE.flame.DEFAULT,
+    color: TOKENS.primaryAlt,
   },
 
   pagerContainer: {
@@ -324,14 +326,14 @@ export const styles = StyleSheet.create({
     marginHorizontal: 0,
     marginBottom: 0,
     borderTopWidth: 1,
-    borderTopColor: alpha(PALETTE.earth_yellow[400], 0.1),
+    borderTopColor: TOKENS.strokeLight,
   },
 
   pagerArrow: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: alpha(PALETTE.vanilla[700], 0.6),
+    backgroundColor: TOKENS.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -353,18 +355,18 @@ export const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: alpha(PALETTE.earth_yellow[400], 0.3),
+    backgroundColor: TOKENS.primarySoft,
   },
 
   pagerDotActive: {
     width: 20,
     height: 6,
     borderRadius: 3,
-    backgroundColor: PALETTE.earth_yellow[400],
+    backgroundColor: TOKENS.primary,
   },
 
   pagerMeta: {
-    backgroundColor: alpha(PALETTE.flame[600], 0.1),
+    backgroundColor: TOKENS.primarySoft,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
@@ -373,18 +375,18 @@ export const styles = StyleSheet.create({
   pagerMetaText: {
     fontSize: 12,
     fontWeight: '700',
-    color: PALETTE.flame[600],
+    color: TOKENS.primaryAlt,
     letterSpacing: 0.3,
   },
 
   linkText: {
     textDecorationLine: 'underline',
-    color: PALETTE.flame.DEFAULT,
+    color: TOKENS.primaryAlt,
   },
 
   noDataText: {
     fontSize: 14,
-    color: PALETTE.bistre[700],
+    color: TOKENS.textMuted,
     textAlign: 'center',
     paddingVertical: 32,
     fontStyle: 'italic',
@@ -399,7 +401,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: PALETTE.flame.DEFAULT,
+    backgroundColor: TOKENS.primary,
     paddingVertical: 16,
     borderRadius: 16,
     gap: 8,

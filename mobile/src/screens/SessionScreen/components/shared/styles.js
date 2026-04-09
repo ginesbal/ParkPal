@@ -1,22 +1,21 @@
 import { StyleSheet } from 'react-native';
-import { PALETTE, TOKENS, alpha } from '../../../../constants/theme';
+import { TOKENS, alpha } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
-    // Status Badge Styles
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
         paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingVertical: 7,
         borderRadius: 20,
-        backgroundColor: alpha(TOKENS.primary, 0.1),
+        backgroundColor: TOKENS.primarySoft,
     },
     statusBadgeWarning: {
-        backgroundColor: alpha(TOKENS.warning, 0.15),
+        backgroundColor: TOKENS.warningSoft,
     },
     statusBadgeDanger: {
-        backgroundColor: alpha(TOKENS.danger, 0.15),
+        backgroundColor: TOKENS.dangerSoft,
     },
     statusDot: {
         width: 8,
@@ -34,8 +33,7 @@ export const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '700',
         color: TOKENS.primary,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 0.2,
     },
     statusTextWarning: {
         color: TOKENS.warning,
@@ -44,27 +42,26 @@ export const styles = StyleSheet.create({
         color: TOKENS.danger,
     },
 
-    // Info Card Styles
     infoCard: {
-        backgroundColor: alpha(PALETTE.earth_yellow[400], 0.08),
+        backgroundColor: TOKENS.surfaceMuted,
         borderRadius: 16,
         padding: 16,
-        marginTop: 20,
+        marginTop: 18,
         flexDirection: 'row',
         gap: 12,
         borderWidth: 1,
-        borderColor: alpha(PALETTE.earth_yellow[400], 0.2),
+        borderColor: TOKENS.strokeLight,
     },
     infoCardWarning: {
-        backgroundColor: alpha(TOKENS.warning, 0.08),
-        borderColor: alpha(TOKENS.warning, 0.2),
+        backgroundColor: TOKENS.warningSoft,
+        borderColor: alpha(TOKENS.warning, 0.18),
     },
     infoCardError: {
-        backgroundColor: alpha(TOKENS.danger, 0.08),
-        borderColor: alpha(TOKENS.danger, 0.2),
+        backgroundColor: TOKENS.dangerSoft,
+        borderColor: alpha(TOKENS.danger, 0.18),
     },
     infoIcon: {
-        color: PALETTE.earth_yellow[200],
+        color: TOKENS.primary,
     },
     infoIconWarning: {
         color: TOKENS.warning,
@@ -76,6 +73,6 @@ export const styles = StyleSheet.create({
         flex: 1,
         fontSize: 13,
         lineHeight: 18,
-        color: PALETTE.bistre[600],
+        color: TOKENS.textMuted,
     },
 });

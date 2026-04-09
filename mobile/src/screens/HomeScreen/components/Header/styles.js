@@ -1,188 +1,201 @@
 import { StyleSheet } from 'react-native';
-import { PALETTE, TOKENS } from '../../../../constants/theme';
+import { TOKENS } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
     header: {
         backgroundColor: TOKENS.surface,
-        borderBottomWidth: 0
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.strokeLight,
     },
     mainHeader: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 12
+        paddingHorizontal: 20,
+        paddingTop: 14,
+        paddingBottom: 10,
     },
 
     locationSection: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        marginBottom: 16,
+        minHeight: 52,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        marginBottom: 10,
+        backgroundColor: TOKENS.surfaceMuted,
+        borderRadius: 18,
+        borderWidth: 1,
+        borderColor: TOKENS.strokeLight,
+    },
+    locationSectionPressed: {
+        backgroundColor: TOKENS.strokeLight,
     },
     locationIcon: {
-        marginRight: 8,
+        marginRight: 10,
     },
     locationInfo: {
-        flex: 1
+        flex: 1,
     },
     locationLabel: {
-        fontSize: 11,
+        fontSize: 12,
         color: TOKENS.textLight,
-        textTransform: 'uppercase',
-        letterSpacing: 0.8,
+        letterSpacing: 0.2,
         marginBottom: 2,
         fontWeight: '600',
     },
     locationText: {
-        fontSize: 17,
+        fontSize: 18,
         fontWeight: '700',
         color: TOKENS.text,
-        letterSpacing: -0.3,
+        letterSpacing: -0.35,
     },
 
     quickInfoBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 6,
-        paddingHorizontal: 0,
-        marginBottom: 12,
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        marginBottom: 8,
+        backgroundColor: TOKENS.surfaceAccent,
+        borderRadius: 18,
     },
     quickInfoItem: {
         flexDirection: 'row',
         alignItems: 'baseline',
-        gap: 4,
+        gap: 6,
+        flexShrink: 1,
     },
     quickInfoValue: {
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: '700',
         color: TOKENS.text,
-        letterSpacing: -0.5,
-    },
-    quickInfoUnit: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: TOKENS.textMuted,
+        letterSpacing: -0.7,
+        fontVariant: ['tabular-nums'],
     },
     quickInfoLabel: {
         fontSize: 13,
         color: TOKENS.textMuted,
-        marginLeft: 6,
+        flexShrink: 1,
+    },
+    quickInfoMeta: {
+        alignItems: 'flex-end',
+        marginLeft: 12,
+    },
+    quickInfoMetaLabel: {
+        fontSize: 11,
+        color: TOKENS.textLight,
+        fontWeight: '600',
+    },
+    quickInfoMetaValue: {
+        fontSize: 13,
+        color: TOKENS.primaryAlt,
+        fontWeight: '700',
     },
     statsRow: {
         display: 'none',
     },
 
     filterBar: {
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        paddingBottom: 4,
-        backgroundColor: '#fff',
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: '#e0e0e0',
+        paddingHorizontal: 20,
+        paddingTop: 4,
+        paddingBottom: 14,
+        backgroundColor: TOKENS.surface,
     },
     filterRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginBottom: 4,
+        gap: 8,
+        marginBottom: 6,
+        flexWrap: 'wrap',
     },
     filterChip: {
+        minHeight: 40,
         paddingHorizontal: 14,
-        paddingVertical: 5,
+        paddingVertical: 9,
         borderRadius: 16,
-        backgroundColor: '#f8f8f8',
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: 1,
-        borderColor: '#e5e5e5',
+        borderColor: TOKENS.strokeLight,
     },
     filterChipActive: {
-        backgroundColor: PALETTE.flame[500],
-        borderColor: PALETTE.flame[500],
+        backgroundColor: TOKENS.primary,
+        borderColor: TOKENS.primary,
+    },
+    filterChipPressed: {
+        opacity: 0.92,
+        transform: [{ scale: 0.98 }],
     },
     filterChipText: {
         fontSize: 13,
-        fontWeight: '500',
-        color: '#888',
+        fontWeight: '600',
+        color: TOKENS.textMuted,
     },
     filterChipTextActive: {
-        color: '#fff',
+        color: TOKENS.surface,
     },
     distanceRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginTop: 4,
+        gap: 10,
+        marginTop: 2,
+        flexWrap: 'wrap',
     },
-    distanceTrack: {
-        flex: 1,
-        flexDirection: 'row',
-        height: 24,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 12,
-        position: 'relative',
-        alignItems: 'center',
-        paddingHorizontal: 4,
-        justifyContent: 'space-between',
-    },
-    distanceMarker: {
-        width: 14,
-        height: 14,
-        borderRadius: 7,
-        backgroundColor: '#d0d0d0',
-        borderWidth: 2,
-        borderColor: '#fff',
-    },
-    distanceMarkerActive: {
-        backgroundColor: PALETTE.flame[500],
-        width: 46,
-        height: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 0,
-    },
-    distanceValue: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: '#fff',
-    },
-
-    filterContent: {
-        display: 'none',
-    },
-    filterGroup: {
-        display: 'none',
-    },
-    filterGroupLabel: {
-        display: 'none',
-    },
-    filterOptions: {
-        display: 'none',
-    },
-    filterOption: {
-        display: 'none',
-    },
-    filterOptionActive: {
-        display: 'none',
-    },
-    filterOptionText: {
-        display: 'none',
-    },
-    filterOptionTextActive: {
-        display: 'none',
+    distanceLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: TOKENS.textMuted,
+        letterSpacing: 0.2,
     },
     distanceOptions: {
-        display: 'none',
+        flex: 1,
+        flexDirection: 'row',
+        gap: 6,
+        flexWrap: 'wrap',
     },
     distanceOption: {
-        display: 'none',
+        minHeight: 38,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 14,
+        backgroundColor: TOKENS.surfaceMuted,
+        borderWidth: 1,
+        borderColor: TOKENS.strokeLight,
     },
     distanceOptionActive: {
-        display: 'none',
+        backgroundColor: TOKENS.primary,
+        borderColor: TOKENS.primary,
+    },
+    distanceOptionPressed: {
+        opacity: 0.92,
+        transform: [{ scale: 0.98 }],
     },
     distanceOptionText: {
-        display: 'none',
+        fontSize: 12,
+        fontWeight: '600',
+        color: TOKENS.textMuted,
     },
     distanceOptionTextActive: {
-        display: 'none',
-    }
+        color: TOKENS.surface,
+    },
+    statusBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        borderRadius: 16,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        marginBottom: 6,
+    },
+    statusBannerInfo: {
+        backgroundColor: TOKENS.primarySoft,
+    },
+    statusBannerWarning: {
+        backgroundColor: TOKENS.warningSoft,
+    },
+    statusBannerText: {
+        flex: 1,
+        fontSize: 13,
+        lineHeight: 18,
+        color: TOKENS.textMuted,
+        fontWeight: '500',
+    },
 });

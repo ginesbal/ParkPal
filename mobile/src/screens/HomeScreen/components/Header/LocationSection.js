@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { TOKENS } from '../../../../constants/theme';
+import { Pressable, Text, View } from 'react-native';
+import { PALETTE, TOKENS } from '../../../../constants/theme';
 import { styles } from './styles';
 
 /**
@@ -8,22 +8,24 @@ import { styles } from './styles';
  */
 const LocationSection = ({ locationName, onPress }) => {
     return (
-        <TouchableOpacity
-            style={styles.locationSection}
+        <Pressable
+            style={({ pressed }) => [
+                styles.locationSection,
+                pressed && styles.locationSectionPressed,
+            ]}
             onPress={onPress}
-            activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={`Current location: ${locationName}. Tap to view map`}
         >
             <MaterialCommunityIcons
                 name="map-marker"
                 size={16}
-                color={TOKENS.textMuted}
+                color={PALETTE.cerulean[500]}
                 style={styles.locationIcon}
             />
 
             <View style={styles.locationInfo}>
-                <Text style={styles.locationLabel}>LOCATION</Text>
+                <Text style={styles.locationLabel}>Current area</Text>
                 <Text style={styles.locationText} numberOfLines={1}>
                     {locationName}
                 </Text>
@@ -34,7 +36,7 @@ const LocationSection = ({ locationName, onPress }) => {
                 size={18}
                 color={TOKENS.textLight}
             />
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 

@@ -1,5 +1,3 @@
-// src/screens/SessionScreen/index.js
-
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,47 +12,51 @@ import { styles } from './SessionScreen.styles';
  */
 export default function SessionScreen() {
   const {
-    // session data
     session,
     sessionState,
     timeRemaining,
     elapsedTime,
     progress,
-
-    // actions
     startSession,
     endSession,
     extendSession,
-
-    // form state
     vehiclePlate,
     setVehiclePlate,
     selectedRate,
     setSelectedRate,
     selectedDuration,
     setSelectedDuration,
-
-    // computed
     totalCost,
     endTime,
   } = useSessionManager();
 
-  // log screen mount once
+  const hasSession = Boolean(session);
+
   React.useEffect(() => {
     logger.log('session_screen_mount');
   }, []);
 
-  // log state transitions
   React.useEffect(() => {
     logger.log('session_state_update', {
-      hasSession: !!session,
+      hasSession,
       state: sessionState || 'idle',
       totalCost,
       endTime,
     });
-  }, [session, sessionState, totalCost, endTime]);
+  }, [endTime, hasSession, sessionState, totalCost]);
 
-  // wrap actions with logs
+  React.useEffect(() => {
+    if (hasSession) {
+      logger.log('session_view_active', {
+        timeRemainingSec: timeRemaining,
+        progress,
+      });
+      return;
+    }
+
+    logger.log('session_view_empty');
+  }, [hasSession, progress, timeRemaining]);
+
   const handleStart = React.useCallback(() => {
     logger.log('session_start_request', {
       plate: vehiclePlate || null,
@@ -80,7 +82,6 @@ export default function SessionScreen() {
     endSession();
   }, [endSession, elapsedTime, totalCost]);
 
-  // form changes (debounced-ish: only log real changes)
   const prevFormRef = React.useRef({
     plate: vehiclePlate,
     rate: selectedRate,
@@ -104,12 +105,7 @@ export default function SessionScreen() {
     }
   }, [vehiclePlate, selectedRate, selectedDuration]);
 
-  // rendering branches
-  if (!session) {
-    // log view swap so we can trace empty vs active ui
-    React.useEffect(() => {
-      logger.log('session_view_empty');
-    }, []);
+  if (!hasSession) {
     return (
       <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
         <StatusBar style="dark" />
@@ -125,14 +121,6 @@ export default function SessionScreen() {
       </SafeAreaView>
     );
   }
-
-  // active session
-  React.useEffect(() => {
-    logger.log('session_view_active', {
-      timeRemainingSec: timeRemaining,
-      progress,
-    });
-  }, [timeRemaining, progress]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>

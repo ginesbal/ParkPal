@@ -9,9 +9,9 @@ export default function StatusBadge({ state }) {
     const getStatusText = () => {
         switch (state) {
             case 'expired':
-                return 'Session Expired';
+                return 'Expired';
             case 'expiring':
-                return 'Expiring Soon';
+                return 'Ends soon';
             default:
                 return 'Active';
         }

@@ -1,42 +1,70 @@
-
-import React from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect, useRef } from 'react';
+import { Animated, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { PALETTE } from '../../../../constants/theme';
 import { getDistanceLabel } from '../../../../utils/parkingHelpers';
 import { styles } from './styles';
-import { TOKENS, PALETTE } from '../../../../constants/theme';
 
 /**
- * LoadingState - Initial loading screen
+ * LoadingState - Initial loading screen with skeleton placeholders
  */
 const LoadingState = ({ searchRadius }) => {
+    const pulseAnim = useRef(new Animated.Value(0.45)).current;
+
+    useEffect(() => {
+        const loop = Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 950,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 0.45,
+                    duration: 950,
+                    useNativeDriver: true,
+                }),
+            ])
+        );
+
+        loop.start();
+        return () => loop.stop();
+    }, [pulseAnim]);
+
     return (
-        <SafeAreaView 
-            style={styles.fullScreenBg} 
-            edges={['top', 'left', 'right', 'bottom']}
-        >
+        <SafeAreaView style={styles.fullScreenBg} edges={['top', 'left', 'right', 'bottom']}>
             <StatusBar style="dark" />
             <View style={styles.loadingContainer}>
                 <View style={styles.loadingIcon}>
-                    <MaterialCommunityIcons 
-                        name="map-search" 
-                        size={40} 
-                        color={PALETTE.earth_yellow[500]} 
+                    <MaterialCommunityIcons
+                        name="map-search"
+                        size={40}
+                        color={PALETTE.amber[500]}
                     />
                 </View>
-                
-                <ActivityIndicator 
-                    size="small" 
-                    color={TOKENS.primary} 
-                    style={{ marginBottom: 10 }} 
-                />
-                
-                <Text style={styles.loadingText}>Finding parking spots…</Text>
+
+                <Text style={styles.loadingText}>Finding nearby parking</Text>
                 <Text style={styles.loadingSubtext}>
                     Searching within {getDistanceLabel(searchRadius)}
                 </Text>
+
+                <View style={styles.loadingSkeletonStack}>
+                    {[0, 1, 2].map((item) => (
+                        <Animated.View
+                            key={item}
+                            style={[styles.loadingSkeletonCard, { opacity: pulseAnim }]}
+                        >
+                            <View style={styles.loadingSkeletonBadge} />
+                            <View style={styles.loadingSkeletonContent}>
+                                <View style={styles.loadingSkeletonLineWide} />
+                                <View style={styles.loadingSkeletonLine} />
+                            </View>
+                            <View style={styles.loadingSkeletonPrice} />
+                        </Animated.View>
+                    ))}
+                </View>
             </View>
         </SafeAreaView>
     );

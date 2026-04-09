@@ -1,4 +1,6 @@
-import { Animated, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Animated, Text, View } from 'react-native';
+import { TOKENS } from '../../../../constants/theme';
 import FilterBar from './FilterBar';
 import LocationSection from './LocationSection';
 import QuickInfoBar from './QuickInfoBar';
@@ -17,7 +19,9 @@ const Header = ({
     setSearchRadius,
     fadeAnim,
     slideAnim,
-    onLocationPress
+    onLocationPress,
+    statusMessage,
+    statusTone = 'info',
 }) => {
     return (
         <Animated.View
@@ -38,6 +42,22 @@ const Header = ({
                 {spots.length > 0 && (
                     <QuickInfoBar quickInfo={quickInfo} />
                 )}
+
+                {statusMessage ? (
+                    <View
+                        style={[
+                            styles.statusBanner,
+                            statusTone === 'warning' ? styles.statusBannerWarning : styles.statusBannerInfo,
+                        ]}
+                    >
+                        <MaterialCommunityIcons
+                            name={statusTone === 'warning' ? 'wifi-alert' : 'crosshairs-question'}
+                            size={16}
+                            color={statusTone === 'warning' ? TOKENS.warning : TOKENS.primary}
+                        />
+                        <Text style={styles.statusBannerText}>{statusMessage}</Text>
+                    </View>
+                ) : null}
             </View>
 
             <FilterBar

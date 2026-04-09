@@ -1,40 +1,37 @@
-import { StyleSheet, Platform } from 'react-native';
-import { TOKENS, PALETTE, alpha } from '../../../../constants/theme';
+import { Platform, StyleSheet } from 'react-native';
+import { SHADOWS, TOKENS } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
     mapFab: {
         position: 'absolute',
         bottom: 24,
         right: 16,
-        alignItems: 'center'
-    },
-    mapFabInner: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        minHeight: 48,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 18,
         backgroundColor: TOKENS.primary,
         justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 4,
+        borderWidth: 1,
+        borderColor: TOKENS.primaryAlt,
         ...Platform.select({
-            ios: {
-                shadowColor: PALETTE.bistre?.[800] ?? '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-            },
+            ios: SHADOWS.md,
             android: {
                 elevation: 8,
             }
         })
     },
+    mapFabPressed: {
+        transform: [{ scale: 0.98 }],
+        opacity: 0.94,
+    },
     mapFabLabel: {
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: '700',
-        color: TOKENS.primary,
-        backgroundColor: alpha('#FFFFFF', 0.9),
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 10
+        color: '#fff',
+        letterSpacing: 0.2
     }
 });

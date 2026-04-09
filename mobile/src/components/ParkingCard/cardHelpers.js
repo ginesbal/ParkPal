@@ -1,6 +1,6 @@
 // src/components/ParkingCard/cardHelpers.js
 
-import { debugLogger as logger } from '../../utils/loggers';
+import { logger } from '../../utils/loggers';
 
 // json parsing helpers
 export const parseZoneInfo = (spot) => {

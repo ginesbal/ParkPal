@@ -9,7 +9,6 @@ import TimerCard from './TimerCard';
 
 /**
  * ActiveSession - Displays and manages an active parking session
- * Shows timer, quick extend options, and session details
  */
 const ActiveSession = ({
     session,
@@ -22,14 +21,15 @@ const ActiveSession = ({
     onExtend,
     onEnd,
 }) => {
+    const sessionLabel = [session?.spotId, session?.locationName].filter(Boolean).join(' • ');
+
     return (
         <>
-            {/* Fixed Header with Status */}
             <View style={styles.header}>
                 <View style={styles.statusBar}>
                     <StatusBadge state={sessionState} />
-                    <Text style={styles.locationText}>
-                        {session.spotId} • {session.locationName}
+                    <Text style={styles.locationText} numberOfLines={1}>
+                        {sessionLabel}
                     </Text>
                 </View>
             </View>
@@ -38,7 +38,6 @@ const ActiveSession = ({
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Main Timer Display */}
                 <TimerCard
                     sessionState={sessionState}
                     timeRemaining={timeRemaining}
@@ -47,21 +46,18 @@ const ActiveSession = ({
                     totalCost={totalCost}
                 />
 
-                {/* Quick Extension Options */}
                 <QuickExtend
                     onExtend={onExtend}
                     hourlyRate={session.hourlyRate}
                     disabled={sessionState === 'expired'}
                 />
 
-                {/* Session Details */}
                 <SessionDetails
                     session={session}
                     elapsedTime={elapsedTime}
                 />
             </ScrollView>
 
-            {/* Fixed Bottom Action */}
             <SafeAreaView edges={['bottom']} style={styles.bottomActions}>
                 <TouchableOpacity
                     onPress={onEnd}
@@ -76,10 +72,10 @@ const ActiveSession = ({
                         size={20}
                         color="#fff"
                     />
-                    <Text style={styles.endButtonText}>End Parking Session</Text>
+                    <Text style={styles.endButtonText}>End session</Text>
                 </TouchableOpacity>
                 <Text style={styles.bottomHint}>
-                    Ending early? No refund for unused time in demo mode.
+                    Ending early will stop the demo timer immediately.
                 </Text>
             </SafeAreaView>
         </>

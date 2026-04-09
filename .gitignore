@@ -15,4 +15,5 @@ build/
 android/app/build/
 ios/Pods/
 *.log
+backend/logs/
 .DS_Store

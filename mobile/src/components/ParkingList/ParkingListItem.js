@@ -10,31 +10,31 @@ import {
     View,
 } from 'react-native';
 import { PALETTE, TOKENS, alpha } from '../../constants/theme';
-import { debugLogger as logger } from '../../utils/loggers';
+import { logger } from '../../utils/loggers';
 
 // local config
 const PARKING_CONFIG = {
     on_street: {
-        color: PALETTE.flame[600],
-        bgColor: alpha(PALETTE.flame[600], 0.08),
+        color: PALETTE.cerulean[600],
+        bgColor: alpha(PALETTE.cerulean[600], 0.08),
         icon: 'car',
         label: 'Street',
     },
     off_street: {
-        color: PALETTE.bistre[700],
-        bgColor: alpha(PALETTE.bistre[700], 0.06),
+        color: PALETTE.yale[600],
+        bgColor: alpha(PALETTE.yale[600], 0.06),
         icon: 'parking',
         label: 'Lot',
     },
     residential: {
-        color: PALETTE.earth_yellow[300],
-        bgColor: alpha(PALETTE.earth_yellow[300], 0.08),
+        color: PALETTE.amber[400],
+        bgColor: alpha(PALETTE.amber[400], 0.08),
         icon: 'home-group',
         label: 'Resident',
     },
     school: {
-        color: PALETTE.straw[300],
-        bgColor: alpha(PALETTE.straw[300], 0.08),
+        color: PALETTE.cream[400],
+        bgColor: alpha(PALETTE.cream[400], 0.08),
         icon: 'school',
         label: 'Campus',
     },
@@ -44,9 +44,7 @@ export default function ParkingListItem({
     spot,
     price,
     onPress,
-    onViewOnMap,
-    onOpenDetails,    // kept for api compatibility (not used here)
-    showActions = true, // kept for api compatibility (not used here)
+    isSelected = false,
 }) {
     // press feedback animation
     const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -93,8 +91,8 @@ export default function ParkingListItem({
     // press handlers (log user intent)
     const handlePressIn = () => {
         Animated.spring(scaleAnim, {
-            toValue: 0.98,
-            speed: 20,
+            toValue: 0.97,
+            speed: 24,
             bounciness: 0,
             useNativeDriver: true,
         }).start();
@@ -123,174 +121,149 @@ export default function ParkingListItem({
         onPress?.(spot, { stayInList: true });
     };
 
-    const handleMorePress = (e) => {
-        e.stopPropagation();
-        logger.log(
-            'list item view on map',
-            { spotId: spot?.id, address: spot?.address },
-            'UI_EVENT'
-        );
-        onViewOnMap?.(spot);
-    };
-
-    // walking-time color ramp
-    const getWalkingColor = (minutes) => {
-        if (minutes <= 2) return PALETTE.flame[300];
-        if (minutes <= 5) return PALETTE.earth_yellow[300];
-        return PALETTE.straw[300];
-    };
-
     return (
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <Pressable
                 onPress={handleRowPress}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
-                android_ripple={{ color: alpha(TOKENS.text, 0.06), borderless: false }}
-                style={styles.container}
+                android_ripple={{ color: alpha(TOKENS.text, 0.04), borderless: false }}
+                style={[styles.container, isSelected && styles.containerSelected]}
                 accessibilityRole="button"
                 accessibilityLabel={`Parking at ${spot.address}, ${spot.distance} meters away, ${isFree ? 'free' : `price ${displayPrice} per hour`}`}
                 hitSlop={6}
             >
-                {/* priority stripe (walking time) */}
-                <View
-                    style={[styles.priorityStripe, { backgroundColor: getWalkingColor(spot.walkingTime) }]}
-                />
+                <View style={[styles.card, isSelected && styles.cardSelected]}>
+                    {/* Walking time badge */}
+                    <View
+                        style={[styles.walkingTimeBadge, isSelected && styles.walkingTimeBadgeSelected]}
+                        accessibilityLabel={`${spot.walkingTime} minutes walk`}
+                    >
+                        <Text style={styles.walkingTimeValue}>{spot.walkingTime}</Text>
+                        <Text style={styles.walkingTimeUnit}>MIN</Text>
+                    </View>
 
-                {/* main content */}
-                <View style={styles.content}>
-                    {/* row: time badge • address/distance • price */}
-                    <View style={styles.primaryRow}>
-                        {/* time */}
-                        <View style={styles.walkingTimeBadge} accessibilityLabel={`${spot.walkingTime} minutes walk`}>
-                            <Text style={styles.walkingTimeValue}>{spot.walkingTime}</Text>
-                            <Text style={styles.walkingTimeUnit}>MIN</Text>
-                        </View>
+                    {/* Main content */}
+                    <View style={styles.content}>
+                        <Text style={styles.address} numberOfLines={1}>
+                            {spot.address}
+                        </Text>
 
-                        {/* address + meta */}
-                        <View style={styles.primaryInfo}>
-                            <Text style={styles.address} numberOfLines={1}>
-                                {spot.address}
-                            </Text>
-
-                            <View style={styles.metaRow}>
-                                {/* type indicator - moved inline for cleaner layout */}
-                                <View style={styles.typeIndicator}>
-                                    <MaterialCommunityIcons name={config.icon} size={14} color="#a3a3a3" />
-                                    <Text style={styles.typeText}>{config.label}</Text>
-                                </View>
-
-                                <Text style={styles.distance}>• {spot.distance}m</Text>
-
-                                {lowCapacity && (
-                                    <View style={styles.lowCapacityWarning} accessibilityLabel={`${spot.capacity} spots left`}>
-                                        <View style={styles.warningDot} />
-                                        <Text style={styles.warningText}>{spot.capacity} left</Text>
-                                    </View>
-                                )}
+                        <View style={styles.metaRow}>
+                            <View style={[styles.typeIndicator, { backgroundColor: config.bgColor }]}>
+                                <MaterialCommunityIcons name={config.icon} size={13} color={config.color} />
+                                <Text style={[styles.typeText, { color: config.color }]}>{config.label}</Text>
                             </View>
-                        </View>
 
-                        {/* price badge - simplified */}
-                        <View style={[styles.priceContainer, isFree && styles.freeContainer]}>
-                            {isFree ? (
-                                <>
-                                    <MaterialCommunityIcons
-                                        name="gift"
-                                        size={16}
-                                        color="#10b981"
-                                        style={{ marginBottom: 2 }}
-                                    />
-                                    <Text style={styles.freeLabel}>FREE</Text>
-                                </>
-                            ) : (
-                                <>
-                                    <Text
-                                        style={[styles.priceValue, isCheckSigns && styles.priceNote]}
-                                        numberOfLines={1}
-                                    >
-                                        {isCheckSigns ? displayPrice : displayPrice.replace('/hr', '')}
-                                    </Text>
-                                    {!isCheckSigns && <Text style={styles.priceUnit}>/hr</Text>}
-                                </>
+                            <View style={styles.distanceContainer}>
+                                <Text style={styles.distance}>{spot.distance}m</Text>
+                            </View>
+
+                            {lowCapacity && (
+                                <View style={styles.lowCapacityWarning} accessibilityLabel={`${spot.capacity} spots left`}>
+                                    <View style={styles.warningDot} />
+                                    <Text style={styles.warningText}>{spot.capacity} left</Text>
+                                </View>
                             )}
                         </View>
                     </View>
-                </View>
 
-                {/* optional: trailing action button
-        <Pressable onPress={handleMorePress} hitSlop={8} style={styles.moreBtn}>
-          <MaterialCommunityIcons name="dots-horizontal" size={18} color={alpha(TOKENS.text, 0.5)} />
-        </Pressable>
-        */}
+                    {/* Price */}
+                    <View style={styles.priceContainer}>
+                        {isFree ? (
+                            <View style={styles.freeBadge}>
+                                <Text style={styles.freeLabel}>FREE</Text>
+                            </View>
+                        ) : (
+                            <>
+                                <Text
+                                    style={[styles.priceValue, isCheckSigns && styles.priceNote]}
+                                    numberOfLines={1}
+                                >
+                                    {isCheckSigns ? displayPrice : displayPrice.replace('/hr', '')}
+                                </Text>
+                                {!isCheckSigns && <Text style={styles.priceUnit}>/hr</Text>}
+                            </>
+                        )}
+                    </View>
+                </View>
             </Pressable>
         </Animated.View>
     );
 }
 
-// Redesigned styles - Cleaner, list-based layout with less visual noise
 const styles = StyleSheet.create({
     container: {
-        position: 'relative',
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 2,
+        backgroundColor: 'transparent',
+    },
+    containerSelected: {
+        paddingTop: 8,
+    },
+
+    card: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
+        alignItems: 'center',
+        minHeight: 88,
+        backgroundColor: TOKENS.surface,
+        borderRadius: 18,
         paddingHorizontal: 16,
         paddingVertical: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f5f5f5',
+        gap: 16,
+        borderWidth: 1,
+        borderColor: TOKENS.strokeLight,
     },
-
-    priorityStripe: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: 4,
-    },
-
-    content: {
-        flex: 1,
-        paddingLeft: 12,
-    },
-
-    primaryRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        marginBottom: 8,
+    cardSelected: {
+        backgroundColor: TOKENS.surfaceRaised,
+        borderColor: TOKENS.focus,
+        shadowColor: TOKENS.shadow,
+        shadowOpacity: 0.08,
+        shadowRadius: 14,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 3,
     },
 
     walkingTimeBadge: {
         alignItems: 'center',
-        marginRight: 16,
-        minWidth: 48,
+        justifyContent: 'center',
+        minWidth: 56,
+        minHeight: 56,
+        paddingHorizontal: 8,
+        borderRadius: 16,
+        backgroundColor: TOKENS.surfaceMuted,
+    },
+    walkingTimeBadgeSelected: {
+        backgroundColor: TOKENS.primarySoft,
     },
     walkingTimeValue: {
-        fontSize: 32,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        lineHeight: 36,
-        letterSpacing: -1,
+        fontSize: 24,
+        fontWeight: '800',
+        color: TOKENS.text,
+        lineHeight: 28,
+        letterSpacing: -0.5,
+        fontVariant: ['tabular-nums'],
     },
     walkingTimeUnit: {
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: '600',
-        color: '#737373',
+        color: TOKENS.textMuted,
         letterSpacing: 0.5,
         textTransform: 'uppercase',
-        marginTop: 0,
+        marginTop: -2,
     },
 
-    primaryInfo: {
+    content: {
         flex: 1,
-        justifyContent: 'center',
+        gap: 8,
     },
     address: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 6,
-        letterSpacing: -0.2,
-        lineHeight: 22,
+        fontSize: 15,
+        fontWeight: '700',
+        color: TOKENS.text,
+        letterSpacing: -0.3,
+        lineHeight: 20,
     },
     metaRow: {
         flexDirection: 'row',
@@ -298,79 +271,89 @@ const styles = StyleSheet.create({
         gap: 10,
         flexWrap: 'wrap',
     },
-    distance: {
-        fontSize: 13,
-        color: '#737373',
-        fontWeight: '500',
-    },
-    lowCapacityWarning: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backgroundColor: alpha(PALETTE.flame[500], 0.08),
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-    },
-    warningDot: {
-        width: 5,
-        height: 5,
-        borderRadius: 2.5,
-        backgroundColor: PALETTE.flame[500],
-    },
-    warningText: {
-        fontSize: 11,
-        color: PALETTE.flame[600],
-        fontWeight: '600',
-    },
-
-    priceContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginLeft: 12,
-        minWidth: 60,
-    },
-    freeContainer: {
-        // No special background
-    },
-    priceValue: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        letterSpacing: -0.3,
-    },
-    priceUnit: {
-        fontSize: 11,
-        fontWeight: '500',
-        color: '#a3a3a3',
-        marginTop: 2,
-    },
-    freeLabel: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: '#10b981',
-        letterSpacing: 0.5,
-    },
-    priceNote: {
-        fontSize: 11,
-        fontWeight: '500',
-        color: '#737373',
-        textAlign: 'center',
-    },
 
     typeIndicator: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        marginTop: 0,
+        gap: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 999,
     },
     typeText: {
         fontSize: 12,
-        color: '#a3a3a3',
-        fontWeight: '500',
+        color: TOKENS.textMuted,
+        fontWeight: '600',
     },
 
-    moreBtn: {
-        display: 'none', // Removed for cleaner design
+    distanceContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    distance: {
+        fontSize: 12,
+        color: TOKENS.textMuted,
+        fontWeight: '600',
+    },
+
+    lowCapacityWarning: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: TOKENS.warningSoft,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    warningDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: TOKENS.warning,
+    },
+    warningText: {
+        fontSize: 11,
+        color: PALETTE.amber[700],
+        fontWeight: '600',
+        letterSpacing: 0.2,
+    },
+
+    priceContainer: {
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        minWidth: 72,
+    },
+    priceValue: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: TOKENS.text,
+        letterSpacing: -0.35,
+        fontVariant: ['tabular-nums'],
+    },
+    priceUnit: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: TOKENS.textMuted,
+        marginTop: -2,
+    },
+    freeBadge: {
+        backgroundColor: TOKENS.successSoft,
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: 10,
+    },
+    freeLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: TOKENS.success,
+        letterSpacing: 0.3,
+    },
+    priceNote: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: TOKENS.textMuted,
+        textAlign: 'right',
     },
 });

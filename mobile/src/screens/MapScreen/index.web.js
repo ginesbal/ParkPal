@@ -1,5 +1,5 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { PALETTE, TOKENS, alpha } from '../../constants/theme';
 
 export default function MapScreen() {
     return (
@@ -9,6 +9,11 @@ export default function MapScreen() {
                 style={styles.screenshot}
                 resizeMode="cover"
             />
+            <View style={styles.overlay}>
+                <Text style={styles.overlayText}>
+                    Map requires a native device. This is a web preview.
+                </Text>
+            </View>
         </View>
     );
 }
@@ -16,34 +21,27 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000'
+        backgroundColor: TOKENS.bg,
     },
     screenshot: {
         flex: 1,
         width: '100%',
-        height: '100%'
+        height: '100%',
     },
     overlay: {
         position: 'absolute',
         top: 80,
         left: 16,
         right: 16,
-        backgroundColor: 'rgba(37, 99, 235, 0.95)',
+        backgroundColor: alpha(PALETTE.prussian[500], 0.9),
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderRadius: 12,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
     },
     overlayText: {
         color: '#fff',
         fontSize: 13,
         fontWeight: '600',
-        flex: 1,
+        textAlign: 'center',
     },
 });
