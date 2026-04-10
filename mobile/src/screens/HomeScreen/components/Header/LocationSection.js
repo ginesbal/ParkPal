@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
-import { PALETTE, TOKENS } from '../../../../constants/theme';
+import { TOKENS } from '../../../../constants/theme';
 import { styles } from './styles';
 
 /**
@@ -20,7 +20,7 @@ const LocationSection = ({ locationName, onPress }) => {
             <MaterialCommunityIcons
                 name="map-marker"
                 size={16}
-                color={PALETTE.cerulean[500]}
+                color={TOKENS.primary}
                 style={styles.locationIcon}
             />
 

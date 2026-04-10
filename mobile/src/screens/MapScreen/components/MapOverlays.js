@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Animated, View } from 'react-native';
 import { Circle, Marker } from 'react-native-maps';
-import { PALETTE, TOKENS, alpha } from '../../../constants/theme';
+import { TOKENS, alpha } from '../../../constants/theme';
 import { styles } from '../styles';
 
 function MapOverlays({
@@ -23,12 +23,12 @@ function MapOverlays({
                     center={searchCenter}
                     radius={searchRadius}
                     fillColor={alpha(
-                        searchMode === 'pinned' ? PALETTE.yale[500] : PALETTE.cerulean[500],
-                        0.08
+                        searchMode === 'pinned' ? TOKENS.textMuted : TOKENS.primary,
+                        0.06
                     )}
                     strokeColor={alpha(
-                        searchMode === 'pinned' ? PALETTE.yale[500] : PALETTE.cerulean[500],
-                        0.25
+                        searchMode === 'pinned' ? TOKENS.textMuted : TOKENS.primary,
+                        0.22
                     )}
                     strokeWidth={2}
                     lineDashPattern={searchMode === 'pinned' ? [8, 4] : null}

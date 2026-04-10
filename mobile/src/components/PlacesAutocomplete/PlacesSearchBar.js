@@ -283,37 +283,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: TOKENS.surface,
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    height: 56,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: TOKENS.strokeLight,
-    ...Platform.select({
-      ios: {
-        shadowColor: TOKENS.shadow,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    height: 44,
+    gap: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
   },
 
   inputContainerFocused: {
     borderColor: alpha(TOKENS.primary, 0.4),
     backgroundColor: '#fff',
-    ...Platform.select({
-      ios: {
-        shadowOpacity: 0.12,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
   },
 
   input: {
@@ -353,22 +333,11 @@ const styles = StyleSheet.create({
 
   suggestionsContainer: {
     marginTop: 6,
-    borderRadius: 18,
-    backgroundColor: TOKENS.surfaceOverlay,
+    borderRadius: 10,
+    backgroundColor: TOKENS.surface,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: TOKENS.strokeLight,
-    ...Platform.select({
-      ios: {
-        shadowColor: TOKENS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.12,
-        shadowRadius: 16,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
     maxHeight: 280,
   },
 

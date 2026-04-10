@@ -1,9 +1,14 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { memo, useCallback } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { memo, useCallback, useRef, useState } from 'react';
+import { Animated, LayoutAnimation, Platform, Pressable, Text, UIManager, View } from 'react-native';
 import PlacesSearchBar from '../../../components/PlacesAutocomplete/PlacesSearchBar';
-import { PALETTE, TOKENS } from '../../../constants/theme';
+import { TOKENS } from '../../../constants/theme';
 import { styles } from '../styles';
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const TYPE_FILTERS = [
     { type: 'all', label: 'All' },
@@ -13,9 +18,9 @@ const TYPE_FILTERS = [
 ];
 
 const DISTANCE_PRESETS = [
-    { value: 150, label: '150 m' },
-    { value: 500, label: '500 m' },
-    { value: 1000, label: '1 km' }
+    { value: 150, label: '150m' },
+    { value: 500, label: '500m' },
+    { value: 1000, label: '1km' },
 ];
 
 function MapHeader({
@@ -34,6 +39,8 @@ function MapHeader({
     setSearchRadius,
     onPlaceSelected,
 }) {
+    const [filtersExpanded, setFiltersExpanded] = useState(false);
+
     const handleFilterPress = useCallback((type) => {
         setFilterType(type);
     }, [setFilterType]);
@@ -41,143 +48,143 @@ function MapHeader({
     const handleDistancePress = useCallback((distance) => {
         setSearchRadius(distance);
     }, [setSearchRadius]);
+
+    const toggleFilters = useCallback(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setFiltersExpanded(prev => !prev);
+    }, []);
+
+    // Active filter count for the badge
+    const activeFilterCount =
+        (filterType !== 'all' ? 1 : 0) + (searchRadius !== 150 ? 1 : 0);
+
     return (
-        <>
-            <View
-                style={[
-                    styles.searchSection,
-                    isDetailActive && styles.searchSectionCompact,
-                    isDetailActive && styles.searchSectionStandalone,
-                ]}
-            >
-                {!isDetailActive && (
-                    <View style={styles.searchMetaRow}>
-                        <View style={styles.searchModePill}>
+        <View style={styles.headerBar}>
+            {/* Single search row: input + action buttons */}
+            <View style={styles.searchInputRow}>
+                <PlacesSearchBar
+                    shouldDismiss={shouldDismissSearch}
+                    onPlaceSelected={onPlaceSelected}
+                    onFocusChange={setIsSearchFocused}
+                    style={styles.searchContainer}
+                />
+
+                {!isSearchFocused && !isDetailActive && (
+                    <View style={styles.quickActions}>
+                        {/* Filter toggle */}
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.quickAction,
+                                filtersExpanded && styles.quickActionActive,
+                                pressed && styles.quickActionPressed,
+                            ]}
+                            onPress={toggleFilters}
+                            accessibilityRole="button"
+                            accessibilityLabel={filtersExpanded ? 'Hide filters' : 'Show filters'}
+                        >
                             <MaterialCommunityIcons
-                                name={searchMode === 'pinned' ? 'map-marker' : 'crosshairs-gps'}
-                                size={14}
-                                color={searchMode === 'pinned' ? TOKENS.primaryAlt : TOKENS.textMuted}
+                                name="tune-vertical"
+                                size={18}
+                                color={filtersExpanded ? TOKENS.primary : TOKENS.text}
                             />
-                            <Text style={styles.searchModeText}>
-                                {searchMode === 'pinned' ? 'Pinned search area' : 'Searching near you'}
-                            </Text>
-                        </View>
+                            {activeFilterCount > 0 && !filtersExpanded && (
+                                <View style={styles.filterBadge}>
+                                    <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+                                </View>
+                            )}
+                        </Pressable>
+
+                        {/* Pin / location toggle */}
+                        {pinnedLocation ? (
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.quickAction,
+                                    searchMode === 'pinned' && styles.quickActionActive,
+                                    pressed && styles.quickActionPressed,
+                                ]}
+                                onPress={() => setSearchMode(searchMode === 'pinned' ? 'current' : 'pinned')}
+                                accessibilityRole="button"
+                                accessibilityLabel={searchMode === 'pinned' ? 'Switch to current location' : 'Use pinned location'}
+                            >
+                                <MaterialCommunityIcons
+                                    name="map-marker"
+                                    size={18}
+                                    color={searchMode === 'pinned' ? TOKENS.primary : TOKENS.textMuted}
+                                />
+                            </Pressable>
+                        ) : (
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.quickAction,
+                                    pressed && styles.quickActionPressed,
+                                ]}
+                                onPress={() => setShowPinInstructions(!showPinInstructions)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Drop a pin on the map"
+                            >
+                                <MaterialCommunityIcons
+                                    name="map-marker-plus"
+                                    size={18}
+                                    color={TOKENS.text}
+                                />
+                            </Pressable>
+                        )}
                     </View>
                 )}
-
-                <View style={styles.searchInputRow}>
-                    <PlacesSearchBar
-                        shouldDismiss={shouldDismissSearch}
-                        onPlaceSelected={onPlaceSelected}
-                        onFocusChange={setIsSearchFocused}
-                        style={styles.searchContainer}
-                    />
-
-                    {!isSearchFocused && (
-                        <View style={styles.quickActions}>
-                            {pinnedLocation ? (
-                                <Pressable
-                                    style={({ pressed }) => [
-                                        styles.quickAction,
-                                        searchMode === 'pinned' && styles.quickActionActive,
-                                        pressed && styles.quickActionPressed
-                                    ]}
-                                    onPress={() => setSearchMode(searchMode === 'pinned' ? 'current' : 'pinned')}
-                                    accessibilityRole="button"
-                                    accessibilityLabel={searchMode === 'pinned' ? 'Switch back to current location' : 'Use pinned search area'}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="map-marker"
-                                        size={18}
-                                        color={searchMode === 'pinned' ? '#fff' : PALETTE.cerulean[500]}
-                                    />
-                                </Pressable>
-                            ) : (
-                                <Pressable
-                                    style={({ pressed }) => [
-                                        styles.quickAction,
-                                        pressed && styles.quickActionPressed
-                                    ]}
-                                    onPress={() => setShowPinInstructions(!showPinInstructions)}
-                                    accessibilityRole="button"
-                                    accessibilityLabel="Show map pin instructions"
-                                >
-                                    <MaterialCommunityIcons
-                                        name="map-marker-plus"
-                                        size={18}
-                                        color={TOKENS.text}
-                                    />
-                                </Pressable>
-                            )}
-                        </View>
-                    )}
-                </View>
             </View>
 
-            {!isDetailActive && (
-                <Animated.View
-                    style={[
-                        styles.filterBar,
-                        { opacity: isSearchFocused ? 0.3 : 1 }
-                    ]}
-                    pointerEvents={isSearchFocused ? 'none' : 'auto'}
-                >
-                    <View style={styles.controlGroup}>
-                        <Text style={styles.controlLabel}>Spot type</Text>
-                        <View style={styles.filterRow}>
-                            {TYPE_FILTERS.map(f => (
-                                <Pressable
-                                    key={f.type}
-                                    style={({ pressed }) => [
-                                        styles.filterChip,
-                                        filterType === f.type && styles.filterChipActive,
-                                        pressed && styles.filterChipPressed,
-                                    ]}
-                                    onPress={() => handleFilterPress(f.type)}
-                                    accessibilityRole="button"
-                                    accessibilityState={{ selected: filterType === f.type }}
-                                >
-                                    <Text style={[
-                                        styles.filterChipText,
-                                        filterType === f.type && styles.filterChipTextActive
-                                    ]}>
-                                        {f.label}
-                                    </Text>
-                                </Pressable>
-                            ))}
-                        </View>
-                    </View>
+            {/* Expandable filters — single inline row */}
+            {filtersExpanded && !isDetailActive && !isSearchFocused && (
+                <View style={styles.filtersInline}>
+                    {/* Type chips */}
+                    {TYPE_FILTERS.map(f => (
+                        <Pressable
+                            key={f.type}
+                            style={({ pressed }) => [
+                                styles.miniChip,
+                                filterType === f.type && styles.miniChipActive,
+                                pressed && styles.filterChipPressed,
+                            ]}
+                            onPress={() => handleFilterPress(f.type)}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: filterType === f.type }}
+                        >
+                            <Text style={[
+                                styles.miniChipText,
+                                filterType === f.type && styles.miniChipTextActive,
+                            ]}>
+                                {f.label}
+                            </Text>
+                        </Pressable>
+                    ))}
 
-                    <View style={styles.controlGroup}>
-                        <Text style={styles.controlLabel}>Search radius</Text>
-                        <View style={styles.distanceRow}>
-                            <View style={styles.distanceSegmented}>
-                                {DISTANCE_PRESETS.map((preset) => (
-                                    <Pressable
-                                        key={preset.value}
-                                        style={({ pressed }) => [
-                                            styles.distanceSegment,
-                                            searchRadius === preset.value && styles.distanceSegmentActive,
-                                            pressed && styles.distanceSegmentPressed,
-                                        ]}
-                                        onPress={() => handleDistancePress(preset.value)}
-                                        accessibilityRole="button"
-                                        accessibilityState={{ selected: searchRadius === preset.value }}
-                                    >
-                                        <Text style={[
-                                            styles.distanceSegmentText,
-                                            searchRadius === preset.value && styles.distanceSegmentTextActive
-                                        ]}>
-                                            {preset.label}
-                                        </Text>
-                                    </Pressable>
-                                ))}
-                            </View>
-                        </View>
-                    </View>
-                </Animated.View>
+                    {/* Divider dot */}
+                    <View style={styles.chipDivider} />
+
+                    {/* Distance chips */}
+                    {DISTANCE_PRESETS.map(preset => (
+                        <Pressable
+                            key={preset.value}
+                            style={({ pressed }) => [
+                                styles.miniChip,
+                                searchRadius === preset.value && styles.miniChipActive,
+                                pressed && styles.filterChipPressed,
+                            ]}
+                            onPress={() => handleDistancePress(preset.value)}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: searchRadius === preset.value }}
+                        >
+                            <Text style={[
+                                styles.miniChipText,
+                                searchRadius === preset.value && styles.miniChipTextActive,
+                            ]}>
+                                {preset.label}
+                            </Text>
+                        </Pressable>
+                    ))}
+                </View>
             )}
-        </>
+        </View>
     );
 }
 

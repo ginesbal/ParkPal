@@ -1,25 +1,19 @@
 import { StyleSheet } from 'react-native';
-import { TOKENS, alpha } from '../../../../constants/theme';
+import { TOKENS } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
+    // StatusBadge → dot + text, no pill bg
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 7,
-        borderRadius: 20,
-        backgroundColor: TOKENS.primarySoft,
+        paddingVertical: 4,
     },
-    statusBadgeWarning: {
-        backgroundColor: TOKENS.warningSoft,
-    },
-    statusBadgeDanger: {
-        backgroundColor: TOKENS.dangerSoft,
-    },
+    statusBadgeWarning: {},
+    statusBadgeDanger: {},
     statusDot: {
-        width: 8,
-        height: 8,
+        width: 7,
+        height: 7,
         borderRadius: 4,
         backgroundColor: TOKENS.primary,
     },
@@ -31,7 +25,7 @@ export const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: 12,
-        fontWeight: '700',
+        fontWeight: '600',
         color: TOKENS.primary,
         letterSpacing: 0.2,
     },
@@ -42,26 +36,19 @@ export const styles = StyleSheet.create({
         color: TOKENS.danger,
     },
 
+    // InfoCard → hairline divider rows, no bg
     infoCard: {
-        backgroundColor: TOKENS.surfaceMuted,
-        borderRadius: 16,
-        padding: 16,
         marginTop: 18,
         flexDirection: 'row',
-        gap: 12,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
+        gap: 10,
+        paddingVertical: 14,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
     },
-    infoCardWarning: {
-        backgroundColor: TOKENS.warningSoft,
-        borderColor: alpha(TOKENS.warning, 0.18),
-    },
-    infoCardError: {
-        backgroundColor: TOKENS.dangerSoft,
-        borderColor: alpha(TOKENS.danger, 0.18),
-    },
+    infoCardWarning: {},
+    infoCardError: {},
     infoIcon: {
-        color: TOKENS.primary,
+        color: TOKENS.textMuted,
     },
     infoIconWarning: {
         color: TOKENS.warning,
@@ -74,5 +61,6 @@ export const styles = StyleSheet.create({
         fontSize: 13,
         lineHeight: 18,
         color: TOKENS.textMuted,
+        fontWeight: '400',
     },
 });

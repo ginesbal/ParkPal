@@ -32,8 +32,8 @@ const EmptyState = ({
                         color={TOKENS.primary}
                     />
                 </View>
-                <Text style={styles.title}>Start a parking session</Text>
-                <Text style={styles.subtitle}>Demo mode for downtown Calgary</Text>
+                <Text style={styles.title}>You're not parked yet</Text>
+                <Text style={styles.subtitle}>Set up a session for downtown Calgary</Text>
             </View>
 
             {/* Setup Card - Main interaction area */}

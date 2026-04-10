@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
-import { PALETTE, TOKENS, alpha } from '../../../../constants/theme';
+import { TOKENS, alpha } from '../../../../constants/theme';
 import { styles } from './styles';
 
 /**
@@ -15,17 +15,17 @@ const EmptyState = ({ onExpandSearch, onViewMap, onRetry, errorMessage }) => {
                 <MaterialCommunityIcons
                     name={isError ? 'wifi-alert' : 'parking'}
                     size={64}
-                    color={isError ? TOKENS.danger : alpha(PALETTE.yale?.[600] ?? '#333', 0.15)}
+                    color={isError ? TOKENS.danger : alpha(TOKENS.text, 0.15)}
                 />
             </View>
 
             <Text style={styles.emptyText}>
-                {isError ? 'Live parking data is unavailable' : 'No parking spots found'}
+                {isError ? 'Can\u2019t reach parking data' : 'Nothing nearby right now'}
             </Text>
             <Text style={styles.emptySubtext}>
                 {isError
-                    ? `${errorMessage} Retry now or switch to the map to inspect another area.`
-                    : `We couldn't find parking in this area yet. Widen the radius or switch to the map to explore the next block.`}
+                    ? `${errorMessage} Try again, or switch to the map to browse a different area.`
+                    : 'Try widening the search radius, or switch to the map to look around the next block.'}
             </Text>
 
             <View style={styles.emptyActions}>

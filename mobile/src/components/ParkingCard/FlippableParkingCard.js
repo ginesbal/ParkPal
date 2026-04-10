@@ -127,14 +127,16 @@ function FlippableParkingCard({
 
     if (!visible || !spot) return null;
 
-    const cardX = Math.min(Math.max(10, position.x - CARD_WIDTH / 2), SCREEN_WIDTH - CARD_WIDTH - 10);
+    // Center card horizontally, clamp to screen edges
+    const cardX = Math.min(
+        Math.max(10, (SCREEN_WIDTH - CARD_WIDTH) / 2),
+        SCREEN_WIDTH - CARD_WIDTH - 10
+    );
+    // Center card vertically in the safe zone between header and bottom sheet
     const safeTop = Math.max(16, topBoundary);
     const safeBottom = Math.max(safeTop + CARD_HEIGHT, bottomBoundary);
-    const preferredY = position.y - CARD_HEIGHT - 40;
-    const cardY = Math.max(
-        safeTop,
-        Math.min(preferredY, safeBottom - CARD_HEIGHT)
-    );
+    const availableHeight = safeBottom - safeTop;
+    const cardY = safeTop + Math.max(0, (availableHeight - CARD_HEIGHT) / 2);
 
     const frontRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
     const backRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });

@@ -1,5 +1,5 @@
-import { Platform, StyleSheet } from 'react-native';
-import { SHADOWS, TOKENS } from '../../../../constants/theme';
+import { StyleSheet } from 'react-native';
+import { TOKENS } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
     mapFab: {
@@ -12,26 +12,16 @@ export const styles = StyleSheet.create({
         minHeight: 48,
         paddingHorizontal: 16,
         paddingVertical: 12,
-        borderRadius: 18,
+        borderRadius: 10,
         backgroundColor: TOKENS.primary,
         justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: TOKENS.primaryAlt,
-        ...Platform.select({
-            ios: SHADOWS.md,
-            android: {
-                elevation: 8,
-            }
-        })
     },
     mapFabPressed: {
-        transform: [{ scale: 0.98 }],
-        opacity: 0.94,
+        opacity: 0.6,
     },
     mapFabLabel: {
         fontSize: 13,
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#fff',
-        letterSpacing: 0.2
-    }
+    },
 });

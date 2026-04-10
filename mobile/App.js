@@ -18,7 +18,7 @@ import SessionScreen from './src/screens/SessionScreen/index';
 
 // services
 import { getDeviceId } from './src/utils/device';
-import { TOKENS, alpha } from './src/constants/theme';
+import { TOKENS } from './src/constants/theme';
 
 const Tab = createBottomTabNavigator();
 const TAB_CONFIG = {
@@ -72,15 +72,10 @@ function AppNavigation() {
                     tabBarIcon: ({ focused, color, size }) => {
                         const tabMeta = TAB_CONFIG[route.name];
                         return (
-                            <View
-                                style={[
-                                    navStyles.iconBadge,
-                                    focused ? navStyles.iconBadgeActive : navStyles.iconBadgeInactive,
-                                ]}
-                            >
+                            <View style={navStyles.iconWrap}>
                                 <Ionicons
                                     name={focused ? tabMeta.activeIcon : tabMeta.inactiveIcon}
-                                    size={focused ? size + 1 : size}
+                                    size={size}
                                     color={color}
                                 />
                             </View>
@@ -100,28 +95,19 @@ function AppNavigation() {
                             </Text>
                         );
                     },
-                    tabBarActiveTintColor: TOKENS.primaryAlt,
+                    tabBarActiveTintColor: TOKENS.primary,
                     tabBarInactiveTintColor: TOKENS.textMuted,
                     tabBarHideOnKeyboard: true,
                     tabBarStyle: {
-                        backgroundColor: TOKENS.surfaceOverlay,
-                        borderTopWidth: 0,
-                        borderTopColor: TOKENS.strokeLight,
+                        backgroundColor: TOKENS.surface,
+                        borderTopWidth: StyleSheet.hairlineWidth,
+                        borderTopColor: TOKENS.hairline,
                         height: tabBarHeight,
                         paddingTop: 10,
                         paddingBottom: tabBarBottomPadding,
                         paddingHorizontal: 14,
-                        ...Platform.select({
-                            ios: {
-                                shadowColor: TOKENS.shadow,
-                                shadowOpacity: 0.1,
-                                shadowRadius: 24,
-                                shadowOffset: { width: 0, height: -12 },
-                            },
-                            android: {
-                                elevation: 12,
-                            },
-                        }),
+                        elevation: 0,
+                        shadowOpacity: 0,
                     },
                     tabBarLabelStyle: {
                         marginBottom: Platform.select({ ios: 2, android: 3 }),
@@ -169,42 +155,22 @@ export default function App() {
 }
 
 const navStyles = StyleSheet.create({
-    iconBadge: {
-        width: 40,
-        height: 38,
-        borderRadius: 15,
+    iconWrap: {
+        width: 44,
+        height: 32,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 6,
-    },
-    iconBadgeInactive: {
-        backgroundColor: alpha(TOKENS.text, 0.035),
-    },
-    iconBadgeActive: {
-        backgroundColor: TOKENS.primarySoft,
-        borderWidth: 1,
-        borderColor: TOKENS.focus,
-        ...Platform.select({
-            ios: {
-                shadowColor: TOKENS.primary,
-                shadowOpacity: 0.08,
-                shadowRadius: 10,
-                shadowOffset: { width: 0, height: 4 },
-            },
-            android: {
-                elevation: 1,
-            },
-        }),
+        marginBottom: 2,
     },
     label: {
         fontSize: 11,
-        letterSpacing: 0.15,
+        letterSpacing: 0.2,
         textAlign: 'center',
     },
     labelInactive: {
-        fontWeight: '600',
+        fontWeight: '500',
     },
     labelActive: {
-        fontWeight: '700',
+        fontWeight: '600',
     },
 });

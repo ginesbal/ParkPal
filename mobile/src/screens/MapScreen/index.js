@@ -35,14 +35,15 @@ import { getCurrentPrice } from './utils/pricing';
 
 function MapScreen() {
     const insets = useSafeAreaInsets();
-    const [navigationHeight, setNavigationHeight] = useState(132 + insets.top);
+    // Compact header: ~70px content + safe area inset (collapsed filters)
+    const [navigationHeight, setNavigationHeight] = useState(70 + insets.top);
     const [sheetPeekHeight, setSheetPeekHeight] = useState(108);
 
     // Get ACTUAL tab bar height from React Navigation (includes padding + safe areas)
     const tabBarHeight = useBottomTabBarHeight();
     const CARD_ESTIMATED_HEIGHT = 220;
-    const SURFACE_STACK_GAP = 18;
-    const BOTTOM_UI_OFFSET = tabBarHeight + sheetPeekHeight + 20;
+    const SURFACE_STACK_GAP = 12;
+    const BOTTOM_UI_OFFSET = tabBarHeight + sheetPeekHeight + 16;
     const detailCardTopBoundary = navigationHeight + SURFACE_STACK_GAP;
     const detailCardBottomBoundary = SCREEN_HEIGHT - BOTTOM_UI_OFFSET - SURFACE_STACK_GAP;
 
@@ -272,9 +273,8 @@ function MapScreen() {
     });
 
     const dynamicStyles = useMemo(() => ({
-        topNavigation: { ...styles.topNavigation, paddingTop: insets.top },
-        map: { ...styles.map, marginTop: navigationHeight },
-        tooltip: { ...styles.tooltip, top: navigationHeight + 14 }
+        topNavigation: { ...styles.topNavigation, paddingTop: insets.top + 4 },
+        tooltip: { ...styles.tooltip, top: navigationHeight + 8 }
     }), [insets.top, navigationHeight]);
 
     const handleNavigationLayout = useCallback((event) => {
@@ -337,10 +337,10 @@ function MapScreen() {
                 </Animated.View>
             )}
 
-            {/* map */}
+            {/* map — full screen, header floats over it */}
             <MapView
                 ref={mapRef}
-                style={dynamicStyles.map}
+                style={styles.map}
                 provider={PROVIDER_GOOGLE}
                 initialRegion={region}
                 onRegionChangeComplete={setRegion}
@@ -365,8 +365,8 @@ function MapScreen() {
                 mapPadding={{
                     left: 0,
                     right: 0,
-                    top: 0,
-                    bottom: BOTTOM_UI_OFFSET
+                    top: navigationHeight,
+                    bottom: BOTTOM_UI_OFFSET,
                 }}
             >
                 <MapOverlays
