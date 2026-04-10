@@ -1,41 +1,40 @@
-import { Platform, StyleSheet } from 'react-native';
-import { PALETTE, TOKENS, alpha } from '../../constants/theme';
+import { StyleSheet } from 'react-native';
+import { TOKENS, alpha } from '../../constants/theme';
 import { SHEET_MIN_HEIGHT } from './constants';
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f8f8'
+        backgroundColor: TOKENS.bg,
     },
 
     map: {
         flex: 1,
     },
 
-    // Unified Navigation Bar
+    // ===== Floating header — single compact bar =====
     topNavigation: {
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#fff',
-        zIndex: 100,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
+        backgroundColor: 'transparent',
+        paddingHorizontal: 14,
+        paddingBottom: 8,
+        zIndex: 1000,
     },
 
-    searchSection: {
-        paddingHorizontal: 12,
+    headerBar: {
+        backgroundColor: TOKENS.surfaceOverlay,
+        borderRadius: 10,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
+        paddingHorizontal: 10,
         paddingVertical: 8,
+        gap: 8,
+    },
+
+    searchInputRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
@@ -51,118 +50,97 @@ export const styles = StyleSheet.create({
     },
 
     quickAction: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: '#f5f5f5',
+        width: 44,
+        height: 44,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surface,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
         alignItems: 'center',
     },
 
     quickActionActive: {
-        backgroundColor: PALETTE.flame[500],
+        borderColor: TOKENS.primary,
     },
 
     quickActionPressed: {
-        opacity: 0.7,
-        transform: [{ scale: 0.95 }],
+        opacity: 0.6,
     },
 
-    // simple filter layout
-    filterBar: {
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        paddingBottom: 4,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: '#e0e0e0',
-        backgroundColor: '#fff',
-    },
-
-    filterRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: 4,
-    },
-
-    filterChip: {
-        paddingHorizontal: 14,
-        paddingVertical: 5,
-        borderRadius: 16,
-        backgroundColor: '#f8f8f8',
-        borderWidth: 1,
-        borderColor: '#e5e5e5',
-    },
-
-    filterChipActive: {
-        backgroundColor: PALETTE.flame[500],
-        borderColor: PALETTE.flame[500],
-    },
-
-    filterChipText: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: '#888',
-    },
-
-    filterChipTextActive: {
-        color: '#fff',
-    },
-
-    distanceRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginTop: 4,
-    },
-
-    distanceTrack: {
-        flex: 1,
-        flexDirection: 'row',
-        height: 24,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 12,
-        position: 'relative',
-        alignItems: 'center',
-        paddingHorizontal: 4,
-        justifyContent: 'space-between',
-    },
-
-    distanceMarker: {
+    // Small count badge on the filter button
+    filterBadge: {
+        position: 'absolute',
+        top: 4,
+        right: 4,
         width: 14,
         height: 14,
         borderRadius: 7,
-        backgroundColor: '#d0d0d0',
-        borderWidth: 2,
-        borderColor: '#fff',
-    },
-
-    distanceMarkerActive: {
-        backgroundColor: PALETTE.flame[500],
-        width: 46,
-        height: 20,
-        borderRadius: 10,
+        backgroundColor: TOKENS.primary,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 0,
     },
 
-    distanceValue: {
-        fontSize: 10,
-        fontWeight: '700',
+    filterBadgeText: {
+        fontSize: 9,
+        fontWeight: '600',
         color: '#fff',
     },
 
-    // Tooltip
+    // Inline filter chips row (expandable)
+    filtersInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        flexWrap: 'wrap',
+        paddingTop: 4,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
+    },
+
+    miniChip: {
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 6,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
+    },
+
+    miniChipActive: {
+        borderColor: TOKENS.primary,
+    },
+
+    miniChipText: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
+    },
+
+    miniChipTextActive: {
+        color: TOKENS.primary,
+        fontWeight: '600',
+    },
+
+    chipDivider: {
+        width: 3,
+        height: 3,
+        borderRadius: 2,
+        backgroundColor: TOKENS.hairline,
+    },
+
+    filterChipPressed: {
+        opacity: 0.6,
+    },
+
+    // ===== Tooltip =====
     tooltip: {
         position: 'absolute',
         left: 16,
-        backgroundColor: alpha(PALETTE.bistre[800], 0.95),
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        zIndex: 99,
-        elevation: 5,
+        backgroundColor: alpha(TOKENS.text, 0.96),
+        borderRadius: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        zIndex: 999,
     },
 
     tooltipArrow: {
@@ -171,7 +149,7 @@ export const styles = StyleSheet.create({
         left: 20,
         width: 12,
         height: 12,
-        backgroundColor: alpha(PALETTE.bistre[800], 0.95),
+        backgroundColor: alpha(TOKENS.text, 0.96),
         transform: [{ rotate: '45deg' }],
     },
 
@@ -181,45 +159,50 @@ export const styles = StyleSheet.create({
         lineHeight: 16,
     },
 
-    // Markers
+    // ===== Markers =====
     marker: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 20,
+        height: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2.5,
+    },
+
+    markerDot: {
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        backgroundColor: TOKENS.primary,
+        borderWidth: 2,
         borderColor: '#fff',
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.15,
-                shadowRadius: 3,
-            },
-            android: {
-                elevation: 3,
-            },
-        }),
+    },
+
+    markerDotSelected: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: TOKENS.primary,
+        borderWidth: 2,
+        borderColor: '#fff',
     },
 
     markerSelected: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        borderWidth: 3,
-        ...Platform.select({
-            ios: {
-                shadowOpacity: 0.25,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 5,
-            },
-        }),
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
-    // Pin marker
+    markerPulse: {
+        position: 'absolute',
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: alpha(TOKENS.primary, 0.12),
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: alpha(TOKENS.primary, 0.22),
+    },
+
+    // ===== Pin marker =====
     pinMarker: {
         alignItems: 'center',
         justifyContent: 'flex-end',
@@ -227,25 +210,14 @@ export const styles = StyleSheet.create({
     },
 
     pinHead: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: PALETTE.flame[500],
-        borderWidth: 3,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: TOKENS.primary,
+        borderWidth: 2,
         borderColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 3,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
     },
 
     pinInner: {
@@ -257,38 +229,30 @@ export const styles = StyleSheet.create({
 
     pinStem: {
         width: 2,
-        height: 16,
-        backgroundColor: PALETTE.flame[500],
+        height: 14,
+        backgroundColor: TOKENS.primary,
         marginTop: -2,
     },
 
-    // FABs
+    // ===== FABs =====
     fabContainer: {
         position: 'absolute',
         right: 16,
         bottom: SHEET_MIN_HEIGHT + 16,
         gap: 10,
+        zIndex: 500,
     },
 
     fab: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: '#fff',
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: TOKENS.surface,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 8,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 3 },
-                shadowOpacity: 0.15,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
     },
 
     fabPrimary: {
@@ -296,29 +260,21 @@ export const styles = StyleSheet.create({
     },
 
     fabPressed: {
-        transform: [{ scale: 0.92 }],
+        opacity: 0.6,
     },
 
-    // Bottom sheet card (height is controlled by top/left/right/bottom, not a fixed value)
+    // ===== Bottom sheet =====
     bottomSheet: {
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -3 },
-                shadowOpacity: 0.1,
-                shadowRadius: 5,
-            },
-            android: {
-                elevation: 20,
-            },
-        }),
+        backgroundColor: TOKENS.surface,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
+        zIndex: 100,
     },
 
     sheetHandle: {
@@ -329,8 +285,8 @@ export const styles = StyleSheet.create({
 
     handleBar: {
         width: 36,
-        height: 4,
-        backgroundColor: PALETTE.vanilla[800],
+        height: 3,
+        backgroundColor: alpha(TOKENS.text, 0.12),
         borderRadius: 2,
     },
 
@@ -341,7 +297,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 12,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: PALETTE.vanilla[700],
+        borderBottomColor: TOKENS.hairline,
     },
 
     sheetStats: {
@@ -351,8 +307,9 @@ export const styles = StyleSheet.create({
     },
 
     sheetTitle: {
-        fontSize: 24,
-        fontWeight: '700',
+        fontSize: 20,
+        fontWeight: '600',
+        letterSpacing: -0.3,
         color: TOKENS.text,
     },
 
@@ -364,53 +321,58 @@ export const styles = StyleSheet.create({
     modeBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: alpha(PALETTE.flame[500], 0.08),
         paddingHorizontal: 10,
         paddingVertical: 5,
-        borderRadius: 14,
         gap: 4,
     },
 
     modeBadgeText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: PALETTE.flame[600],
+        fontWeight: '500',
+        color: TOKENS.primary,
     },
 
-    // ===== Top Map/List toggle inside the sheet, above the list =====
+    // ===== Map/List toggle =====
     topToggleBar: {
         flexDirection: 'row',
         gap: 8,
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: PALETTE.vanilla[700],
-        backgroundColor: '#fff',
+        borderBottomColor: TOKENS.hairline,
+        backgroundColor: TOKENS.surface,
         zIndex: 1,
     },
+
     topToggleButton: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        borderRadius: 16,
-        backgroundColor: '#f5f5f5',
+        borderRadius: 6,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
+
     topToggleActive: {
-        backgroundColor: TOKENS.primary,
+        borderColor: TOKENS.primary,
     },
+
     topTogglePressed: {
-        opacity: 0.85,
-        transform: [{ scale: 0.98 }],
+        opacity: 0.6,
     },
+
     topToggleText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: TOKENS.text,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
     },
+
     topToggleTextActive: {
-        color: '#fff',
+        color: TOKENS.primary,
+        fontWeight: '600',
     },
 
     sheetContent: {

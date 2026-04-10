@@ -10,8 +10,8 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { PALETTE, TOKENS } from '../../constants/theme';
-import logger from '../../utils/loggers/DebugLogger';
+import { TOKENS } from '../../constants/theme';
+import { logger } from '../../utils/loggers';
 import {
     CARD_HEIGHT,
     CARD_WIDTH,
@@ -32,6 +32,8 @@ function FlippableParkingCard({
     visible = false,
     spot = null,
     position = { x: 0, y: 0 },
+    topBoundary = 60,
+    bottomBoundary = SCREEN_HEIGHT - 140,
     onClose = () => { },
     onNavigate = () => { },
 }) {
@@ -39,7 +41,8 @@ function FlippableParkingCard({
     const [currentPage, setCurrentPage] = useState(0);
 
     const flipAnim = useRef(new Animated.Value(0)).current;
-    const scaleAnim = useRef(new Animated.Value(0)).current;
+    const scaleAnim = useRef(new Animated.Value(0.96)).current;
+    const translateYAnim = useRef(new Animated.Value(12)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     const pagesScrollRef = useRef(null);
@@ -65,22 +68,33 @@ function FlippableParkingCard({
                     friction: 8,
                     useNativeDriver: true,
                 }),
+                Animated.spring(translateYAnim, {
+                    toValue: 0,
+                    tension: 70,
+                    friction: 9,
+                    useNativeDriver: true,
+                }),
                 Animated.timing(fadeAnim, {
                     toValue: 1,
-                    duration: 250,
+                    duration: 220,
                     useNativeDriver: true,
                 }),
             ]).start();
         } else if (!visible) {
             Animated.parallel([
                 Animated.timing(scaleAnim, {
-                    toValue: 0,
-                    duration: 200,
+                    toValue: 0.98,
+                    duration: 180,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(translateYAnim, {
+                    toValue: 14,
+                    duration: 180,
                     useNativeDriver: true,
                 }),
                 Animated.timing(fadeAnim, {
                     toValue: 0,
-                    duration: 200,
+                    duration: 180,
                     useNativeDriver: true,
                 }),
             ]).start();
@@ -88,9 +102,11 @@ function FlippableParkingCard({
                 setIsFlipped(false);
                 setCurrentPage(0);
                 flipAnim.setValue(0);
+                scaleAnim.setValue(0.96);
+                translateYAnim.setValue(12);
             }, 200);
         }
-    }, [visible, spot, scaleAnim, fadeAnim]);
+    }, [fadeAnim, flipAnim, scaleAnim, spot, translateYAnim, visible]);
 
     const flip = () => {
         const toValue = isFlipped ? 0 : 1;
@@ -111,11 +127,16 @@ function FlippableParkingCard({
 
     if (!visible || !spot) return null;
 
-    const cardX = Math.min(Math.max(10, position.x - CARD_WIDTH / 2), SCREEN_WIDTH - CARD_WIDTH - 10);
-    const cardY = Math.max(
-        60,
-        Math.min(position.y - CARD_HEIGHT - 40, SCREEN_HEIGHT - CARD_HEIGHT - 140)
+    // Center card horizontally, clamp to screen edges
+    const cardX = Math.min(
+        Math.max(10, (SCREEN_WIDTH - CARD_WIDTH) / 2),
+        SCREEN_WIDTH - CARD_WIDTH - 10
     );
+    // Center card vertically in the safe zone between header and bottom sheet
+    const safeTop = Math.max(16, topBoundary);
+    const safeBottom = Math.max(safeTop + CARD_HEIGHT, bottomBoundary);
+    const availableHeight = safeBottom - safeTop;
+    const cardY = safeTop + Math.max(0, (availableHeight - CARD_HEIGHT) / 2);
 
     const frontRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
     const backRotateY = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
@@ -128,10 +149,10 @@ function FlippableParkingCard({
     const priceDisplay = getCurrentPrice(spot, zoneInfo);
 
     const getStatusColor = () => {
-        if (spot.no_stopping) return PALETTE.flame.DEFAULT;
-        if (spot.permit_zone || zoneInfo.permit_zone) return PALETTE.earth_yellow[300];
-        if (spot.status === 'available') return PALETTE.straw[300];
-        return PALETTE.bistre[700];
+        if (spot.no_stopping) return TOKENS.danger;
+        if (spot.permit_zone || zoneInfo.permit_zone) return TOKENS.warning;
+        if (spot.status === 'available') return TOKENS.success;
+        return TOKENS.primaryAlt;
     };
 
     const statusColor = getStatusColor();
@@ -154,6 +175,46 @@ function FlippableParkingCard({
         }
     };
 
+    const getCriticalBadges = () => {
+        const badges = [];
+
+        // Priority 1: Blocking conditions
+        if (spot.no_stopping) {
+            badges.push({
+                type: 'danger',
+                icon: 'cancel',
+                text: 'No stopping',
+                color: TOKENS.danger,
+                key: 'no_stop'
+            });
+        }
+
+        // Priority 2: Permit requirements
+        if (spot.permit_zone || zoneInfo.permit_zone) {
+            badges.push({
+                type: 'warning',
+                icon: 'card-account-details',
+                text: 'Permit zone',
+                color: TOKENS.warning,
+                key: 'permit'
+            });
+        }
+
+        // Priority 3: Time limits (only if significant)
+        const maxTime = spot.max_time || metadata.max_time;
+        if (maxTime && !maxTime.toLowerCase().includes('no limit')) {
+            badges.push({
+                type: 'info',
+                icon: 'clock-outline',
+                text: maxTime,
+                color: TOKENS.primaryAlt,
+                key: 'time'
+            });
+        }
+
+        return badges.slice(0, 2);
+    };
+
     return (
         <>
             {visible && (
@@ -169,7 +230,7 @@ function FlippableParkingCard({
                         position: 'absolute',
                         left: cardX,
                         top: cardY,
-                        transform: [{ scale: scaleAnim }],
+                        transform: [{ translateY: translateYAnim }, { scale: scaleAnim }],
                         opacity: fadeAnim,
                     },
                 ]}
@@ -221,9 +282,9 @@ function FlippableParkingCard({
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
-                                        <MaterialCommunityIcons name="walk" size={20} color={PALETTE.earth_yellow[300]} />
+                                        <MaterialCommunityIcons name="walk" size={20} color={TOKENS.warning} />
                                     </View>
-                                    <Text style={styles.statLabelLeft}>Walk Time</Text>
+                                    <Text style={styles.statLabelLeft}>Walk time</Text>
                                 </View>
                                 <Text style={styles.statValueRight}>{spot.walkingTime || 0} min</Text>
                             </View>
@@ -233,7 +294,7 @@ function FlippableParkingCard({
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
-                                        <MaterialCommunityIcons name="map-marker-distance" size={20} color={PALETTE.straw[300]} />
+                                        <MaterialCommunityIcons name="map-marker-distance" size={20} color={TOKENS.primary} />
                                     </View>
                                     <Text style={styles.statLabelLeft}>Distance</Text>
                                 </View>
@@ -257,36 +318,12 @@ function FlippableParkingCard({
                         </View>
 
                         <View style={styles.badgesLarge}>
-                            {(spot.camera || metadata.camera) && (
-                                <View style={getBadgeStyle('default')}>
-                                    <MaterialCommunityIcons name="cctv" size={14} color={PALETTE.bistre[700]} />
-                                    <Text style={getBadgeTextStyle('default')}>Camera</Text>
+                            {getCriticalBadges().map((badge) => (
+                                <View key={badge.key} style={getBadgeStyle(badge.type)}>
+                                    <MaterialCommunityIcons name={badge.icon} size={14} color={badge.color} />
+                                    <Text style={getBadgeTextStyle(badge.type)}>{badge.text}</Text>
                                 </View>
-                            )}
-                            {(spot.permit_zone || zoneInfo.permit_zone) && (
-                                <View style={getBadgeStyle('warning')}>
-                                    <MaterialCommunityIcons name="card-account-details" size={14} color={PALETTE.earth_yellow[300]} />
-                                    <Text style={getBadgeTextStyle('warning')}>Permit Zone</Text>
-                                </View>
-                            )}
-                            {(spot.max_time || metadata.max_time) && (
-                                <View style={getBadgeStyle('info')}>
-                                    <MaterialCommunityIcons name="clock-outline" size={14} color={PALETTE.straw[300]} />
-                                    <Text style={getBadgeTextStyle('info')}>{spot.max_time || metadata.max_time}</Text>
-                                </View>
-                            )}
-                            {spot.no_stopping && (
-                                <View style={getBadgeStyle('danger')}>
-                                    <MaterialCommunityIcons name="cancel" size={14} color={PALETTE.flame.DEFAULT} />
-                                    <Text style={getBadgeTextStyle('danger')}>No Stopping</Text>
-                                </View>
-                            )}
-                            {spot.enforceable_time && (
-                                <View style={getBadgeStyle('warning')}>
-                                    <MaterialCommunityIcons name="police-badge" size={14} color={PALETTE.earth_yellow[300]} />
-                                    <Text style={getBadgeTextStyle('warning')}>Enforced</Text>
-                                </View>
-                            )}
+                            ))}
                         </View>
                     </View>
 
@@ -386,7 +423,7 @@ function FlippableParkingCard({
                                                             ]}
                                                             numberOfLines={3}
                                                         >
-                                                            {item.value || '—'} →
+                                                            {item.value ? `${item.value} (open)` : 'Open link'}
                                                         </Text>
                                                     </TouchableOpacity>
                                                 ) : (
@@ -397,13 +434,13 @@ function FlippableParkingCard({
                                                         ]}
                                                         numberOfLines={3}
                                                     >
-                                                        {item.value || '—'}
+                                                        {item.value || 'Not listed'}
                                                     </Text>
                                                 )}
                                             </View>
                                         ))
                                     ) : (
-                                        <Text style={styles.noDataText}>No additional information available</Text>
+                                        <Text style={styles.noDataText}>No additional details available.</Text>
                                     )}
                                 </ScrollView>
                             </View>
@@ -457,7 +494,7 @@ function FlippableParkingCard({
                         <View style={styles.backActionsLarge}>
                             <TouchableOpacity style={styles.navBtnFullLarge} onPress={onNavigate}>
                                 <MaterialCommunityIcons name="navigation-variant" size={20} color="#FFFFFF" />
-                                <Text style={styles.navBtnTextLarge}>Navigate to Parking Spot</Text>
+                                <Text style={styles.navBtnTextLarge}>Navigate to spot</Text>
                             </TouchableOpacity>
                         </View>
                     )}

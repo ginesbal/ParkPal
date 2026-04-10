@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
+  Animated,
   FlatList,
   Keyboard,
   Platform,
@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { PALETTE, TOKENS, alpha } from '../../constants/theme';
+import { TOKENS, alpha } from '../../constants/theme';
 import usePlacesAutocomplete from '../../hooks/usePlacesAutocomplete';
 
 // dev fetcher: calls google places api directly (exposes api key in bundle)
@@ -50,6 +50,38 @@ const productionFetcher = async ({ url, params }) => {
 
   return response.json();
 };
+
+function SearchLoadingDots() {
+  const fade = useRef(new Animated.Value(0.35)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(fade, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fade, {
+          toValue: 0.35,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    loop.start();
+    return () => loop.stop();
+  }, [fade]);
+
+  return (
+    <Animated.View style={[styles.loadingDots, { opacity: fade }]}>
+      <View style={styles.loadingDot} />
+      <View style={styles.loadingDot} />
+      <View style={styles.loadingDot} />
+    </Animated.View>
+  );
+}
 
 export default function PlacesSearchBar({
   onPlaceSelected = () => { },
@@ -172,7 +204,7 @@ export default function PlacesSearchBar({
         {/* fixed search container prevents layout shift when loading/clear appears */}
         <View style={styles.actionContainer}>
           {loading ? (
-            <ActivityIndicator size="small" color={TOKENS.primary} />
+            <SearchLoadingDots />
           ) : input.length > 0 ? (
             <TouchableOpacity onPress={clearInput} style={styles.clearButton}>
               <MaterialCommunityIcons
@@ -250,38 +282,18 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 52,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: PALETTE.vanilla[700],
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    backgroundColor: TOKENS.surface,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    height: 44,
+    gap: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
   },
 
   inputContainerFocused: {
     borderColor: alpha(TOKENS.primary, 0.4),
     backgroundColor: '#fff',
-    ...Platform.select({
-      ios: {
-        shadowOpacity: 0.12,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
   },
 
   input: {
@@ -295,10 +307,23 @@ const styles = StyleSheet.create({
   },
 
   actionContainer: {
-    width: 30,
+    width: 34,
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  loadingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+
+  loadingDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: TOKENS.primary,
   },
 
   clearButton: {
@@ -308,22 +333,11 @@ const styles = StyleSheet.create({
 
   suggestionsContainer: {
     marginTop: 6,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 10,
+    backgroundColor: TOKENS.surface,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: PALETTE.vanilla[700],
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
     maxHeight: 280,
   },
 
@@ -336,7 +350,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#fff',
+    backgroundColor: TOKENS.surface,
   },
 
   suggestionItemFirst: {
@@ -378,7 +392,7 @@ const styles = StyleSheet.create({
 
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: PALETTE.vanilla[700],
+    backgroundColor: TOKENS.strokeLight,
     marginHorizontal: 16,
   },
 
@@ -387,15 +401,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: alpha('#dc2626', 0.08),
+    backgroundColor: TOKENS.dangerSoft,
     borderWidth: 1,
-    borderColor: alpha('#dc2626', 0.2),
+    borderColor: alpha(TOKENS.danger, 0.18),
   },
 
   errorText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#dc2626',
+    color: TOKENS.danger,
     textAlign: 'center',
     lineHeight: 18,
   },

@@ -1,92 +1,217 @@
+// Design tokens — minimalist redesign.
+// Driven by .agents/skills/: minimalist-ui, quieter, distill, typeset, design-taste-frontend.
+// Principles:
+//   - One accent (cerulean), no competing color ramps
+//   - Hairline borders instead of heavy shadows
+//   - Tinted near-black ink (never pure #000)
+//   - 3 weights total: 400 body, 500 numerics, 600 titles
+//   - Tokens kept backward-compatible by name; values simplified
 
-export const PALETTE = {
-    vanilla: {
-        DEFAULT: '#ece4b7',
-        100: '#423b12',
-        200: '#847623',
-        300: '#c6b035',
-        400: '#dacb74',
-        500: '#ece4b7',
-        600: '#f0e9c5',
-        700: '#f3efd3',
-        800: '#f7f4e2',
-        900: '#fbfaf0',
-    },
-    straw: {
-        DEFAULT: '#d9dd92',
-        100: '#363812',
-        200: '#6c7023',
-        300: '#a2a735',
-        400: '#c5cb5b',
-        500: '#d9dd92',
-        600: '#e1e4a8',
-        700: '#e8eabe',
-        800: '#f0f1d4',
-        900: '#f7f8e9',
-    },
-    earth_yellow: {
-        DEFAULT: '#eabe7c',
-        100: '#3d290a',
-        200: '#7b5214',
-        300: '#b87b1e',
-        400: '#e09f3e',
-        500: '#eabe7c',
-        600: '#eecb96',
-        700: '#f2d8b0',
-        800: '#f6e5ca',
-        900: '#fbf2e5',
-    },
-    flame: {
-        DEFAULT: '#dd6031',
-        100: '#2e1208',
-        200: '#5d240f',
-        300: '#8b3617',
-        400: '#ba481e',
-        500: '#dd6031',
-        600: '#e47f5a',
-        700: '#eb9f83',
-        800: '#f2bfad',
-        900: '#f8dfd6',
-    },
-    bistre: {
-        DEFAULT: '#311e10',
-        100: '#0a0603',
-        200: '#140c06',
-        300: '#1e120a',
-        400: '#28180d',
-        500: '#311e10',
-        600: '#754726',
-        700: '#b8703c',
-        800: '#d49f79',
-        900: '#e9cfbc',
-    },
-};
-
-export const TOKENS = {
-    bg: '#fafafa', // Cleaner, lighter background
-    surface: '#ffffff',
-    surfaceMuted: PALETTE.vanilla[900], // More subtle
-    surfaceRaised: '#ffffff',
-    stroke: '#e5e5e5', // Neutral gray for dividers
-    strokeLight: '#f5f5f5', // Even lighter divider
-    text: '#1a1a1a', // Higher contrast for readability
-    textMuted: '#737373', // Neutral gray instead of warm brown
-    textLight: '#a3a3a3', // For secondary info
-    primary: PALETTE.flame.DEFAULT,
-    primaryAlt: PALETTE.flame[300],
-    accent: PALETTE.earth_yellow.DEFAULT,
-    accentAlt: PALETTE.straw.DEFAULT,
-    danger: PALETTE.flame.DEFAULT,
-    success: '#10b981', // More standard green for success
-    warning: PALETTE.earth_yellow.DEFAULT,
-};
-
-export const alpha = (hex, a) => {
+export function alpha(hex, a) {
     const h = hex.replace('#', '');
     const n = parseInt(h, 16);
     const r = (n >> 16) & 255;
     const g = (n >> 8) & 255;
     const b = n & 255;
     return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+// Only two ramps remain: prussian (ink) and cerulean (accent).
+// amber / cream / yale are collapsed into single semantic tokens below.
+export const PALETTE = {
+    cerulean: {
+        DEFAULT: '#1d6d8b',
+        50: '#edf6f9',
+        100: '#d7ebf2',
+        200: '#b3d6e4',
+        300: '#83bad0',
+        400: '#549bb8',
+        500: '#1d6d8b',
+        600: '#185a74',
+        700: '#15495d',
+        800: '#103746',
+        900: '#0c2833',
+    },
+    prussian: {
+        DEFAULT: '#0F1A26',
+        50: '#ecf2f7',
+        100: '#d3deea',
+        200: '#aec1d3',
+        300: '#80a0ba',
+        400: '#587a97',
+        500: '#0F1A26',
+        600: '#0C1520',
+        700: '#091119',
+        800: '#060C12',
+        900: '#03070B',
+    },
 };
 
+// Single accent (cerulean ~78% saturation), near-black tinted ink, one hairline border.
+export const TOKENS = {
+    // canvas
+    bg: '#F6F8FA',
+    surface: '#FFFFFF',
+    surfaceMuted: '#F1F4F8',
+    surfaceRaised: '#FFFFFF',
+    surfaceOverlay: 'rgba(255, 255, 255, 0.96)',
+    surfaceAccent: alpha(PALETTE.cerulean[500], 0.06),
+
+    // borders — one hairline color, legacy aliases collapsed
+    stroke: '#E6EAF0',
+    strokeStrong: '#D8DEE7',
+    strokeLight: '#EEF1F5',
+    hairline: '#E6EAF0',
+    divider: '#EEF1F5',
+
+    // text
+    text: '#0F1A26',
+    textMuted: '#5B6B7C',
+    textLight: '#90A0B0',
+    textFaint: '#90A0B0',
+
+    // primary (single accent)
+    primary: PALETTE.cerulean[500],
+    primaryAlt: PALETTE.cerulean[700],
+    primaryInk: PALETTE.cerulean[700],
+    primarySoft: alpha(PALETTE.cerulean[500], 0.08),
+    primaryWash: alpha(PALETTE.cerulean[500], 0.06),
+    accent: PALETTE.cerulean[500],
+    accentAlt: PALETTE.cerulean[400],
+
+    // semantic — single value each, no ramps
+    danger: '#B5524A',
+    dangerSoft: 'rgba(181, 82, 74, 0.08)',
+    success: '#2C7A6B',
+    successSoft: 'rgba(44, 122, 107, 0.08)',
+    warning: '#B8832D',
+    warningSoft: 'rgba(184, 131, 45, 0.08)',
+
+    shadow: '#0F1A26',
+    focus: alpha(PALETTE.cerulean[500], 0.22),
+    focusRing: alpha(PALETTE.cerulean[500], 0.22),
+};
+
+export const SPACING = {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    '2xl': 24,
+    '3xl': 32,
+};
+
+// Radii collapsed to 2 real values (sm 6, md 10). Legacy names map to 10 so call
+// sites keep compiling; Phase 5 replaces the legacy references explicitly.
+export const RADIUS = {
+    sm: 6,
+    md: 10,
+    lg: 10,
+    xl: 10,
+    pill: 9999,
+    full: 9999,
+};
+
+// Shadows whispered down to opacity < 0.05. All three levels map to the same
+// near-invisible tinted drop so existing references don't break; prefer hairline
+// borders for elevation going forward.
+export const SHADOWS = {
+    sm: {
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.03,
+        shadowRadius: 6,
+        elevation: 1,
+    },
+    md: {
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 1,
+    },
+    lg: {
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 1,
+    },
+    raised: {
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 1,
+    },
+};
+
+// Deliberate 5-step type scale. Three weights only: 400 body, 500 numerics, 600 titles.
+// All numeric displays use tabular-nums for alignment.
+export const TYPOGRAPHY = {
+    display: {
+        fontSize: 28,
+        lineHeight: 32,
+        fontWeight: '600',
+        letterSpacing: -0.6,
+        color: TOKENS.text,
+    },
+    heading: {
+        fontSize: 20,
+        lineHeight: 26,
+        fontWeight: '600',
+        letterSpacing: -0.3,
+        color: TOKENS.text,
+    },
+    subheading: {
+        fontSize: 16,
+        lineHeight: 22,
+        fontWeight: '600',
+        letterSpacing: -0.1,
+        color: TOKENS.text,
+    },
+    body: {
+        fontSize: 14,
+        lineHeight: 20,
+        fontWeight: '400',
+        color: TOKENS.text,
+    },
+    bodyMuted: {
+        fontSize: 14,
+        lineHeight: 20,
+        fontWeight: '400',
+        color: TOKENS.textMuted,
+    },
+    caption: {
+        fontSize: 11,
+        lineHeight: 14,
+        fontWeight: '500',
+        letterSpacing: 0.4,
+        textTransform: 'uppercase',
+        color: TOKENS.textMuted,
+    },
+    numLarge: {
+        fontSize: 32,
+        lineHeight: 34,
+        fontWeight: '500',
+        letterSpacing: -0.8,
+        fontVariant: ['tabular-nums'],
+        color: TOKENS.text,
+    },
+    numMedium: {
+        fontSize: 20,
+        lineHeight: 22,
+        fontWeight: '500',
+        letterSpacing: -0.4,
+        fontVariant: ['tabular-nums'],
+        color: TOKENS.text,
+    },
+    numSmall: {
+        fontSize: 14,
+        lineHeight: 18,
+        fontWeight: '500',
+        fontVariant: ['tabular-nums'],
+        color: TOKENS.text,
+    },
+};

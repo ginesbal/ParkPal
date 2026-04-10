@@ -1,77 +1,64 @@
-import { Platform, StyleSheet } from 'react-native';
-import { PALETTE, TOKENS, alpha } from '../../../../constants/theme';
+import { StyleSheet } from 'react-native';
+import { TOKENS, alpha } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
-    // Container
     scrollContent: {
         paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: 24,
         paddingBottom: 40,
     },
 
-    // Header Section
     header: {
         alignItems: 'center',
-        marginBottom: 26,
+        marginBottom: 28,
     },
     iconContainer: {
         width: 64,
-        height: 36,
-        borderRadius: 20,
-        backgroundColor: alpha(TOKENS.primary, 0.1),
+        height: 44,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 12,
     },
     title: {
         fontSize: 20,
-        fontWeight: '800',
+        fontWeight: '600',
         color: TOKENS.text,
-        letterSpacing: -0.5,
+        letterSpacing: -0.3,
     },
     subtitle: {
-        fontSize: 12,
+        fontSize: 14,
         color: TOKENS.textMuted,
-        marginTop: 4,
+        marginTop: 6,
     },
 
-    // Setup Card
+    // Card container → just a surface with hairline border, no shadow
     setupCard: {
         backgroundColor: TOKENS.surface,
-        borderRadius: 24,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: alpha(TOKENS.stroke, 0.3),
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOpacity: 0.1,
-                shadowRadius: 20,
-                shadowOffset: { width: 0, height: 10 },
-            },
-            android: {
-                elevation: 5,
-            },
-        }),
+        borderRadius: 10,
+        padding: 20,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
 
-    // Setup Sections
     setupSection: {
         flexDirection: 'row',
         marginBottom: 20,
     },
     stepIndicator: {
         width: 28,
-        height: 18,
-        borderRadius: 14,
-        backgroundColor: alpha(TOKENS.primary, 0.1),
+        height: 28,
+        borderRadius: 12,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.primary,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 16,
+        marginRight: 14,
+        marginTop: 2,
     },
     stepNumber: {
-        fontSize: 14,
-        fontWeight: '800',
+        fontSize: 13,
+        fontWeight: '600',
         color: TOKENS.primary,
     },
     setupContent: {
@@ -82,106 +69,107 @@ export const styles = StyleSheet.create({
         fontWeight: '600',
         color: TOKENS.textMuted,
         marginBottom: 12,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 0,
     },
 
-    // Plate Input
     plateInput: {
-        height: 45,
-        borderRadius: 16,
-        backgroundColor: PALETTE.vanilla[900],
-        borderWidth: 2,
-        borderColor: alpha(TOKENS.stroke, 0.3),
+        minHeight: 48,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surfaceMuted,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
         paddingHorizontal: 16,
         fontSize: 18,
-        fontWeight: '700',
+        fontWeight: '500',
         color: TOKENS.text,
         letterSpacing: 2,
         textAlign: 'center',
         textTransform: 'uppercase',
+        fontVariant: ['tabular-nums'],
     },
 
-    // Duration Grid
-durationGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginHorizontal: -5, // Compensate for gap
-},
-durationOption: {
-    width: '48%', // 2 columns with gap
-    height: 60,
-    borderRadius: 16,
-    backgroundColor: PALETTE.vanilla[900],
-    borderWidth: 2,
-    borderColor: alpha(TOKENS.stroke, 0.3),
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-},
-durationOptionActive: {
-    backgroundColor: alpha(TOKENS.primary, 0.1),
-    borderColor: TOKENS.primary,
-},
-durationTime: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: TOKENS.text,
-    marginBottom: 3,
-    textAlign: 'center',
-},
-durationTimeActive: {
-    color: TOKENS.primary,
-},
-durationCost: {
-    fontSize: 12,
-    color: TOKENS.textMuted,
-    fontWeight: '600',
-    textAlign: 'center',
-},
-durationCostActive: {
-    color: TOKENS.primary,
-},
+    durationGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        rowGap: 8,
+    },
+    durationOption: {
+        width: '48%',
+        minHeight: 60,
+        borderRadius: 10,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+    },
+    durationOptionActive: {
+        backgroundColor: 'transparent',
+        borderColor: TOKENS.primary,
+    },
+    durationTime: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: TOKENS.text,
+        marginBottom: 4,
+        textAlign: 'center',
+        fontVariant: ['tabular-nums'],
+    },
+    durationTimeActive: {
+        color: TOKENS.primary,
+        fontWeight: '600',
+    },
+    durationCost: {
+        fontSize: 12,
+        color: TOKENS.textMuted,
+        fontWeight: '500',
+        textAlign: 'center',
+        fontVariant: ['tabular-nums'],
+    },
+    durationCostActive: {
+        color: TOKENS.primary,
+    },
 
-    // Rate Options
     rateOptions: {
         flexDirection: 'row',
-        gap: 12,
+        gap: 8,
     },
     rateOption: {
         flex: 1,
-        height: 40,
-        borderRadius: 16,
-        backgroundColor: PALETTE.vanilla[900],
-        borderWidth: 2,
-        borderColor: alpha(TOKENS.stroke, 0.3),
+        minHeight: 44,
+        borderRadius: 10,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
         alignItems: 'center',
         justifyContent: 'center',
     },
     rateOptionActive: {
-        backgroundColor: TOKENS.primary,
+        backgroundColor: 'transparent',
         borderColor: TOKENS.primary,
     },
     rateText: {
         fontSize: 12,
-        fontWeight: '800',
-        color: TOKENS.text,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
+        fontVariant: ['tabular-nums'],
     },
     rateTextActive: {
-        color: '#fff',
+        color: TOKENS.primary,
+        fontWeight: '600',
     },
 
-    // Summary Box
+    // Summary → hairline divider rows, no bg
     summaryBox: {
-        backgroundColor: alpha(PALETTE.straw[300], 0.1),
-        borderRadius: 16,
-        padding: 18,
-        paddingHorizontal: 24,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: alpha(PALETTE.straw[300], 0.2),
+        paddingVertical: 14,
+        marginBottom: 16,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.hairline,
     },
     summaryRow: {
         flexDirection: 'row',
@@ -189,56 +177,43 @@ durationCostActive: {
         alignItems: 'center',
     },
     summaryLabel: {
-        fontSize: 12,
+        fontSize: 13,
         color: TOKENS.textMuted,
-        fontWeight: '800',
+        fontWeight: '500',
     },
     summaryValue: {
         fontSize: 16,
-        fontWeight: '800',
+        fontWeight: '500',
         color: TOKENS.text,
+        fontVariant: ['tabular-nums'],
     },
     summaryValueLarge: {
-        fontSize: 18,
-        fontWeight: '800',
+        fontSize: 20,
+        fontWeight: '500',
         color: TOKENS.primary,
+        fontVariant: ['tabular-nums'],
     },
     summaryDivider: {
-        height: 1,
-        backgroundColor: alpha(TOKENS.stroke, 0.4),
-        marginVertical: 6,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: TOKENS.hairline,
+        marginVertical: 10,
     },
 
-    // Primary Button
     primaryButton: {
-        height: 50,
-        borderRadius: 16,
+        minHeight: 52,
+        borderRadius: 10,
         backgroundColor: TOKENS.primary,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        ...Platform.select({
-            ios: {
-                shadowColor: TOKENS.primary,
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                shadowOffset: { width: 0, height: 4 },
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
     },
     primaryButtonDisabled: {
-        backgroundColor: alpha(TOKENS.textMuted, 0.3),
-        shadowOpacity: 0,
-        elevation: 0,
+        backgroundColor: alpha(TOKENS.textMuted, 0.2),
     },
     primaryButtonText: {
-        fontSize: 17,
-        fontWeight: '800',
+        fontSize: 16,
+        fontWeight: '600',
         color: '#fff',
-        letterSpacing: 0.3,
     },
 });

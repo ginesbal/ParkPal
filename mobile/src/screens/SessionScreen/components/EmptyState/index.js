@@ -32,8 +32,8 @@ const EmptyState = ({
                         color={TOKENS.primary}
                     />
                 </View>
-                <Text style={styles.title}>Start Parking Session</Text>
-                <Text style={styles.subtitle}>Demo Mode • Downtown Calgary</Text>
+                <Text style={styles.title}>You're not parked yet</Text>
+                <Text style={styles.subtitle}>Set up a session for downtown Calgary</Text>
             </View>
 
             {/* Setup Card - Main interaction area */}
@@ -50,7 +50,7 @@ const EmptyState = ({
             {/* Info Card - Demo disclaimer */}
             <InfoCard
                 icon="information-outline"
-                text="This is a demo session. No payment required. Your session data is stored locally for testing."
+                text="This is a demo session, so no payment is required. Session details stay on this device for testing."
                 type="info"
             />
         </ScrollView>

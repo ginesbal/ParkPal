@@ -1,10 +1,10 @@
-# ParkPal - Smart Parking Finder for Downtown Calgary
+# CurbFlow - Smart Parking Finder for Downtown Calgary
 
 A full-stack mobile application that helps users find and manage parking spots in downtown Calgary, featuring parking availability, interactive maps, and session management.
 
 ## Project Overview
 
-ParkPal addresses the urban challenge of finding parking in downtown Calgary by providing:
+CurbFlow addresses the urban challenge of finding parking in downtown Calgary by providing:
 -**Real-time parking spot discovery** with distance-based search
 -**Interactive map interface** with custom markers and filtering
 -**Smart session management** for tracking parking duration and costs
@@ -80,7 +80,7 @@ This project showcases proficiency in mobile development, backend API design, da
 
 ## Project Structure
 
-PARKPAL/
+CURBFLOW/
 ├── mobile/                    # React Native app
 │   ├── src/
 │   │   ├── components/      # Reusable UI components

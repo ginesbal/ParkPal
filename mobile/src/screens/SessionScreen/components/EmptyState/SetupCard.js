@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useMemo } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { TOKENS } from '../../../../constants/theme';
 import { DURATION_OPTIONS, RATE_OPTIONS } from '../../../../constants/session';
 import { formatMoney, formatTime } from '../../../../utils/formatters';
 import { calculateCost } from '../../../../utils/sessionHelpers';
@@ -8,9 +9,6 @@ import { styles } from './styles';
 
 /**
  * SetupCard - Handles the 3-step parking session setup
- * Step 1: Vehicle plate input
- * Step 2: Duration selection
- * Step 3: Rate selection
  */
 const SetupCard = ({
     vehiclePlate,
@@ -21,13 +19,11 @@ const SetupCard = ({
     setSelectedDuration,
     onStartSession,
 }) => {
-    // Calculate total cost based on selections
     const totalCost = useMemo(
         () => calculateCost(selectedDuration, selectedRate),
         [selectedDuration, selectedRate]
     );
 
-    // Check if form is valid
     const isValid = useMemo(
         () => vehiclePlate.trim().length > 0,
         [vehiclePlate]
@@ -35,22 +31,22 @@ const SetupCard = ({
 
     return (
         <View style={styles.setupCard}>
-            {/* Step 1: Vehicle License Plate */}
             <View style={styles.setupSection}>
                 <View style={styles.stepIndicator}>
                     <Text style={styles.stepNumber}>1</Text>
                 </View>
                 <View style={styles.setupContent}>
-                    <Text style={styles.setupLabel}>Vehicle License Plate</Text>
+                    <Text style={styles.setupLabel}>Vehicle license plate</Text>
                     <TextInput
                         value={vehiclePlate}
                         onChangeText={setVehiclePlate}
                         placeholder="ABC 1234"
-                        placeholderTextColor="#c7babaff"
+                        placeholderTextColor={TOKENS.textLight}
                         autoCapitalize="characters"
                         autoCorrect={false}
                         maxLength={10}
                         style={styles.plateInput}
+                        selectionColor={TOKENS.primary}
                         accessibilityLabel="Vehicle license plate input"
                         accessibilityHint="Enter your vehicle's license plate number"
                     />
@@ -62,7 +58,7 @@ const SetupCard = ({
                     <Text style={styles.stepNumber}>2</Text>
                 </View>
                 <View style={styles.setupContent}>
-                    <Text style={styles.setupLabel}>Parking Duration</Text>
+                    <Text style={styles.setupLabel}>Parking duration</Text>
                     <View style={styles.durationGrid}>
                         {DURATION_OPTIONS.filter(opt => opt.quickSelect).map((option) => (
                             <TouchableOpacity
@@ -107,13 +103,12 @@ const SetupCard = ({
                 </View>
             </View>
 
-            {/* Step 3: Hourly Rate */}
             <View style={styles.setupSection}>
                 <View style={styles.stepIndicator}>
                     <Text style={styles.stepNumber}>3</Text>
                 </View>
                 <View style={styles.setupContent}>
-                    <Text style={styles.setupLabel}>Hourly Rate</Text>
+                    <Text style={styles.setupLabel}>Hourly rate</Text>
                     <View style={styles.rateOptions}>
                         {RATE_OPTIONS.map((option) => (
                             <TouchableOpacity
@@ -140,22 +135,20 @@ const SetupCard = ({
                 </View>
             </View>
 
-            {/* Summary Box */}
             <View style={styles.summaryBox}>
                 <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Total Time</Text>
+                    <Text style={styles.summaryLabel}>Total time</Text>
                     <Text style={styles.summaryValue}>{formatTime(selectedDuration)}</Text>
                 </View>
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Total Cost</Text>
+                    <Text style={styles.summaryLabel}>Estimated total</Text>
                     <Text style={styles.summaryValueLarge}>
                         {formatMoney(totalCost)}
                     </Text>
                 </View>
             </View>
 
-            {/* Start Button */}
             <TouchableOpacity
                 onPress={onStartSession}
                 activeOpacity={0.9}
@@ -174,7 +167,7 @@ const SetupCard = ({
                     size={20}
                     color="#fff"
                 />
-                <Text style={styles.primaryButtonText}>Start Parking</Text>
+                <Text style={styles.primaryButtonText}>Start session</Text>
             </TouchableOpacity>
         </View>
     );

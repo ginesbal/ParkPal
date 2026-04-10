@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { styles } from './styles';
 
@@ -8,22 +8,22 @@ import { styles } from './styles';
  */
 const MapFAB = ({ onPress }) => {
     return (
-        <TouchableOpacity
-            style={styles.mapFab}
+        <Pressable
+            style={({ pressed }) => [
+                styles.mapFab,
+                pressed && styles.mapFabPressed,
+            ]}
             onPress={onPress}
-            activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel="View parking map"
         >
-            <View style={styles.mapFabInner}>
-                <MaterialCommunityIcons 
-                    name="map" 
-                    size={26} 
-                    color="#fff" 
-                />
-            </View>
+            <MaterialCommunityIcons
+                name="map"
+                size={20}
+                color="#fff"
+            />
             <Text style={styles.mapFabLabel}>Map</Text>
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 

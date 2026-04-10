@@ -1,6 +1,5 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useCallback } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { styles } from './styles';
 
 const TYPE_FILTERS = [
@@ -36,14 +35,16 @@ const FilterBar = ({
                 {TYPE_FILTERS.map((filter) => {
                     const isActive = activeFilter === filter.key;
                     return (
-                        <TouchableOpacity
+                        <Pressable
                             key={filter.key}
                             onPress={() => handleFilterPress(filter.key)}
-                            style={[
+                            style={({ pressed }) => [
                                 styles.filterChip,
-                                isActive && styles.filterChipActive
+                                isActive && styles.filterChipActive,
+                                pressed && styles.filterChipPressed,
                             ]}
-                            activeOpacity={0.6}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: isActive }}
                         >
                             <Text style={[
                                 styles.filterChipText,
@@ -51,36 +52,35 @@ const FilterBar = ({
                             ]}>
                                 {filter.label}
                             </Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     );
                 })}
             </View>
 
             <View style={styles.distanceRow}>
-                <MaterialCommunityIcons
-                    name="map-marker-distance"
-                    size={14}
-                    color="#999"
-                />
-                <View style={styles.distanceTrack}>
+                <Text style={styles.distanceLabel}>Radius</Text>
+                <View style={styles.distanceOptions}>
                     {DISTANCE_OPTIONS.map((distance) => {
                         const isActive = searchRadius === distance;
                         return (
-                            <TouchableOpacity
+                            <Pressable
                                 key={distance}
-                                style={[
-                                    styles.distanceMarker,
-                                    isActive && styles.distanceMarkerActive
+                                style={({ pressed }) => [
+                                    styles.distanceOption,
+                                    isActive && styles.distanceOptionActive,
+                                    pressed && styles.distanceOptionPressed,
                                 ]}
                                 onPress={() => handleDistancePress(distance)}
-                                activeOpacity={0.6}
+                                accessibilityRole="button"
+                                accessibilityState={{ selected: isActive }}
                             >
-                                {isActive && (
-                                    <Text style={styles.distanceValue}>
-                                        {formatDistance(distance)}
-                                    </Text>
-                                )}
-                            </TouchableOpacity>
+                                <Text style={[
+                                    styles.distanceOptionText,
+                                    isActive && styles.distanceOptionTextActive
+                                ]}>
+                                    {formatDistance(distance)}
+                                </Text>
+                            </Pressable>
                         );
                     })}
                 </View>

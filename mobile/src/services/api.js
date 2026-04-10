@@ -4,7 +4,7 @@ const API_URL = Constants.expoConfig.extra.apiUrl
 
 
 // cache configuration
-const CACHE_PREFIX = '@ParkPal:';
+const CACHE_PREFIX = '@CurbFlow:';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const OFFLINE_TTL = 24 * 60 * 60 * 1000; // 24 hours for offline mode
 

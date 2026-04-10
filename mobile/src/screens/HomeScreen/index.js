@@ -21,17 +21,13 @@ import { styles } from './HomeScreen.styles';
 
 export default function HomeScreen({ navigation }) {
   // location & filter state
-  const { location, isLoadingLocation } = useLocationManager();
+  const { location, isLoadingLocation, locationError } = useLocationManager();
 
   const {
     activeFilter,
     setActiveFilter,
     searchRadius,
     setSearchRadius,
-    showFilters,
-    toggleFilters,
-    filterHeight,
-    hasActiveFilters,
   } = useFilterState();
 
   // data fetching hook
@@ -43,7 +39,6 @@ export default function HomeScreen({ navigation }) {
 
   // local UI state
   const [refreshing, setRefreshing] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [lastRefresh, setLastRefresh] = useState(null);
 
   // animations (UI concern, not data concern)
@@ -125,7 +120,6 @@ export default function HomeScreen({ navigation }) {
     });
     
     setRefreshing(true);
-    setRefreshKey(prev => prev + 1);
     setLastRefresh(new Date());
     
     // reset refreshing after delay
@@ -146,11 +140,6 @@ export default function HomeScreen({ navigation }) {
       logger.log('radius_changed', { radius: searchRadius });
     }
   }, [searchRadius]);
-
-  const handleToggleFilters = useCallback(() => {
-    logger.log('filters_toggled', { to: !showFilters });
-    toggleFilters();
-  }, [showFilters, toggleFilters]);
 
   // initial loading state
   if ((loading && !refreshing) || isLoadingLocation) {
@@ -189,14 +178,11 @@ export default function HomeScreen({ navigation }) {
               setActiveFilter={setActiveFilter}
               searchRadius={searchRadius}
               setSearchRadius={setSearchRadius}
-              showFilters={showFilters}
-              toggleFilters={handleToggleFilters}
-              filterHeight={filterHeight}
-              hasActiveFilters={hasActiveFilters}
-              lastRefresh={lastRefresh}
               fadeAnim={fadeAnim}
               slideAnim={slideAnim}
               onLocationPress={handleMapPress}
+              statusMessage={error || locationError}
+              statusTone={error ? 'warning' : 'info'}
             />
           }
           refreshControl={
@@ -211,6 +197,8 @@ export default function HomeScreen({ navigation }) {
             <EmptyState
               onExpandSearch={handleExpandSearch}
               onViewMap={handleMapPress}
+              onRetry={handleRefresh}
+              errorMessage={error}
             />
           }
           contentContainerStyle={Array.isArray(spots) && spots.length === 0 ? styles.emptyList : null}

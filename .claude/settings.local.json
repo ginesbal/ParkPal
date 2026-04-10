@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx react-native-check:*)",
+      "Bash(npm run lint)",
+      "Bash(node -c:*)",
+      "Bash(npm install:*)",
+      "Bash(npm start)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(del srcpolyfillsreanimatedWorkletCallback.js)",
+      "Bash(del \"d:\\ParkPal\\mobile\\src\\polyfills\\reanimatedWorkletCallback.js\")",
+      "Bash(npx expo start:*)",
+      "Bash(netcat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

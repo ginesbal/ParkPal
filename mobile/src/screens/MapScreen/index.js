@@ -1,11 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import * as Location from 'expo-location';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
     Animated,
-    Easing,
     Linking,
     Pressable,
     StatusBar,
@@ -20,73 +19,45 @@ import FlippableParkingCard from '../../components/ParkingCard/FlippableParkingC
 
 // app constants/services
 import { DEFAULT_LOCATION } from '../../constants/config';
-import { TOKENS } from '../../constants/theme';
 
 // logs
-import { debugLogger as logger } from '../../utils/loggers';
+import { logger } from '../../utils/loggers';
 
 // files specific to this screen
 import { useParkingSpots } from '../../hooks/useParkingSpots';
-import MapBottomSheet from './components/MapBottomSheet';
 import MapHeader from './components/MapHeader';
 import MapOverlays from './components/MapOverlays';
-import { SCREEN_HEIGHT, SCREEN_WIDTH, SHEET_MIN_HEIGHT } from './constants';
-import { useBottomSheet } from './hooks/useBottomSheet';
+import ParkingBottomSheet from './components/ParkingBottomSheet';
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from './constants';
 import { styles } from './styles';
 import { centerCamera, getMarkerScreenPosition } from './utils/camera';
 import { getCurrentPrice } from './utils/pricing';
 
 function MapScreen() {
     const insets = useSafeAreaInsets();
-    const NAVIGATION_HEIGHT = 100 + insets.top;
+    // Compact header: ~70px content + safe area inset (collapsed filters)
+    const [navigationHeight, setNavigationHeight] = useState(70 + insets.top);
+    const [sheetPeekHeight, setSheetPeekHeight] = useState(108);
 
-    // tab bar sizing to keep ui elements clear
-    const TAB_BAR_HEIGHT = 80;
-    const BOTTOM_UI_OFFSET = TAB_BAR_HEIGHT + (insets.bottom || 0) + 14;
+    // Get ACTUAL tab bar height from React Navigation (includes padding + safe areas)
+    const tabBarHeight = useBottomTabBarHeight();
     const CARD_ESTIMATED_HEIGHT = 220;
-
-    // available space for the sheet
-    const SHEET_AVAILABLE_SPACE = SCREEN_HEIGHT - NAVIGATION_HEIGHT - TAB_BAR_HEIGHT - insets.bottom;
-    const SHEET_COLLAPSED_OFFSET = SHEET_AVAILABLE_SPACE - SHEET_MIN_HEIGHT;
+    const SURFACE_STACK_GAP = 12;
+    const BOTTOM_UI_OFFSET = tabBarHeight + sheetPeekHeight + 16;
+    const detailCardTopBoundary = navigationHeight + SURFACE_STACK_GAP;
+    const detailCardBottomBoundary = SCREEN_HEIGHT - BOTTOM_UI_OFFSET - SURFACE_STACK_GAP;
 
     // refs
     const mapRef = useRef(null);
+    const bottomSheetRef = useRef(null);
     const lastMapInteraction = useRef(null);
     const hideControlsTimer = useRef(null);
 
-    // bottom sheet
-    const {
-        isSheetExpanded,
-        setIsSheetExpanded,
-        viewMode,
-        setViewMode,
-        bottomSheetTranslateY,
-        controlsOpacity,
-        controlsTranslateY,
-        selectedAnim,
-        pinDropAnim,
-        expandSheet,
-        collapseSheet,
-        showControls,
-        hideControls,
-        panHandlers,
-        toggleSheet,
-    } = useBottomSheet({ collapsedOffset: SHEET_COLLAPSED_OFFSET });
-
-    // map padding reacts to sheet position
-    const [mapPaddingBottom, setMapPaddingBottom] = useState(SHEET_MIN_HEIGHT + 20);
-
-    useEffect(() => {
-        const listener = bottomSheetTranslateY.addListener(({ value }) => {
-            const visibleHeight = SHEET_AVAILABLE_SPACE - value;
-            const paddingValue = Math.max(20, Math.min(SHEET_AVAILABLE_SPACE, visibleHeight + 20));
-            setMapPaddingBottom(paddingValue);
-        });
-
-        setMapPaddingBottom(SHEET_MIN_HEIGHT + 20);
-
-        return () => bottomSheetTranslateY.removeListener(listener);
-    }, [SHEET_AVAILABLE_SPACE, bottomSheetTranslateY]);
+    // animations
+    const controlsOpacity = useRef(new Animated.Value(1)).current;
+    const controlsTranslateY = useRef(new Animated.Value(0)).current;
+    const selectedAnim = useRef(new Animated.Value(0)).current;
+    const pinDropAnim = useRef(new Animated.Value(0)).current;
 
     // data state
     const [region, setRegion] = useState(DEFAULT_LOCATION);
@@ -110,7 +81,7 @@ function MapScreen() {
     // calculate search spots
     const searchLocation = (searchMode === 'pinned' && pinnedLocation) ? pinnedLocation : userLocation;
 
-    const { spots, loading, error } = useParkingSpots(
+    const { spots } = useParkingSpots(
         searchLocation,
         searchRadius,
         filterType
@@ -159,16 +130,46 @@ function MapScreen() {
     }, []);
 
 
+    const showControls = useCallback(() => {
+        Animated.parallel([
+            Animated.timing(controlsOpacity, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true
+            }),
+            Animated.timing(controlsTranslateY, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true
+            }),
+        ]).start();
+    }, [controlsOpacity, controlsTranslateY]);
+
+    const hideControls = useCallback(() => {
+        Animated.parallel([
+            Animated.timing(controlsOpacity, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true
+            }),
+            Animated.timing(controlsTranslateY, {
+                toValue: -50,
+                duration: 200,
+                useNativeDriver: true
+            }),
+        ]).start();
+    }, [controlsOpacity, controlsTranslateY]);
+
     const handleMapInteraction = useCallback(() => {
         lastMapInteraction.current = Date.now();
         showControls();
         if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
         hideControlsTimer.current = setTimeout(() => {
-            if (Date.now() - lastMapInteraction.current >= 3000 && !isSheetExpanded) {
+            if (Date.now() - lastMapInteraction.current >= 3000) {
                 hideControls();
             }
         }, 3000);
-    }, [hideControls, isSheetExpanded, showControls]);
+    }, [hideControls, showControls]);
 
     // long press to drop pin and switch mode
     const handleMapLongPress = (event) => {
@@ -200,6 +201,7 @@ function MapScreen() {
         logger.logSpotData(spot, `Selected from ${fromList ? 'LIST' : 'MAP'}`);
         setSelectedSpot(spot);
         setFlippableCardVisible(false);
+        bottomSheetRef.current?.dismiss();
 
         if (spot?.coordinates) {
             const lat = spot.coordinates.coordinates[1];
@@ -213,7 +215,10 @@ function MapScreen() {
                 const delay = fromList ? 400 : 200;
                 setTimeout(async () => {
                     const screenPos = await getMarkerScreenPosition(mapRef, spot);
-                    const yCap = SCREEN_HEIGHT - BOTTOM_UI_OFFSET - CARD_ESTIMATED_HEIGHT;
+                    const yCap = Math.max(
+                        detailCardTopBoundary,
+                        detailCardBottomBoundary - CARD_ESTIMATED_HEIGHT
+                    );
 
                     if (screenPos) {
                         setFlippableCardPosition({
@@ -235,11 +240,11 @@ function MapScreen() {
         }
 
         selectedAnim.setValue(0);
-        Animated.timing(selectedAnim, {
+        Animated.spring(selectedAnim, {
             toValue: 1,
-            duration: 240,
+            tension: 88,
+            friction: 8,
             useNativeDriver: true,
-            easing: Easing.out(Easing.quad),
         }).start();
     };
 
@@ -268,22 +273,27 @@ function MapScreen() {
     });
 
     const dynamicStyles = useMemo(() => ({
-        topNavigation: { ...styles.topNavigation, paddingTop: insets.top },
-        map: { ...styles.map, marginTop: NAVIGATION_HEIGHT },
-        tooltip: { ...styles.tooltip, top: NAVIGATION_HEIGHT + 14 }
-    }), [NAVIGATION_HEIGHT, insets.top]);
+        topNavigation: { ...styles.topNavigation, paddingTop: insets.top + 4 },
+        tooltip: { ...styles.tooltip, top: navigationHeight + 8 }
+    }), [insets.top, navigationHeight]);
+
+    const handleNavigationLayout = useCallback((event) => {
+        const measuredHeight = Math.ceil(event.nativeEvent.layout.height);
+        setNavigationHeight((currentHeight) => (
+            Math.abs(currentHeight - measuredHeight) > 1 ? measuredHeight : currentHeight
+        ));
+    }, []);
 
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
             {/* header */}
-            <View style={dynamicStyles.topNavigation}>
+            <View style={dynamicStyles.topNavigation} onLayout={handleNavigationLayout}>
                 <MapHeader
                     shouldDismissSearch={shouldDismissSearch}
-                    insetsTop={insets.top}
-                    NAVIGATION_HEIGHT={NAVIGATION_HEIGHT}
                     isSearchFocused={isSearchFocused}
+                    isDetailActive={flippableCardVisible}
                     setIsSearchFocused={setIsSearchFocused}
                     pinnedLocation={pinnedLocation}
                     setPinnedLocation={setPinnedLocation}
@@ -327,10 +337,10 @@ function MapScreen() {
                 </Animated.View>
             )}
 
-            {/* map */}
+            {/* map — full screen, header floats over it */}
             <MapView
                 ref={mapRef}
-                style={dynamicStyles.map}
+                style={styles.map}
                 provider={PROVIDER_GOOGLE}
                 initialRegion={region}
                 onRegionChangeComplete={setRegion}
@@ -346,9 +356,6 @@ function MapScreen() {
 
                     setSelectedSpot(null);
                     setFlippableCardVisible(false);
-                    if (isSheetExpanded) {
-                        collapseSheet();
-                    }
                 }}
                 onLongPress={handleMapLongPress}
                 showsUserLocation
@@ -358,8 +365,8 @@ function MapScreen() {
                 mapPadding={{
                     left: 0,
                     right: 0,
-                    top: 0,
-                    bottom: mapPaddingBottom
+                    top: navigationHeight,
+                    bottom: BOTTOM_UI_OFFSET,
                 }}
             >
                 <MapOverlays
@@ -376,40 +383,21 @@ function MapScreen() {
                 />
             </MapView>
 
-            {/* floating actions above collapsed sheet */}
+            {/* floating recenter button */}
             <Animated.View
                 style={[
                     styles.fabContainer,
                     {
                         opacity: controlsOpacity,
                         transform: [{ translateY: Animated.multiply(controlsTranslateY, -1) }],
-                        bottom: SHEET_MIN_HEIGHT + TAB_BAR_HEIGHT + 16,
+                        bottom: BOTTOM_UI_OFFSET - 4,
                     }
                 ]}
-                pointerEvents={isSheetExpanded ? 'none' : 'auto'}
+                pointerEvents="auto"
             >
-                <Pressable
-                    style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
-                    onPress={() => {
-                        logger.log('ui_refresh_pressed', { radius: searchRadius, filterType }, 'UI_EVENT');
-                        if (searchMode === 'pinned' && pinnedLocation) {
-                            setPinnedLocation({ ...pinnedLocation });
-                        } else if (userLocation) {
-                            setUserLocation({ ...userLocation });
-                        }
-                    }}
-                >
-                    {loading ? (
-                        <ActivityIndicator color={TOKENS.primary} size="small" />
-                    ) : (
-                        <MaterialCommunityIcons name="refresh" size={22} color={TOKENS.primary} />
-                    )}
-                </Pressable>
-
                 <Pressable
                     style={({ pressed }) => [styles.fab, styles.fabPrimary, pressed && styles.fabPressed]}
                     onPress={() => {
-                        // important: users often tap recenter when lost
                         logger.log('ui_recenter_pressed', { mode: searchMode }, 'UI_EVENT');
 
                         const targetLocation =
@@ -433,21 +421,27 @@ function MapScreen() {
                 </Pressable>
             </Animated.View>
 
-            {/* bottom sheet */}
-            <MapBottomSheet
-                topOffset={NAVIGATION_HEIGHT}
-                tabBarHeight={TAB_BAR_HEIGHT + insets.bottom}
-                bottomSheetTranslateY={bottomSheetTranslateY}
-                panHandlers={panHandlers}
+            {/* parking bottom sheet */}
+            <ParkingBottomSheet
+                ref={bottomSheetRef}
                 spots={spots}
+                selectedSpot={selectedSpot}
                 searchMode={searchMode}
                 getCurrentPrice={getCurrentPrice}
+                onPeekHeightChange={setSheetPeekHeight}
+                tabBarHeight={tabBarHeight}
+                topInset={navigationHeight}
                 onItemPress={(spot) => {
                     selectSpot(spot, true);
-                    collapseSheet();
+                    bottomSheetRef.current?.dismiss();
                 }}
-                isExpanded={isSheetExpanded}
-                onToggle={toggleSheet}
+                onClearPin={() => {
+                    logger.log('clear_pin_button_pressed', {}, 'UI_EVENT');
+                    setPinnedLocation(null);
+                    setSearchMode('current');
+                    setSelectedSpot(null);
+                    setFlippableCardVisible(false);
+                }}
             />
 
             {/* flippable card */}
@@ -455,6 +449,8 @@ function MapScreen() {
                 visible={flippableCardVisible}
                 spot={flippableCardSpot}
                 position={flippableCardPosition}
+                topBoundary={detailCardTopBoundary}
+                bottomBoundary={detailCardBottomBoundary}
                 onClose={() => {
                     setFlippableCardVisible(false);
                     setSelectedSpot(null);

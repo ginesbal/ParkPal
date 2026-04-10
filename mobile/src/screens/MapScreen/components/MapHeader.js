@@ -1,9 +1,14 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useCallback } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { memo, useCallback, useRef, useState } from 'react';
+import { Animated, LayoutAnimation, Platform, Pressable, Text, UIManager, View } from 'react-native';
 import PlacesSearchBar from '../../../components/PlacesAutocomplete/PlacesSearchBar';
-import { PALETTE, TOKENS } from '../../../constants/theme';
+import { TOKENS } from '../../../constants/theme';
 import { styles } from '../styles';
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const TYPE_FILTERS = [
     { type: 'all', label: 'All' },
@@ -12,11 +17,16 @@ const TYPE_FILTERS = [
     { type: 'residential', label: 'Permit' },
 ];
 
-const DISTANCE_OPTIONS = [150, 250, 500, 750, 1000];
+const DISTANCE_PRESETS = [
+    { value: 150, label: '150m' },
+    { value: 500, label: '500m' },
+    { value: 1000, label: '1km' },
+];
 
 function MapHeader({
     shouldDismissSearch,
     isSearchFocused,
+    isDetailActive,
     setIsSearchFocused,
     pinnedLocation,
     showPinInstructions,
@@ -29,9 +39,7 @@ function MapHeader({
     setSearchRadius,
     onPlaceSelected,
 }) {
-    const formatDistance = useCallback((meters) => {
-        return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`;
-    }, []);
+    const [filtersExpanded, setFiltersExpanded] = useState(false);
 
     const handleFilterPress = useCallback((type) => {
         setFilterType(type);
@@ -40,9 +48,20 @@ function MapHeader({
     const handleDistancePress = useCallback((distance) => {
         setSearchRadius(distance);
     }, [setSearchRadius]);
+
+    const toggleFilters = useCallback(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setFiltersExpanded(prev => !prev);
+    }, []);
+
+    // Active filter count for the badge
+    const activeFilterCount =
+        (filterType !== 'all' ? 1 : 0) + (searchRadius !== 150 ? 1 : 0);
+
     return (
-        <>
-            <View style={styles.searchSection}>
+        <View style={styles.headerBar}>
+            {/* Single search row: input + action buttons */}
+            <View style={styles.searchInputRow}>
                 <PlacesSearchBar
                     shouldDismiss={shouldDismissSearch}
                     onPlaceSelected={onPlaceSelected}
@@ -50,30 +69,58 @@ function MapHeader({
                     style={styles.searchContainer}
                 />
 
-                {!isSearchFocused && (
+                {!isSearchFocused && !isDetailActive && (
                     <View style={styles.quickActions}>
+                        {/* Filter toggle */}
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.quickAction,
+                                filtersExpanded && styles.quickActionActive,
+                                pressed && styles.quickActionPressed,
+                            ]}
+                            onPress={toggleFilters}
+                            accessibilityRole="button"
+                            accessibilityLabel={filtersExpanded ? 'Hide filters' : 'Show filters'}
+                        >
+                            <MaterialCommunityIcons
+                                name="tune-vertical"
+                                size={18}
+                                color={filtersExpanded ? TOKENS.primary : TOKENS.text}
+                            />
+                            {activeFilterCount > 0 && !filtersExpanded && (
+                                <View style={styles.filterBadge}>
+                                    <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+                                </View>
+                            )}
+                        </Pressable>
+
+                        {/* Pin / location toggle */}
                         {pinnedLocation ? (
                             <Pressable
                                 style={({ pressed }) => [
                                     styles.quickAction,
                                     searchMode === 'pinned' && styles.quickActionActive,
-                                    pressed && styles.quickActionPressed
+                                    pressed && styles.quickActionPressed,
                                 ]}
                                 onPress={() => setSearchMode(searchMode === 'pinned' ? 'current' : 'pinned')}
+                                accessibilityRole="button"
+                                accessibilityLabel={searchMode === 'pinned' ? 'Switch to current location' : 'Use pinned location'}
                             >
                                 <MaterialCommunityIcons
                                     name="map-marker"
                                     size={18}
-                                    color={searchMode === 'pinned' ? '#fff' : PALETTE.flame[500]}
+                                    color={searchMode === 'pinned' ? TOKENS.primary : TOKENS.textMuted}
                                 />
                             </Pressable>
                         ) : (
                             <Pressable
                                 style={({ pressed }) => [
                                     styles.quickAction,
-                                    pressed && styles.quickActionPressed
+                                    pressed && styles.quickActionPressed,
                                 ]}
                                 onPress={() => setShowPinInstructions(!showPinInstructions)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Drop a pin on the map"
                             >
                                 <MaterialCommunityIcons
                                     name="map-marker-plus"
@@ -86,64 +133,59 @@ function MapHeader({
                 )}
             </View>
 
-            <Animated.View
-                style={[
-                    styles.filterBar,
-                    { opacity: isSearchFocused ? 0.3 : 1 }
-                ]}
-                pointerEvents={isSearchFocused ? 'none' : 'auto'}
-            >
-                <View style={styles.filterRow}>
+            {/* Expandable filters — single inline row */}
+            {filtersExpanded && !isDetailActive && !isSearchFocused && (
+                <View style={styles.filtersInline}>
+                    {/* Type chips */}
                     {TYPE_FILTERS.map(f => (
                         <Pressable
                             key={f.type}
-                            style={[
-                                styles.filterChip,
-                                filterType === f.type && styles.filterChipActive,
+                            style={({ pressed }) => [
+                                styles.miniChip,
+                                filterType === f.type && styles.miniChipActive,
+                                pressed && styles.filterChipPressed,
                             ]}
                             onPress={() => handleFilterPress(f.type)}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: filterType === f.type }}
                         >
                             <Text style={[
-                                styles.filterChipText,
-                                filterType === f.type && styles.filterChipTextActive
+                                styles.miniChipText,
+                                filterType === f.type && styles.miniChipTextActive,
                             ]}>
                                 {f.label}
                             </Text>
                         </Pressable>
                     ))}
-                </View>
 
-                <View style={styles.distanceRow}>
-                    <MaterialCommunityIcons
-                        name="map-marker-distance"
-                        size={14}
-                        color="#999"
-                    />
-                    <View style={styles.distanceTrack}>
-                        {DISTANCE_OPTIONS.map((distance) => {
-                            const isActive = searchRadius === distance;
-                            return (
-                                <Pressable
-                                    key={distance}
-                                    style={[
-                                        styles.distanceMarker,
-                                        isActive && styles.distanceMarkerActive
-                                    ]}
-                                    onPress={() => handleDistancePress(distance)}
-                                >
-                                    {isActive && (
-                                        <Text style={styles.distanceValue}>
-                                            {formatDistance(distance)}
-                                        </Text>
-                                    )}
-                                </Pressable>
-                            );
-                        })}
-                    </View>
+                    {/* Divider dot */}
+                    <View style={styles.chipDivider} />
+
+                    {/* Distance chips */}
+                    {DISTANCE_PRESETS.map(preset => (
+                        <Pressable
+                            key={preset.value}
+                            style={({ pressed }) => [
+                                styles.miniChip,
+                                searchRadius === preset.value && styles.miniChipActive,
+                                pressed && styles.filterChipPressed,
+                            ]}
+                            onPress={() => handleDistancePress(preset.value)}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: searchRadius === preset.value }}
+                        >
+                            <Text style={[
+                                styles.miniChipText,
+                                searchRadius === preset.value && styles.miniChipTextActive,
+                            ]}>
+                                {preset.label}
+                            </Text>
+                        </Pressable>
+                    ))}
                 </View>
-            </Animated.View>
-        </>
+            )}
+        </View>
     );
 }
 
-export default React.memo(MapHeader);
+export default memo(MapHeader);

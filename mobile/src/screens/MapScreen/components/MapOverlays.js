@@ -1,10 +1,10 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { memo } from 'react';
 import { Animated, View } from 'react-native';
 import { Circle, Marker } from 'react-native-maps';
-import { PALETTE, TOKENS, alpha } from '../../../constants/theme';
+import { TOKENS, alpha } from '../../../constants/theme';
 import { styles } from '../styles';
 
-export default function MapOverlays({
+function MapOverlays({
     searchCenter,
     searchRadius,
     searchMode,
@@ -23,12 +23,12 @@ export default function MapOverlays({
                     center={searchCenter}
                     radius={searchRadius}
                     fillColor={alpha(
-                        searchMode === 'pinned' ? PALETTE.flame[500] : PALETTE.earth_yellow.DEFAULT,
-                        0.08
+                        searchMode === 'pinned' ? TOKENS.textMuted : TOKENS.primary,
+                        0.06
                     )}
                     strokeColor={alpha(
-                        searchMode === 'pinned' ? PALETTE.flame[500] : PALETTE.earth_yellow.DEFAULT,
-                        0.25
+                        searchMode === 'pinned' ? TOKENS.textMuted : TOKENS.primary,
+                        0.22
                     )}
                     strokeWidth={2}
                     lineDashPattern={searchMode === 'pinned' ? [8, 4] : null}
@@ -62,31 +62,29 @@ export default function MapOverlays({
                     latitude: spot.coordinates.coordinates[1],
                     longitude: spot.coordinates.coordinates[0],
                 };
-                const stylesByType = {
-                    on_street: { color: TOKENS.primary, icon: 'car' },
-                    off_street: { color: PALETTE.straw.DEFAULT, icon: 'parking' },
-                    residential: { color: PALETTE.earth_yellow.DEFAULT, icon: 'home' },
-                    school: { color: PALETTE.bistre[600], icon: 'school' },
-                };
-                const m = stylesByType[spot.spot_type] || stylesByType.on_street;
                 const isSelected = selectedSpot?.id === spot.id;
 
                 return (
-                    <Marker key={spot.id} coordinate={coords} onPress={() => onSelectSpot(spot)} tracksViewChanges={isSelected}>
-                        <Animated.View
-                            style={[
-                                styles.marker,
-                                { backgroundColor: m.color },
-                                isSelected && styles.markerSelected,
-                                isSelected && { transform: [{ scale: selScale }, { translateY: selTranslateY }] },
-                            ]}
-                            renderToHardwareTextureAndroid
-                        >
-                            <MaterialCommunityIcons name={m.icon} size={isSelected ? 20 : 16} color="#fff" />
-                        </Animated.View>
+                    <Marker
+                        key={spot.id}
+                        coordinate={coords}
+                        onPress={() => onSelectSpot(spot)}
+                        tracksViewChanges={false}
+                        anchor={{ x: 0.5, y: 0.5 }}
+                    >
+                        <View style={styles.marker}>
+                            <View
+                                style={[
+                                    isSelected ? styles.markerDotSelected : styles.markerDot,
+                                    !isSelected && spot.no_stopping && { backgroundColor: TOKENS.danger },
+                                ]}
+                            />
+                        </View>
                     </Marker>
                 );
             })}
         </>
     );
 }
+
+export default memo(MapOverlays);

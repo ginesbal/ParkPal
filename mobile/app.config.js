@@ -1,8 +1,8 @@
 
 export default {
   expo: {
-    name: "ParkPal",
-    slug: "parkpal",
+    name: "CurbFlow",
+    slug: "curbflow",
     version: "1.0.0",
     orientation: "portrait",
     icon: "src/utils/assets/icon.png",
@@ -14,21 +14,21 @@ export default {
     splash: {
       image: "src/utils/assets/splash.png",
       resizeMode: "contain",
-      backgroundColor: "#2563eb"
+      backgroundColor: "#001d4a"
     },
     assetBundlePatterns: [
       "**/*"
     ],
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.parkpal.app"
+      bundleIdentifier: "com.curbflow.app"
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "src/utils/assets/adaptive-icon.png",
-        backgroundColor: "#2563eb"
+        backgroundColor: "#001d4a"
       },
-      package: "com.parkpal.app"
+      package: "com.curbflow.app"
     },
     web: {
       favicon: "src/utils/assets/favicon.png",
@@ -48,7 +48,8 @@ export default {
     },
 
     extra: {
-      apiUrl: "https://parkpal-production.up.railway.app",
+      // Use local backend for development, production URL for builds
+      apiUrl: process.env.EXPO_PUBLIC_API_URL || process.env.API_URL || "http://localhost:3000",
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY
