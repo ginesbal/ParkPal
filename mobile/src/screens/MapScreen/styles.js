@@ -5,14 +5,14 @@ import { SHEET_MIN_HEIGHT } from './constants';
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: TOKENS.bg
+        backgroundColor: TOKENS.bg,
     },
 
     map: {
         flex: 1,
     },
 
-    // Unified Navigation Bar
+    // ===== Floating header — single compact bar =====
     topNavigation: {
         position: 'absolute',
         top: 0,
@@ -20,67 +20,33 @@ export const styles = StyleSheet.create({
         right: 0,
         backgroundColor: 'transparent',
         paddingHorizontal: 14,
-        paddingBottom: 12,
+        paddingBottom: 8,
         zIndex: 1000,
     },
 
-    searchSection: {
-        paddingHorizontal: 12,
-        paddingTop: 12,
-        paddingBottom: 10,
-        gap: 10,
+    headerBar: {
         backgroundColor: TOKENS.surfaceOverlay,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
+        borderRadius: 10,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        gap: 8,
     },
-    searchSectionCompact: {
-        paddingTop: 10,
-        paddingBottom: 10,
-    },
-    searchSectionStandalone: {
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
+
+    searchInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
 
     searchContainer: {
         flex: 1,
     },
 
-    searchMetaRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-
-    searchModePill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 6,
-        backgroundColor: 'transparent',
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
-    },
-
-    searchModeText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: TOKENS.textMuted,
-        letterSpacing: 0,
-    },
-
-    searchInputRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-
     quickActions: {
         flexDirection: 'row',
-        gap: 8,
+        gap: 6,
     },
 
     quickAction: {
@@ -95,7 +61,6 @@ export const styles = StyleSheet.create({
     },
 
     quickActionActive: {
-        backgroundColor: TOKENS.surface,
         borderColor: TOKENS.primary,
     },
 
@@ -103,115 +68,71 @@ export const styles = StyleSheet.create({
         opacity: 0.6,
     },
 
-    // simple filter layout
-    filterBar: {
-        paddingHorizontal: 12,
-        paddingTop: 12,
-        paddingBottom: 12,
-        gap: 12,
-        backgroundColor: TOKENS.surfaceOverlay,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderTopWidth: 0,
-        borderColor: TOKENS.hairline,
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
-        marginTop: -1,
-    },
-
-    controlGroup: {
-        gap: 7,
-    },
-
-    controlLabel: {
-        fontSize: 11,
-        fontWeight: '500',
-        color: TOKENS.textFaint,
-        letterSpacing: 0.4,
-        textTransform: 'uppercase',
-    },
-
-    filterRow: {
-        flexDirection: 'row',
+    // Small count badge on the filter button
+    filterBadge: {
+        position: 'absolute',
+        top: 4,
+        right: 4,
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        backgroundColor: TOKENS.primary,
         alignItems: 'center',
-        gap: 8,
-        flexWrap: 'wrap',
-    },
-
-    filterChip: {
-        minHeight: 44,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderRadius: 10,
-        backgroundColor: 'transparent',
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
         justifyContent: 'center',
     },
 
-    filterChipActive: {
-        backgroundColor: 'transparent',
+    filterBadgeText: {
+        fontSize: 9,
+        fontWeight: '600',
+        color: '#fff',
+    },
+
+    // Inline filter chips row (expandable)
+    filtersInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        flexWrap: 'wrap',
+        paddingTop: 4,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
+    },
+
+    miniChip: {
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 6,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
+    },
+
+    miniChipActive: {
         borderColor: TOKENS.primary,
     },
 
-    filterChipText: {
-        fontSize: 13,
+    miniChipText: {
+        fontSize: 12,
         fontWeight: '500',
         color: TOKENS.textMuted,
     },
 
-    filterChipTextActive: {
+    miniChipTextActive: {
         color: TOKENS.primary,
         fontWeight: '600',
     },
+
+    chipDivider: {
+        width: 3,
+        height: 3,
+        borderRadius: 2,
+        backgroundColor: TOKENS.hairline,
+    },
+
     filterChipPressed: {
         opacity: 0.6,
     },
 
-    distanceRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-
-    distanceSegmented: {
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: 'transparent',
-        borderRadius: 10,
-        padding: 0,
-        gap: 6,
-        borderWidth: 0,
-    },
-
-    distanceSegment: {
-        flex: 1,
-        minHeight: 44,
-        paddingVertical: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
-    },
-
-    distanceSegmentActive: {
-        borderColor: TOKENS.primary,
-    },
-    distanceSegmentPressed: {
-        opacity: 0.6,
-    },
-
-    distanceSegmentText: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: TOKENS.textMuted,
-    },
-
-    distanceSegmentTextActive: {
-        fontWeight: '600',
-        color: TOKENS.primary,
-    },
-
-    // Tooltip
+    // ===== Tooltip =====
     tooltip: {
         position: 'absolute',
         left: 16,
@@ -238,7 +159,7 @@ export const styles = StyleSheet.create({
         lineHeight: 16,
     },
 
-    // Markers — solid circle + white ring, no shadow
+    // ===== Markers =====
     marker: {
         width: 20,
         height: 20,
@@ -281,7 +202,7 @@ export const styles = StyleSheet.create({
         borderColor: alpha(TOKENS.primary, 0.22),
     },
 
-    // Pin marker
+    // ===== Pin marker =====
     pinMarker: {
         alignItems: 'center',
         justifyContent: 'flex-end',
@@ -313,7 +234,7 @@ export const styles = StyleSheet.create({
         marginTop: -2,
     },
 
-    // FABs
+    // ===== FABs =====
     fabContainer: {
         position: 'absolute',
         right: 16,
@@ -342,7 +263,7 @@ export const styles = StyleSheet.create({
         opacity: 0.6,
     },
 
-    // Bottom sheet card (height is controlled by top/left/right/bottom, not a fixed value)
+    // ===== Bottom sheet =====
     bottomSheet: {
         position: 'absolute',
         left: 0,
@@ -411,7 +332,7 @@ export const styles = StyleSheet.create({
         color: TOKENS.primary,
     },
 
-    // ===== Top Map/List toggle inside the sheet, above the list =====
+    // ===== Map/List toggle =====
     topToggleBar: {
         flexDirection: 'row',
         gap: 8,
@@ -419,9 +340,10 @@ export const styles = StyleSheet.create({
         paddingVertical: 8,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: TOKENS.hairline,
-        backgroundColor: '#fff',
+        backgroundColor: TOKENS.surface,
         zIndex: 1,
     },
+
     topToggleButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -433,17 +355,21 @@ export const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
     },
+
     topToggleActive: {
         borderColor: TOKENS.primary,
     },
+
     topTogglePressed: {
         opacity: 0.6,
     },
+
     topToggleText: {
         fontSize: 12,
         fontWeight: '500',
         color: TOKENS.textMuted,
     },
+
     topToggleTextActive: {
         color: TOKENS.primary,
         fontWeight: '600',
