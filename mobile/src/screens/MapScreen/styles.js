@@ -1,5 +1,5 @@
-import { Platform, StyleSheet } from 'react-native';
-import { PALETTE, SHADOWS, TOKENS, alpha } from '../../constants/theme';
+import { StyleSheet } from 'react-native';
+import { TOKENS, alpha } from '../../constants/theme';
 import { SHEET_MIN_HEIGHT } from './constants';
 
 export const styles = StyleSheet.create({
@@ -30,24 +30,18 @@ export const styles = StyleSheet.create({
         paddingBottom: 10,
         gap: 10,
         backgroundColor: TOKENS.surfaceOverlay,
-        borderTopLeftRadius: 26,
-        borderTopRightRadius: 26,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
-        ...Platform.select({
-            ios: SHADOWS.md,
-            android: {
-                elevation: 6,
-            },
-        }),
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     searchSectionCompact: {
         paddingTop: 10,
         paddingBottom: 10,
     },
     searchSectionStandalone: {
-        borderBottomLeftRadius: 26,
-        borderBottomRightRadius: 26,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
     },
 
     searchContainer: {
@@ -65,17 +59,17 @@ export const styles = StyleSheet.create({
         gap: 6,
         paddingHorizontal: 10,
         paddingVertical: 5,
-        borderRadius: 999,
-        backgroundColor: TOKENS.surfaceMuted,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
+        borderRadius: 6,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
 
     searchModeText: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '500',
         color: TOKENS.textMuted,
-        letterSpacing: -0.1,
+        letterSpacing: 0,
     },
 
     searchInputRow: {
@@ -90,24 +84,23 @@ export const styles = StyleSheet.create({
     },
 
     quickAction: {
-        width: 46,
-        height: 46,
-        borderRadius: 16,
+        width: 44,
+        height: 44,
+        borderRadius: 10,
         backgroundColor: TOKENS.surface,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeStrong,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
         alignItems: 'center',
     },
 
     quickActionActive: {
-        backgroundColor: TOKENS.primary,
+        backgroundColor: TOKENS.surface,
         borderColor: TOKENS.primary,
     },
 
     quickActionPressed: {
-        opacity: 0.92,
-        transform: [{ scale: 0.97 }],
+        opacity: 0.6,
     },
 
     // simple filter layout
@@ -117,23 +110,12 @@ export const styles = StyleSheet.create({
         paddingBottom: 12,
         gap: 12,
         backgroundColor: TOKENS.surfaceOverlay,
-        borderWidth: 1,
+        borderWidth: StyleSheet.hairlineWidth,
         borderTopWidth: 0,
-        borderColor: TOKENS.strokeLight,
-        borderBottomLeftRadius: 26,
-        borderBottomRightRadius: 26,
+        borderColor: TOKENS.hairline,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
         marginTop: -1,
-        ...Platform.select({
-            ios: {
-                shadowColor: TOKENS.shadow,
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.08,
-                shadowRadius: 18,
-            },
-            android: {
-                elevation: 6,
-            },
-        }),
     },
 
     controlGroup: {
@@ -142,9 +124,9 @@ export const styles = StyleSheet.create({
 
     controlLabel: {
         fontSize: 11,
-        fontWeight: '700',
-        color: TOKENS.textLight,
-        letterSpacing: 0.45,
+        fontWeight: '500',
+        color: TOKENS.textFaint,
+        letterSpacing: 0.4,
         textTransform: 'uppercase',
     },
 
@@ -156,32 +138,33 @@ export const styles = StyleSheet.create({
     },
 
     filterChip: {
-        minHeight: 38,
+        minHeight: 44,
         paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 14,
-        backgroundColor: TOKENS.surface,
-        borderWidth: 1,
-        borderColor: TOKENS.stroke,
+        paddingVertical: 10,
+        borderRadius: 10,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
+        justifyContent: 'center',
     },
 
     filterChipActive: {
-        backgroundColor: TOKENS.primarySoft,
-        borderColor: TOKENS.focus,
+        backgroundColor: 'transparent',
+        borderColor: TOKENS.primary,
     },
 
     filterChipText: {
         fontSize: 13,
-        fontWeight: '600',
+        fontWeight: '500',
         color: TOKENS.textMuted,
     },
 
     filterChipTextActive: {
-        color: TOKENS.primaryAlt,
+        color: TOKENS.primary,
+        fontWeight: '600',
     },
     filterChipPressed: {
-        opacity: 0.92,
-        transform: [{ scale: 0.97 }],
+        opacity: 0.6,
     },
 
     distanceRow: {
@@ -192,35 +175,29 @@ export const styles = StyleSheet.create({
     distanceSegmented: {
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: TOKENS.surfaceMuted,
-        borderRadius: 18,
-        padding: 4,
-        gap: 4,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
+        backgroundColor: 'transparent',
+        borderRadius: 10,
+        padding: 0,
+        gap: 6,
+        borderWidth: 0,
     },
 
     distanceSegment: {
         flex: 1,
-        minHeight: 40,
-        paddingVertical: 8,
+        minHeight: 44,
+        paddingVertical: 10,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 14,
+        borderRadius: 10,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
 
     distanceSegmentActive: {
-        backgroundColor: TOKENS.surface,
-        ...Platform.select({
-            ios: SHADOWS.sm,
-            android: {
-                elevation: 1,
-            },
-        }),
+        borderColor: TOKENS.primary,
     },
     distanceSegmentPressed: {
-        opacity: 0.92,
-        transform: [{ scale: 0.98 }],
+        opacity: 0.6,
     },
 
     distanceSegmentText: {
@@ -230,20 +207,19 @@ export const styles = StyleSheet.create({
     },
 
     distanceSegmentTextActive: {
-        fontWeight: '700',
-        color: TOKENS.primaryAlt,
+        fontWeight: '600',
+        color: TOKENS.primary,
     },
 
     // Tooltip
     tooltip: {
         position: 'absolute',
         left: 16,
-        backgroundColor: alpha(PALETTE.prussian[500], 0.96),
-        borderRadius: 14,
+        backgroundColor: alpha(TOKENS.text, 0.96),
+        borderRadius: 10,
         paddingHorizontal: 14,
         paddingVertical: 10,
         zIndex: 999,
-        elevation: 5,
     },
 
     tooltipArrow: {
@@ -252,7 +228,7 @@ export const styles = StyleSheet.create({
         left: 20,
         width: 12,
         height: 12,
-        backgroundColor: alpha(PALETTE.prussian[500], 0.96),
+        backgroundColor: alpha(TOKENS.text, 0.96),
         transform: [{ rotate: '45deg' }],
     },
 
@@ -262,7 +238,7 @@ export const styles = StyleSheet.create({
         lineHeight: 16,
     },
 
-    // Markers - simplified for better performance
+    // Markers — solid circle + white ring, no shadow
     marker: {
         width: 20,
         height: 20,
@@ -271,8 +247,8 @@ export const styles = StyleSheet.create({
     },
 
     markerDot: {
-        width: 13,
-        height: 13,
+        width: 14,
+        height: 14,
         borderRadius: 7,
         backgroundColor: TOKENS.primary,
         borderWidth: 2,
@@ -284,7 +260,7 @@ export const styles = StyleSheet.create({
         height: 18,
         borderRadius: 9,
         backgroundColor: TOKENS.primary,
-        borderWidth: 3,
+        borderWidth: 2,
         borderColor: '#fff',
     },
 
@@ -297,12 +273,12 @@ export const styles = StyleSheet.create({
 
     markerPulse: {
         position: 'absolute',
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: alpha(TOKENS.primary, 0.25),
-        borderWidth: 2,
-        borderColor: alpha(TOKENS.primary, 0.4),
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: alpha(TOKENS.primary, 0.12),
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: alpha(TOKENS.primary, 0.22),
     },
 
     // Pin marker
@@ -313,20 +289,14 @@ export const styles = StyleSheet.create({
     },
 
     pinHead: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: TOKENS.primaryAlt,
-        borderWidth: 3,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: TOKENS.primary,
+        borderWidth: 2,
         borderColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-        ...Platform.select({
-            ios: SHADOWS.sm,
-            android: {
-                elevation: 4,
-            },
-        }),
     },
 
     pinInner: {
@@ -338,8 +308,8 @@ export const styles = StyleSheet.create({
 
     pinStem: {
         width: 2,
-        height: 16,
-        backgroundColor: TOKENS.primaryAlt,
+        height: 14,
+        backgroundColor: TOKENS.primary,
         marginTop: -2,
     },
 
@@ -353,21 +323,15 @@ export const styles = StyleSheet.create({
     },
 
     fab: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: TOKENS.surface,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 8,
-        ...Platform.select({
-            ios: SHADOWS.sm,
-            android: {
-                elevation: 4,
-            },
-        }),
     },
 
     fabPrimary: {
@@ -375,7 +339,7 @@ export const styles = StyleSheet.create({
     },
 
     fabPressed: {
-        transform: [{ scale: 0.92 }],
+        opacity: 0.6,
     },
 
     // Bottom sheet card (height is controlled by top/left/right/bottom, not a fixed value)
@@ -384,21 +348,12 @@ export const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        backgroundColor: TOKENS.surface,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
         zIndex: 100,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -3 },
-                shadowOpacity: 0.1,
-                shadowRadius: 5,
-            },
-            android: {
-                elevation: 8,
-            },
-        }),
     },
 
     sheetHandle: {
@@ -409,8 +364,8 @@ export const styles = StyleSheet.create({
 
     handleBar: {
         width: 36,
-        height: 4,
-        backgroundColor: alpha(PALETTE.yale[500], 0.2),
+        height: 3,
+        backgroundColor: alpha(TOKENS.text, 0.12),
         borderRadius: 2,
     },
 
@@ -421,7 +376,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 12,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: alpha(PALETTE.yale[500], 0.12),
+        borderBottomColor: TOKENS.hairline,
     },
 
     sheetStats: {
@@ -431,8 +386,9 @@ export const styles = StyleSheet.create({
     },
 
     sheetTitle: {
-        fontSize: 24,
-        fontWeight: '700',
+        fontSize: 20,
+        fontWeight: '600',
+        letterSpacing: -0.3,
         color: TOKENS.text,
     },
 
@@ -444,17 +400,15 @@ export const styles = StyleSheet.create({
     modeBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: alpha(PALETTE.cerulean[500], 0.08),
         paddingHorizontal: 10,
         paddingVertical: 5,
-        borderRadius: 14,
         gap: 4,
     },
 
     modeBadgeText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: PALETTE.cerulean[600],
+        fontWeight: '500',
+        color: TOKENS.primary,
     },
 
     // ===== Top Map/List toggle inside the sheet, above the list =====
@@ -464,7 +418,7 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: alpha(PALETTE.yale[500], 0.12),
+        borderBottomColor: TOKENS.hairline,
         backgroundColor: '#fff',
         zIndex: 1,
     },
@@ -474,23 +428,25 @@ export const styles = StyleSheet.create({
         gap: 6,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        borderRadius: 16,
-        backgroundColor: TOKENS.bg,
+        borderRadius: 6,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     topToggleActive: {
-        backgroundColor: TOKENS.primary,
+        borderColor: TOKENS.primary,
     },
     topTogglePressed: {
-        opacity: 0.85,
-        transform: [{ scale: 0.98 }],
+        opacity: 0.6,
     },
     topToggleText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: TOKENS.text,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
     },
     topToggleTextActive: {
-        color: '#fff',
+        color: TOKENS.primary,
+        fontWeight: '600',
     },
 
     sheetContent: {

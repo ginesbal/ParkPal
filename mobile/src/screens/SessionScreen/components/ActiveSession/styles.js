@@ -1,5 +1,5 @@
-import { Platform, StyleSheet } from 'react-native';
-import { SHADOWS, TOKENS, alpha } from '../../../../constants/theme';
+import { StyleSheet } from 'react-native';
+import { TOKENS, alpha } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
     scrollContent: {
@@ -9,8 +9,8 @@ export const styles = StyleSheet.create({
     header: {
         paddingHorizontal: 20,
         paddingVertical: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: TOKENS.strokeLight,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.hairline,
         backgroundColor: TOKENS.surface,
     },
     statusBar: {
@@ -23,46 +23,40 @@ export const styles = StyleSheet.create({
         flex: 1,
         fontSize: 13,
         color: TOKENS.textMuted,
-        fontWeight: '600',
+        fontWeight: '400',
         textAlign: 'right',
     },
 
+    // Timer card — hairline border, no shadow
     timerCard: {
         backgroundColor: TOKENS.surface,
         marginHorizontal: 20,
         marginTop: 20,
-        borderRadius: 24,
+        borderRadius: 10,
         padding: 24,
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
-        ...Platform.select({
-            ios: SHADOWS.md,
-            android: {
-                elevation: 5,
-            },
-        }),
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     timerCardWarning: {
-        backgroundColor: TOKENS.warningSoft,
         borderColor: alpha(TOKENS.warning, 0.3),
     },
     timerCardDanger: {
-        backgroundColor: TOKENS.dangerSoft,
         borderColor: alpha(TOKENS.danger, 0.3),
     },
     timerLabel: {
-        fontSize: 12,
-        fontWeight: '700',
+        fontSize: 11,
+        fontWeight: '500',
         color: TOKENS.textMuted,
-        letterSpacing: 0.2,
+        letterSpacing: 0.4,
+        textTransform: 'uppercase',
         marginBottom: 8,
     },
     timerValue: {
         fontSize: 48,
-        fontWeight: '900',
+        fontWeight: '500',
         color: TOKENS.text,
-        letterSpacing: -1.1,
+        letterSpacing: -1,
         marginBottom: 20,
         fontVariant: ['tabular-nums'],
     },
@@ -74,8 +68,8 @@ export const styles = StyleSheet.create({
     },
     progressContainer: {
         width: '100%',
-        height: 8,
-        borderRadius: 4,
+        height: 4,
+        borderRadius: 2,
         backgroundColor: TOKENS.surfaceMuted,
         overflow: 'hidden',
         marginBottom: 20,
@@ -93,7 +87,7 @@ export const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         backgroundColor: TOKENS.primary,
-        borderRadius: 4,
+        borderRadius: 2,
     },
     progressBarWarning: {
         backgroundColor: TOKENS.warning,
@@ -115,41 +109,39 @@ export const styles = StyleSheet.create({
     timerMetaText: {
         fontSize: 13,
         color: TOKENS.textMuted,
-        fontWeight: '600',
+        fontWeight: '500',
         fontVariant: ['tabular-nums'],
     },
 
+    // Quick extend
     quickActions: {
         marginHorizontal: 20,
         marginTop: 24,
     },
     quickActionsTitle: {
-        fontSize: 14,
-        fontWeight: '700',
+        fontSize: 13,
+        fontWeight: '600',
         color: TOKENS.text,
         marginBottom: 12,
-        letterSpacing: 0.2,
     },
     extendGrid: {
         flexDirection: 'row',
-        gap: 12,
+        gap: 8,
     },
     extendButton: {
         flex: 1,
-        backgroundColor: TOKENS.surface,
-        borderRadius: 16,
+        backgroundColor: 'transparent',
+        borderRadius: 10,
         padding: 12,
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: alpha(TOKENS.primary, 0.18),
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     extendButtonHighlight: {
-        backgroundColor: TOKENS.primarySoft,
         borderColor: TOKENS.primary,
     },
     extendButtonDisabled: {
-        opacity: 0.5,
-        borderColor: TOKENS.stroke,
+        opacity: 0.4,
     },
     extendTopRow: {
         flexDirection: 'row',
@@ -157,8 +149,8 @@ export const styles = StyleSheet.create({
         gap: 6,
     },
     extendButtonText: {
-        fontSize: 12,
-        fontWeight: '800',
+        fontSize: 13,
+        fontWeight: '600',
         color: TOKENS.primary,
         marginTop: 0,
     },
@@ -169,38 +161,37 @@ export const styles = StyleSheet.create({
         fontSize: 11,
         color: TOKENS.textMuted,
         marginTop: 2,
-        fontWeight: '600',
+        fontWeight: '500',
         fontVariant: ['tabular-nums'],
     },
     extendButtonCostDisabled: {
         color: alpha(TOKENS.textMuted, 0.5),
     },
 
+    // Details — divide-y rows, no card container
     detailsCard: {
-        backgroundColor: TOKENS.surface,
         marginHorizontal: 20,
         marginTop: 24,
-        borderRadius: 20,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
+        paddingTop: 0,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
     },
     detailsTitle: {
-        fontSize: 14,
-        fontWeight: '700',
+        fontSize: 13,
+        fontWeight: '600',
         color: TOKENS.text,
-        marginBottom: 16,
-        letterSpacing: 0.2,
+        marginBottom: 14,
+        marginTop: 16,
     },
     detailRow: {
         flexDirection: 'row',
-        marginBottom: 16,
+        paddingVertical: 12,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.hairline,
     },
     detailIcon: {
         width: 32,
         height: 32,
-        borderRadius: 10,
-        backgroundColor: TOKENS.surfaceMuted,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
@@ -212,12 +203,13 @@ export const styles = StyleSheet.create({
         fontSize: 11,
         color: TOKENS.textMuted,
         marginBottom: 4,
-        letterSpacing: 0.2,
-        fontWeight: '600',
+        letterSpacing: 0.4,
+        fontWeight: '500',
+        textTransform: 'uppercase',
     },
     detailValue: {
         fontSize: 15,
-        fontWeight: '700',
+        fontWeight: '500',
         color: TOKENS.text,
     },
     detailSubvalue: {
@@ -225,23 +217,25 @@ export const styles = StyleSheet.create({
         color: TOKENS.textMuted,
         marginTop: 2,
         fontVariant: ['tabular-nums'],
+        fontWeight: '400',
     },
 
+    // Bottom actions
     bottomActions: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
         backgroundColor: TOKENS.surface,
-        borderTopWidth: 1,
-        borderTopColor: TOKENS.strokeLight,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: TOKENS.hairline,
         paddingHorizontal: 20,
         paddingTop: 16,
         paddingBottom: 8,
     },
     endButton: {
         minHeight: 52,
-        borderRadius: 16,
+        borderRadius: 10,
         backgroundColor: TOKENS.danger,
         flexDirection: 'row',
         alignItems: 'center',
@@ -250,16 +244,15 @@ export const styles = StyleSheet.create({
     },
     endButtonText: {
         fontSize: 16,
-        fontWeight: '800',
+        fontWeight: '600',
         color: '#fff',
-        letterSpacing: 0.2,
     },
     bottomHint: {
         fontSize: 12,
         color: TOKENS.textMuted,
         textAlign: 'center',
         marginTop: 8,
-        fontWeight: '500',
+        fontWeight: '400',
         lineHeight: 18,
     },
 });

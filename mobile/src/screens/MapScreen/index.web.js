@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { PALETTE, TOKENS, alpha } from '../../constants/theme';
+import { TOKENS, alpha } from '../../constants/theme';
 
 export default function MapScreen() {
     return (
@@ -33,10 +33,10 @@ const styles = StyleSheet.create({
         top: 80,
         left: 16,
         right: 16,
-        backgroundColor: alpha(PALETTE.prussian[500], 0.9),
+        backgroundColor: alpha(TOKENS.text, 0.9),
         paddingHorizontal: 16,
         paddingVertical: 12,
-        borderRadius: 12,
+        borderRadius: 10,
     },
     overlayText: {
         color: '#fff',

@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { Animated, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PALETTE } from '../../../../constants/theme';
+import { TOKENS } from '../../../../constants/theme';
 import { getDistanceLabel } from '../../../../utils/parkingHelpers';
 import { styles } from './styles';
 
@@ -41,13 +41,13 @@ const LoadingState = ({ searchRadius }) => {
                     <MaterialCommunityIcons
                         name="map-search"
                         size={40}
-                        color={PALETTE.amber[500]}
+                        color={TOKENS.primary}
                     />
                 </View>
 
-                <Text style={styles.loadingText}>Finding nearby parking</Text>
+                <Text style={styles.loadingText}>Looking for spots nearby</Text>
                 <Text style={styles.loadingSubtext}>
-                    Searching within {getDistanceLabel(searchRadius)}
+                    Checking within {getDistanceLabel(searchRadius)} of you
                 </Text>
 
                 <View style={styles.loadingSkeletonStack}>

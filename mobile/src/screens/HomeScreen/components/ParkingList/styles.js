@@ -1,5 +1,5 @@
-import { Platform, StyleSheet } from 'react-native';
-import { PALETTE, SHADOWS, TOKENS } from '../../../../constants/theme';
+import { StyleSheet } from 'react-native';
+import { TOKENS } from '../../../../constants/theme';
 
 export const styles = StyleSheet.create({
     // Loading State
@@ -14,20 +14,18 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     loadingIcon: {
-        width: 84,
-        height: 84,
-        borderRadius: 42,
-        backgroundColor: TOKENS.primarySoft,
-        justifyContent: 'center',
+        width: 64,
+        height: 64,
         alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 16,
     },
     loadingText: {
-        fontSize: 18,
-        fontWeight: '700',
+        fontSize: 16,
+        fontWeight: '600',
         color: TOKENS.text,
         marginBottom: 4,
-        letterSpacing: -0.3,
+        letterSpacing: -0.1,
     },
     loadingSubtext: {
         fontSize: 14,
@@ -36,28 +34,22 @@ export const styles = StyleSheet.create({
     },
     loadingSkeletonStack: {
         width: '100%',
-        gap: 12,
+        gap: 0,
     },
     loadingSkeletonCard: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
         width: '100%',
-        paddingHorizontal: 16,
-        paddingVertical: 18,
-        borderRadius: 18,
-        backgroundColor: TOKENS.surface,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
-        ...Platform.select({
-            ios: SHADOWS.sm,
-            android: { elevation: 2 },
-        }),
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.hairline,
     },
     loadingSkeletonBadge: {
-        width: 48,
-        height: 48,
-        borderRadius: 14,
+        width: 44,
+        height: 44,
+        borderRadius: 6,
         backgroundColor: TOKENS.surfaceMuted,
     },
     loadingSkeletonContent: {
@@ -66,20 +58,20 @@ export const styles = StyleSheet.create({
     },
     loadingSkeletonLineWide: {
         width: '78%',
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: TOKENS.surfaceMuted,
-    },
-    loadingSkeletonLine: {
-        width: '56%',
         height: 10,
         borderRadius: 5,
         backgroundColor: TOKENS.surfaceMuted,
     },
+    loadingSkeletonLine: {
+        width: '56%',
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: TOKENS.surfaceMuted,
+    },
     loadingSkeletonPrice: {
-        width: 54,
-        height: 24,
-        borderRadius: 12,
+        width: 50,
+        height: 16,
+        borderRadius: 4,
         backgroundColor: TOKENS.surfaceMuted,
     },
 
@@ -92,23 +84,19 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 28,
     },
     emptyIcon: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: TOKENS.surfaceMuted,
+        width: 80,
+        height: 80,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 24,
+        marginBottom: 20,
     },
-    emptyIconError: {
-        backgroundColor: TOKENS.dangerSoft,
-    },
+    emptyIconError: {},
     emptyText: {
-        fontSize: 18,
-        fontWeight: '800',
+        fontSize: 16,
+        fontWeight: '600',
         color: TOKENS.text,
         marginBottom: 8,
-        letterSpacing: -0.3,
+        letterSpacing: -0.1,
     },
     emptySubtext: {
         fontSize: 14,
@@ -116,10 +104,11 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 24,
         lineHeight: 21,
+        fontWeight: '400',
     },
     emptyActions: {
         width: '100%',
-        gap: 12,
+        gap: 10,
     },
     emptyButton: {
         flexDirection: 'row',
@@ -129,25 +118,24 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 12,
         backgroundColor: TOKENS.primary,
-        borderRadius: 16,
+        borderRadius: 10,
         gap: 8,
     },
     emptyButtonSecondary: {
-        backgroundColor: TOKENS.surface,
-        borderWidth: 1,
-        borderColor: TOKENS.stroke,
+        backgroundColor: 'transparent',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     emptyButtonPressed: {
-        opacity: 0.92,
-        transform: [{ scale: 0.98 }],
+        opacity: 0.6,
     },
     emptyButtonText: {
         fontSize: 14,
-        fontWeight: '800',
+        fontWeight: '600',
         color: '#fff',
     },
     emptyButtonTextSecondary: {
         color: TOKENS.text,
-        fontWeight: '800',
+        fontWeight: '500',
     },
 });

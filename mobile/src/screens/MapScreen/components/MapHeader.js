@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { memo, useCallback } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 import PlacesSearchBar from '../../../components/PlacesAutocomplete/PlacesSearchBar';
-import { PALETTE, TOKENS } from '../../../constants/theme';
+import { TOKENS } from '../../../constants/theme';
 import { styles } from '../styles';
 
 const TYPE_FILTERS = [
@@ -89,7 +89,7 @@ function MapHeader({
                                     <MaterialCommunityIcons
                                         name="map-marker"
                                         size={18}
-                                        color={searchMode === 'pinned' ? '#fff' : PALETTE.cerulean[500]}
+                                        color={searchMode === 'pinned' ? '#fff' : TOKENS.primary}
                                     />
                                 </Pressable>
                             ) : (

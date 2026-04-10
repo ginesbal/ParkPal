@@ -1,7 +1,7 @@
 // src/components/ParkingCard/cardStyles.js
 
 import { StyleSheet } from 'react-native';
-import { PALETTE, SHADOWS, TOKENS, alpha } from '../../constants/theme';
+import { TOKENS, alpha } from '../../constants/theme';
 import { CARD_HEIGHT, CARD_WIDTH } from './cardConstants';
 
 export const styles = StyleSheet.create({
@@ -27,12 +27,11 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    backgroundColor: TOKENS.surfaceOverlay,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: TOKENS.strokeLight,
-    elevation: 20,
-    ...SHADOWS.lg,
+    backgroundColor: TOKENS.surface,
+    borderRadius: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
+    elevation: 2,
     backfaceVisibility: 'hidden',
   },
 
@@ -75,20 +74,20 @@ export const styles = StyleSheet.create({
   },
 
   spotTypeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: TOKENS.primaryAlt,
+    fontSize: 11,
+    fontWeight: '500',
+    color: TOKENS.primary,
     textTransform: 'uppercase',
-    letterSpacing: 0.9,
+    letterSpacing: 0.4,
   },
 
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: TOKENS.surfaceMuted,
-    borderWidth: 1,
-    borderColor: TOKENS.strokeLight,
+    backgroundColor: 'transparent',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -108,16 +107,16 @@ export const styles = StyleSheet.create({
 
   address: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '600',
     color: TOKENS.text,
     marginBottom: 24,
     lineHeight: 25,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
 
   quickStatsLarge: {
     marginBottom: 24,
-    gap: 16,
+    gap: 14,
   },
 
   statRow: {
@@ -138,30 +137,29 @@ export const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: TOKENS.surfaceMuted,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   statLabelLeft: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '400',
     color: TOKENS.textMuted,
-    letterSpacing: -0.2,
   },
 
   statValueRight: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: TOKENS.text,
     textAlign: 'right',
     marginLeft: 12,
     flexShrink: 0,
-    letterSpacing: -0.3,
+    fontVariant: ['tabular-nums'],
   },
 
   statValuePrimary: {
-    color: TOKENS.primaryAlt,
+    color: TOKENS.primary,
   },
 
   statDividerLarge: {
@@ -171,43 +169,32 @@ export const styles = StyleSheet.create({
   badgesLarge: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 8,
     marginBottom: 20,
   },
 
   badgeLarge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 16,
+    paddingHorizontal: 0,
+    paddingVertical: 4,
+    borderRadius: 0,
     gap: 6,
   },
 
-  badgeDefault: {
-    backgroundColor: TOKENS.primarySoft,
-  },
-
-  badgeWarning: {
-    backgroundColor: TOKENS.warningSoft,
-  },
-
-  badgeInfo: {
-    backgroundColor: TOKENS.surfaceMuted,
-  },
-
-  badgeDanger: {
-    backgroundColor: TOKENS.dangerSoft,
-  },
+  badgeDefault: {},
+  badgeWarning: {},
+  badgeInfo: {},
+  badgeDanger: {},
 
   badgeTextLarge: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.3,
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0,
   },
 
-  badgeTextDefault: { color: TOKENS.primaryAlt },
-  badgeTextWarning: { color: PALETTE.amber[700] },
+  badgeTextDefault: { color: TOKENS.primary },
+  badgeTextWarning: { color: TOKENS.warning },
   badgeTextInfo: { color: TOKENS.textMuted },
   badgeTextDanger: { color: TOKENS.danger },
 
@@ -222,15 +209,17 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: TOKENS.surfaceMuted,
+    backgroundColor: 'transparent',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
     paddingVertical: 15,
-    borderRadius: 16,
+    borderRadius: 10,
     gap: 6,
   },
 
   detailsBtnTextLarge: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: TOKENS.text,
   },
 
@@ -241,7 +230,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: TOKENS.primary,
     paddingVertical: 15,
-    borderRadius: 16,
+    borderRadius: 10,
     gap: 7,
   },
 
@@ -277,8 +266,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 13,
-    borderBottomWidth: 1,
-    borderBottomColor: TOKENS.strokeLight,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: TOKENS.hairline,
   },
 
   detailRowHighlightLarge: {
@@ -290,8 +279,7 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
     color: TOKENS.textMuted,
     flex: 1,
-    fontWeight: '500',
-    letterSpacing: -0.1,
+    fontWeight: '400',
   },
 
   detailLabelHighlight: {
@@ -302,18 +290,19 @@ export const styles = StyleSheet.create({
   detailValueLarge: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '600',
+    fontWeight: '500',
     color: TOKENS.text,
     textAlign: 'right',
     paddingLeft: 16,
     flexShrink: 0,
+    fontVariant: ['tabular-nums'],
   },
 
   detailValueHighlight: {
     fontSize: 15,
     lineHeight: 20,
-    fontWeight: '700',
-    color: TOKENS.primaryAlt,
+    fontWeight: '600',
+    color: TOKENS.primary,
   },
 
   pagerContainer: {
@@ -325,15 +314,17 @@ export const styles = StyleSheet.create({
     paddingBottom: 0,
     marginHorizontal: 0,
     marginBottom: 0,
-    borderTopWidth: 1,
-    borderTopColor: TOKENS.strokeLight,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: TOKENS.hairline,
   },
 
   pagerArrow: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: TOKENS.surfaceMuted,
+    backgroundColor: 'transparent',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -355,7 +346,7 @@ export const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: TOKENS.primarySoft,
+    backgroundColor: TOKENS.hairline,
   },
 
   pagerDotActive: {
@@ -366,22 +357,20 @@ export const styles = StyleSheet.create({
   },
 
   pagerMeta: {
-    backgroundColor: TOKENS.primarySoft,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
 
   pagerMetaText: {
     fontSize: 12,
-    fontWeight: '700',
-    color: TOKENS.primaryAlt,
-    letterSpacing: 0.3,
+    fontWeight: '500',
+    color: TOKENS.textMuted,
+    fontVariant: ['tabular-nums'],
   },
 
   linkText: {
     textDecorationLine: 'underline',
-    color: TOKENS.primaryAlt,
+    color: TOKENS.primary,
   },
 
   noDataText: {
@@ -389,7 +378,6 @@ export const styles = StyleSheet.create({
     color: TOKENS.textMuted,
     textAlign: 'center',
     paddingVertical: 32,
-    fontStyle: 'italic',
   },
 
   backActionsLarge: {
@@ -403,7 +391,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: TOKENS.primary,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 10,
     gap: 8,
   },
 });

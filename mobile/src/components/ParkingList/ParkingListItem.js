@@ -1,7 +1,13 @@
 // src/components/ParkingList/ParkingListItem.js
+//
+// Minimalist row redesign driven by .agents/skills/:
+//   distill  → card chrome removed, divide-y row pattern, one semantic dot (no type pills)
+//   quieter  → one accent; type indicator is a single primary dot, all others muted
+//   arrange  → tight grouping within rows, hairline divider between rows, space as hierarchy
+//   typeset  → numLarge / body / caption from TYPOGRAPHY tokens, tabular-nums, 3 weights only
+//   polish   → 200ms ease-out press feedback, 44x44 hit target
 
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import {
     Animated,
     Pressable,
@@ -9,36 +15,31 @@ import {
     Text,
     View,
 } from 'react-native';
-import { PALETTE, TOKENS, alpha } from '../../constants/theme';
+import { SPACING, TOKENS, TYPOGRAPHY, alpha } from '../../constants/theme';
 import { logger } from '../../utils/loggers';
 
-// local config
-const PARKING_CONFIG = {
-    on_street: {
-        color: PALETTE.cerulean[600],
-        bgColor: alpha(PALETTE.cerulean[600], 0.08),
-        icon: 'car',
-        label: 'Street',
-    },
-    off_street: {
-        color: PALETTE.yale[600],
-        bgColor: alpha(PALETTE.yale[600], 0.06),
-        icon: 'parking',
-        label: 'Lot',
-    },
-    residential: {
-        color: PALETTE.amber[400],
-        bgColor: alpha(PALETTE.amber[400], 0.08),
-        icon: 'home-group',
-        label: 'Resident',
-    },
-    school: {
-        color: PALETTE.cream[400],
-        bgColor: alpha(PALETTE.cream[400], 0.08),
-        icon: 'school',
-        label: 'Campus',
-    },
+// Two semantic roles only: "street" (primary accent) vs everything else (muted).
+// Replaces the old 4-way colored-pill config that pulled from amber/cream/yale ramps.
+const TYPE_LABELS = {
+    on_street: 'Street',
+    off_street: 'Lot',
+    residential: 'Resident',
+    school: 'Campus',
 };
+
+function formatPrice(val) {
+    if (!val || val === '0' || val === 0 || val === 'FREE') return 'FREE';
+    if (typeof val === 'string') {
+        const match = val.match(/[\d.]+/);
+        if (match) {
+            const num = parseFloat(match[0]);
+            return Number.isNaN(num) ? val : `$${num.toFixed(2)}`;
+        }
+        return val;
+    }
+    const num = parseFloat(val);
+    return Number.isNaN(num) ? 'FREE' : `$${num.toFixed(2)}`;
+}
 
 export default function ParkingListItem({
     spot,
@@ -46,62 +47,27 @@ export default function ParkingListItem({
     onPress,
     isSelected = false,
 }) {
-    // press feedback animation
     const scaleAnim = useRef(new Animated.Value(1)).current;
-    const config = PARKING_CONFIG[spot.spot_type] || PARKING_CONFIG.on_street;
 
-    // simple price formatting
-    const formatPrice = (val) => {
-        if (!val || val === '0' || val === 0 || val === 'FREE') return 'FREE';
-
-        if (typeof val === 'string') {
-            const match = val.match(/[\d.]+/);
-            if (match) {
-                const num = parseFloat(match[0]);
-                return Number.isNaN(num) ? val : `$${num.toFixed(2)}`;
-            }
-            return val;
-        }
-
-        const num = parseFloat(val);
-        return Number.isNaN(num) ? 'FREE' : `$${num.toFixed(2)}`;
-    };
-
+    const typeLabel = TYPE_LABELS[spot.spot_type] || 'Street';
+    const isPrimaryType = spot.spot_type === 'on_street';
     const displayPrice = formatPrice(price);
     const isFree = displayPrice === 'FREE';
     const isCheckSigns = displayPrice === 'Check signs';
-
-    // log notable price flags once per render change
-    useEffect(() => {
-        if (isFree) {
-            logger.log('list item price flag', { spotId: spot?.id, price: 'FREE' }, 'DATA_FLAG');
-        } else if (isCheckSigns) {
-            logger.log('list item price flag', { spotId: spot?.id, price: 'Check signs' }, 'DATA_FLAG');
-        }
-    }, [isFree, isCheckSigns, spot?.id]);
-
-    // log low capacity hint
     const lowCapacity = spot.capacity > 0 && spot.capacity <= 5;
-    useEffect(() => {
-        if (lowCapacity) {
-            logger.log('list item low capacity', { spotId: spot?.id, capacity: spot.capacity }, 'DATA_FLAG');
-        }
-    }, [lowCapacity, spot?.id, spot?.capacity]);
 
-    // press handlers (log user intent)
+    // 200ms ease-out feedback — polish skill, consistent across Pressables.
     const handlePressIn = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 0.97,
-            speed: 24,
-            bounciness: 0,
+        Animated.timing(scaleAnim, {
+            toValue: 0.98,
+            duration: 120,
             useNativeDriver: true,
         }).start();
     };
     const handlePressOut = () => {
-        Animated.spring(scaleAnim, {
+        Animated.timing(scaleAnim, {
             toValue: 1,
-            speed: 16,
-            bounciness: 0,
+            duration: 200,
             useNativeDriver: true,
         }).start();
     };
@@ -128,64 +94,65 @@ export default function ParkingListItem({
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 android_ripple={{ color: alpha(TOKENS.text, 0.04), borderless: false }}
-                style={[styles.container, isSelected && styles.containerSelected]}
+                style={[styles.row, isSelected && styles.rowSelected]}
                 accessibilityRole="button"
                 accessibilityLabel={`Parking at ${spot.address}, ${spot.distance} meters away, ${isFree ? 'free' : `price ${displayPrice} per hour`}`}
-                hitSlop={6}
+                hitSlop={4}
             >
-                <View style={[styles.card, isSelected && styles.cardSelected]}>
-                    {/* Walking time badge */}
-                    <View
-                        style={[styles.walkingTimeBadge, isSelected && styles.walkingTimeBadgeSelected]}
-                        accessibilityLabel={`${spot.walkingTime} minutes walk`}
-                    >
-                        <Text style={styles.walkingTimeValue}>{spot.walkingTime}</Text>
-                        <Text style={styles.walkingTimeUnit}>MIN</Text>
-                    </View>
+                {/* Walking time — bare numeric, no background */}
+                <View style={styles.walkBlock}>
+                    <Text style={styles.walkValue}>{spot.walkingTime}</Text>
+                    <Text style={styles.walkUnit}>MIN</Text>
+                </View>
 
-                    {/* Main content */}
-                    <View style={styles.content}>
-                        <Text style={styles.address} numberOfLines={1}>
-                            {spot.address}
-                        </Text>
+                {/* Primary content */}
+                <View style={styles.content}>
+                    <Text style={styles.address} numberOfLines={1}>
+                        {spot.address}
+                    </Text>
 
-                        <View style={styles.metaRow}>
-                            <View style={[styles.typeIndicator, { backgroundColor: config.bgColor }]}>
-                                <MaterialCommunityIcons name={config.icon} size={13} color={config.color} />
-                                <Text style={[styles.typeText, { color: config.color }]}>{config.label}</Text>
-                            </View>
-
-                            <View style={styles.distanceContainer}>
-                                <Text style={styles.distance}>{spot.distance}m</Text>
-                            </View>
-
-                            {lowCapacity && (
-                                <View style={styles.lowCapacityWarning} accessibilityLabel={`${spot.capacity} spots left`}>
-                                    <View style={styles.warningDot} />
-                                    <Text style={styles.warningText}>{spot.capacity} left</Text>
-                                </View>
-                            )}
+                    <View style={styles.metaRow}>
+                        <View style={styles.typeGroup}>
+                            <View
+                                style={[
+                                    styles.typeDot,
+                                    isPrimaryType ? styles.typeDotPrimary : styles.typeDotMuted,
+                                ]}
+                            />
+                            <Text style={styles.metaText}>{typeLabel}</Text>
                         </View>
-                    </View>
 
-                    {/* Price */}
-                    <View style={styles.priceContainer}>
-                        {isFree ? (
-                            <View style={styles.freeBadge}>
-                                <Text style={styles.freeLabel}>FREE</Text>
-                            </View>
-                        ) : (
+                        <Text style={styles.metaDivider}>·</Text>
+                        <Text style={styles.metaText}>{spot.distance}m</Text>
+
+                        {lowCapacity && (
                             <>
-                                <Text
-                                    style={[styles.priceValue, isCheckSigns && styles.priceNote]}
-                                    numberOfLines={1}
-                                >
-                                    {isCheckSigns ? displayPrice : displayPrice.replace('/hr', '')}
-                                </Text>
-                                {!isCheckSigns && <Text style={styles.priceUnit}>/hr</Text>}
+                                <Text style={styles.metaDivider}>·</Text>
+                                <View style={styles.typeGroup}>
+                                    <View style={[styles.typeDot, styles.typeDotWarning]} />
+                                    <Text style={styles.metaTextWarning}>
+                                        {spot.capacity} left
+                                    </Text>
+                                </View>
                             </>
                         )}
                     </View>
+                </View>
+
+                {/* Price — inline, tabular-nums, no badge background */}
+                <View style={styles.priceBlock}>
+                    {isFree ? (
+                        <Text style={styles.freeLabel}>FREE</Text>
+                    ) : isCheckSigns ? (
+                        <Text style={styles.priceNote} numberOfLines={1}>
+                            Check signs
+                        </Text>
+                    ) : (
+                        <Text style={styles.priceValue} numberOfLines={1}>
+                            {displayPrice}
+                            <Text style={styles.priceUnit}> /hr</Text>
+                        </Text>
+                    )}
                 </View>
             </Pressable>
         </Animated.View>
@@ -193,167 +160,108 @@ export default function ParkingListItem({
 }
 
 const styles = StyleSheet.create({
-    container: {
-        paddingHorizontal: 16,
-        paddingTop: 10,
-        paddingBottom: 2,
-        backgroundColor: 'transparent',
-    },
-    containerSelected: {
-        paddingTop: 8,
-    },
-
-    card: {
+    row: {
         flexDirection: 'row',
         alignItems: 'center',
-        minHeight: 88,
+        minHeight: 72,
+        paddingHorizontal: SPACING.xl,
+        paddingVertical: SPACING.md,
+        gap: SPACING.lg,
         backgroundColor: TOKENS.surface,
-        borderRadius: 18,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        gap: 16,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.hairline,
     },
-    cardSelected: {
-        backgroundColor: TOKENS.surfaceRaised,
-        borderColor: TOKENS.focus,
-        shadowColor: TOKENS.shadow,
-        shadowOpacity: 0.08,
-        shadowRadius: 14,
-        shadowOffset: { width: 0, height: 8 },
-        elevation: 3,
+    rowSelected: {
+        backgroundColor: TOKENS.primaryWash,
     },
 
-    walkingTimeBadge: {
+    walkBlock: {
         alignItems: 'center',
         justifyContent: 'center',
-        minWidth: 56,
-        minHeight: 56,
-        paddingHorizontal: 8,
-        borderRadius: 16,
-        backgroundColor: TOKENS.surfaceMuted,
+        minWidth: 44,
     },
-    walkingTimeBadgeSelected: {
-        backgroundColor: TOKENS.primarySoft,
+    walkValue: {
+        ...TYPOGRAPHY.numMedium,
+        fontSize: 22,
+        lineHeight: 24,
     },
-    walkingTimeValue: {
-        fontSize: 24,
-        fontWeight: '800',
-        color: TOKENS.text,
-        lineHeight: 28,
-        letterSpacing: -0.5,
-        fontVariant: ['tabular-nums'],
-    },
-    walkingTimeUnit: {
-        fontSize: 10,
-        fontWeight: '600',
-        color: TOKENS.textMuted,
-        letterSpacing: 0.5,
-        textTransform: 'uppercase',
-        marginTop: -2,
+    walkUnit: {
+        ...TYPOGRAPHY.caption,
+        color: TOKENS.textFaint,
+        marginTop: 1,
     },
 
     content: {
         flex: 1,
-        gap: 8,
+        gap: 4,
     },
     address: {
+        ...TYPOGRAPHY.subheading,
         fontSize: 15,
-        fontWeight: '700',
-        color: TOKENS.text,
-        letterSpacing: -0.3,
-        lineHeight: 20,
     },
     metaRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 6,
         flexWrap: 'wrap',
     },
-
-    typeIndicator: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 999,
-    },
-    typeText: {
-        fontSize: 12,
+    metaText: {
+        ...TYPOGRAPHY.body,
+        fontSize: 13,
         color: TOKENS.textMuted,
-        fontWeight: '600',
+    },
+    metaTextWarning: {
+        ...TYPOGRAPHY.body,
+        fontSize: 13,
+        color: TOKENS.warning,
+    },
+    metaDivider: {
+        ...TYPOGRAPHY.body,
+        fontSize: 13,
+        color: TOKENS.textFaint,
     },
 
-    distanceContainer: {
+    typeGroup: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        gap: 6,
     },
-    distance: {
-        fontSize: 12,
-        color: TOKENS.textMuted,
-        fontWeight: '600',
+    typeDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
     },
-
-    lowCapacityWarning: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backgroundColor: TOKENS.warningSoft,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 8,
+    typeDotPrimary: {
+        backgroundColor: TOKENS.primary,
     },
-    warningDot: {
-        width: 4,
-        height: 4,
-        borderRadius: 2,
+    typeDotMuted: {
+        backgroundColor: TOKENS.textFaint,
+    },
+    typeDotWarning: {
         backgroundColor: TOKENS.warning,
     },
-    warningText: {
-        fontSize: 11,
-        color: PALETTE.amber[700],
-        fontWeight: '600',
-        letterSpacing: 0.2,
-    },
 
-    priceContainer: {
+    priceBlock: {
         alignItems: 'flex-end',
         justifyContent: 'center',
-        minWidth: 72,
+        minWidth: 64,
     },
     priceValue: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: TOKENS.text,
-        letterSpacing: -0.35,
-        fontVariant: ['tabular-nums'],
+        ...TYPOGRAPHY.numMedium,
+        fontSize: 16,
+        lineHeight: 20,
     },
     priceUnit: {
-        fontSize: 11,
-        fontWeight: '600',
+        fontSize: 12,
+        fontWeight: '400',
         color: TOKENS.textMuted,
-        marginTop: -2,
-    },
-    freeBadge: {
-        backgroundColor: TOKENS.successSoft,
-        paddingHorizontal: 12,
-        paddingVertical: 7,
-        borderRadius: 10,
     },
     freeLabel: {
-        fontSize: 12,
-        fontWeight: '700',
+        ...TYPOGRAPHY.caption,
         color: TOKENS.success,
-        letterSpacing: 0.3,
     },
     priceNote: {
-        fontSize: 11,
-        fontWeight: '600',
+        ...TYPOGRAPHY.caption,
         color: TOKENS.textMuted,
-        textAlign: 'right',
     },
 });

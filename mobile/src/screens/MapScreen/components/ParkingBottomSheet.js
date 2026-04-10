@@ -3,7 +3,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ParkingListItem from '../../../components/ParkingList/ParkingListItem';
-import { SHADOWS, TOKENS } from '../../../constants/theme';
+import { TOKENS } from '../../../constants/theme';
 import { SCREEN_HEIGHT } from '../constants';
 
 // Helper function to clamp a value between min and max
@@ -217,11 +217,11 @@ const ParkingBottomSheet = forwardRef(({
                             color={TOKENS.textLight}
                         />
                     </View>
-                    <Text style={styles.emptyTitle}>No parking spots</Text>
+                    <Text style={styles.emptyTitle}>Nothing here yet</Text>
                     <Text style={styles.emptyHint}>
                         {searchMode === 'pinned'
-                            ? 'Try moving your pin or increasing the search radius'
-                            : 'No parking available in this area'}
+                            ? 'Move your pin or widen the radius to find spots'
+                            : 'Pan or zoom the map to search a different area'}
                     </Text>
                 </View>
             ) : (
@@ -257,11 +257,10 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 10,
         right: 10,
-        borderRadius: 26,
+        borderRadius: 10,
         backgroundColor: TOKENS.surface,
-        borderWidth: 1,
-        borderColor: TOKENS.strokeLight,
-        ...SHADOWS.lg,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
         overflow: 'hidden',
     },
     header: {
@@ -325,7 +324,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 18,
-        fontWeight: '700',
+        fontWeight: '600',
         color: TOKENS.text,
         letterSpacing: -0.3,
     },
@@ -355,11 +354,11 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     emptyTitle: {
-        fontSize: 17,
-        fontWeight: '700',
+        fontSize: 16,
+        fontWeight: '600',
         color: TOKENS.text,
         marginBottom: 8,
-        letterSpacing: -0.2,
+        letterSpacing: -0.1,
     },
     emptyHint: {
         fontSize: 14,
