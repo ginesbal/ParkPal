@@ -101,7 +101,7 @@ function AppNavigation() {
                     tabBarStyle: {
                         backgroundColor: TOKENS.surface,
                         borderTopWidth: StyleSheet.hairlineWidth,
-                        borderTopColor: TOKENS.hairline,
+                        borderTopColor: TOKENS.primaryHairline,
                         height: tabBarHeight,
                         paddingTop: 10,
                         paddingBottom: tabBarBottomPadding,

@@ -172,22 +172,29 @@ const styles = StyleSheet.create({
         borderBottomColor: TOKENS.hairline,
     },
     rowSelected: {
-        backgroundColor: TOKENS.primaryWash,
+        backgroundColor: TOKENS.primarySoft,
     },
 
     walkBlock: {
         alignItems: 'center',
         justifyContent: 'center',
-        minWidth: 44,
+        minWidth: 52,
+        paddingVertical: 6,
+        paddingHorizontal: 4,
+        borderRadius: 10,
+        backgroundColor: TOKENS.primaryTint,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.primaryHairline,
     },
     walkValue: {
         ...TYPOGRAPHY.numMedium,
         fontSize: 22,
         lineHeight: 24,
+        color: TOKENS.primaryAlt,
     },
     walkUnit: {
         ...TYPOGRAPHY.caption,
-        color: TOKENS.textFaint,
+        color: TOKENS.primary,
         marginTop: 1,
     },
 
@@ -250,6 +257,7 @@ const styles = StyleSheet.create({
         ...TYPOGRAPHY.numMedium,
         fontSize: 16,
         lineHeight: 20,
+        color: TOKENS.primaryAlt,
     },
     priceUnit: {
         fontSize: 12,

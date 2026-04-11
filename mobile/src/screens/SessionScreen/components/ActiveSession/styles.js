@@ -27,35 +27,37 @@ export const styles = StyleSheet.create({
         textAlign: 'right',
     },
 
-    // Timer card — hairline border, no shadow
+    // Timer card — cerulean tinted surface with colored hairline
     timerCard: {
-        backgroundColor: TOKENS.surface,
+        backgroundColor: TOKENS.primaryTint,
         marginHorizontal: 20,
         marginTop: 20,
-        borderRadius: 10,
+        borderRadius: 14,
         padding: 24,
         alignItems: 'center',
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
+        borderColor: TOKENS.primaryHairline,
     },
     timerCardWarning: {
-        borderColor: alpha(TOKENS.warning, 0.3),
+        backgroundColor: alpha(TOKENS.warning, 0.08),
+        borderColor: alpha(TOKENS.warning, 0.32),
     },
     timerCardDanger: {
-        borderColor: alpha(TOKENS.danger, 0.3),
+        backgroundColor: alpha(TOKENS.danger, 0.08),
+        borderColor: alpha(TOKENS.danger, 0.32),
     },
     timerLabel: {
         fontSize: 11,
-        fontWeight: '500',
-        color: TOKENS.textMuted,
-        letterSpacing: 0.4,
+        fontWeight: '600',
+        color: TOKENS.primary,
+        letterSpacing: 0.6,
         textTransform: 'uppercase',
         marginBottom: 8,
     },
     timerValue: {
         fontSize: 48,
         fontWeight: '500',
-        color: TOKENS.text,
+        color: TOKENS.primaryDeep,
         letterSpacing: -1,
         marginBottom: 20,
         fontVariant: ['tabular-nums'],
@@ -68,9 +70,9 @@ export const styles = StyleSheet.create({
     },
     progressContainer: {
         width: '100%',
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: TOKENS.surfaceMuted,
+        height: 5,
+        borderRadius: 3,
+        backgroundColor: alpha(TOKENS.primary, 0.14),
         overflow: 'hidden',
         marginBottom: 20,
     },
@@ -108,7 +110,7 @@ export const styles = StyleSheet.create({
     },
     timerMetaText: {
         fontSize: 13,
-        color: TOKENS.textMuted,
+        color: TOKENS.primaryAlt,
         fontWeight: '500',
         fontVariant: ['tabular-nums'],
     },
@@ -130,14 +132,15 @@ export const styles = StyleSheet.create({
     },
     extendButton: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.surface,
         borderRadius: 10,
         padding: 12,
         alignItems: 'center',
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
+        borderColor: TOKENS.primaryHairline,
     },
     extendButtonHighlight: {
+        backgroundColor: TOKENS.primaryTint,
         borderColor: TOKENS.primary,
     },
     extendButtonDisabled: {

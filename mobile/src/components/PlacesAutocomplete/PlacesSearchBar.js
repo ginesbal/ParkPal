@@ -183,7 +183,7 @@ export default function PlacesSearchBar({
         <MaterialCommunityIcons
           name="magnify"
           size={20}
-          color={isFocused ? TOKENS.primary : TOKENS.textMuted}
+          color={isFocused ? TOKENS.primary : TOKENS.primaryAlt}
         />
 
         <TextInput
@@ -282,18 +282,23 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: TOKENS.surface,
+    backgroundColor: '#fff',
     borderRadius: 10,
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: TOKENS.hairline,
+    borderColor: TOKENS.primaryHairline,
   },
 
   inputContainerFocused: {
-    borderColor: alpha(TOKENS.primary, 0.4),
+    borderColor: TOKENS.primary,
     backgroundColor: '#fff',
+    shadowColor: TOKENS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.14,
+    shadowRadius: 6,
+    elevation: 2,
   },
 
   input: {
@@ -337,8 +342,13 @@ const styles = StyleSheet.create({
     backgroundColor: TOKENS.surface,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: TOKENS.hairline,
+    borderColor: TOKENS.primaryHairline,
     maxHeight: 280,
+    shadowColor: TOKENS.primaryDeep,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 3,
   },
 
   suggestionsList: {
