@@ -57,7 +57,12 @@ const ParkingBottomSheet = forwardRef(({
             friction: 10,
             useNativeDriver: true,
         }).start();
-    }, [translateY]);
+
+        // Scroll list back to top when collapsing to peek
+        if (to === PEEK_Y) {
+            listRef.current?.scrollToOffset({ offset: 0, animated: true });
+        }
+    }, [translateY, PEEK_Y]);
 
     const handleHeaderLayout = useCallback((event) => {
         const measuredHeight = Math.max(96, Math.ceil(event.nativeEvent.layout.height));

@@ -46,7 +46,6 @@ function FlippableParkingCard({
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     const pagesScrollRef = useRef(null);
-    const detailScrollRefs = useRef([]);
     const pageWidth = CONTENT_WIDTH;
 
     const scrollToPage = (i) => {
@@ -112,23 +111,14 @@ function FlippableParkingCard({
     const flip = () => {
         const toValue = isFlipped ? 0 : 1;
 
-        if (!isFlipped) {
-            // Opening details — reset horizontal pager and all vertical scrolls
-            pagesScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
-            setCurrentPage(0);
-        } else {
-            // Collapsing back to front — reset all detail scroll positions
-            detailScrollRefs.current.forEach(ref => {
-                ref?.scrollTo?.({ x: 0, y: 0, animated: false });
-            });
-            pagesScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
-            setCurrentPage(0);
-        }
+        // Reset horizontal pager to first page on any flip
+        pagesScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
+        setCurrentPage(0);
 
         Animated.spring(flipAnim, {
             toValue,
-            tension: 60,
-            friction: 8,
+            tension: 65,
+            friction: 9,
             useNativeDriver: true,
         }).start();
         setIsFlipped(!isFlipped);
@@ -291,32 +281,27 @@ function FlippableParkingCard({
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
-                                        <MaterialCommunityIcons name="walk" size={20} color={TOKENS.warning} />
+                                        <MaterialCommunityIcons name="walk" size={18} color={TOKENS.warning} />
                                     </View>
                                     <Text style={styles.statLabelLeft}>Walk time</Text>
                                 </View>
                                 <Text style={styles.statValueRight}>{spot.walkingTime || 0} min</Text>
                             </View>
 
-                            <View style={styles.statDividerLarge} />
-
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
-                                        <MaterialCommunityIcons name="map-marker-distance" size={20} color={TOKENS.primary} />
+                                        <MaterialCommunityIcons name="map-marker-distance" size={18} color={TOKENS.primary} />
                                     </View>
                                     <Text style={styles.statLabelLeft}>Distance</Text>
                                 </View>
                                 <Text style={styles.statValueRight}>{spot.distance || 0} m</Text>
                             </View>
 
-                            <View style={styles.statDividerLarge} />
-
-                            {/* rate */}
                             <View style={styles.statRow}>
                                 <View style={styles.statLeft}>
                                     <View style={styles.statIcon}>
-                                        <MaterialCommunityIcons name="currency-usd" size={20} color={TOKENS.primary} />
+                                        <MaterialCommunityIcons name="currency-usd" size={18} color={TOKENS.primary} />
                                     </View>
                                     <Text style={styles.statLabelLeft}>Rate</Text>
                                 </View>
@@ -400,7 +385,6 @@ function FlippableParkingCard({
                         {detailsPages.map((page, pageIndex) => (
                             <View key={pageIndex} style={[styles.detailPage, { width: CONTENT_WIDTH }]}>
                                 <ScrollView
-                                    ref={el => { detailScrollRefs.current[pageIndex] = el; }}
                                     style={styles.detailsListLarge}
                                     showsVerticalScrollIndicator={false}
                                     contentContainerStyle={styles.detailsContent}
