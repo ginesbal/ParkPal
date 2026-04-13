@@ -6,10 +6,17 @@ import ParkingListItem from '../../../components/ParkingList/ParkingListItem';
 import { TOKENS, alpha } from '../../../constants/theme';
 import { SCREEN_HEIGHT } from '../constants';
 
-// Helper function to clamp a value between min and max
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const SHEET_BOTTOM_OFFSET = 10;
 const SHEET_EXPANDED_TOP_GAP = 18;
+
+// Momentum threshold — a quick flick should snap regardless of drag distance.
+// Emil: "Don't require dragging past a threshold. If velocity exceeds ~0.11, dismiss."
+const VELOCITY_THRESHOLD = 0.11;
+
+// Rubber-band damping factor for over-pull at top boundary.
+// Emil: "Things in real life don't suddenly stop; they slow down first."
+const RUBBER_BAND_FACTOR = 0.35;
 
 const ParkingBottomSheet = forwardRef(({
     spots,
@@ -26,43 +33,55 @@ const ParkingBottomSheet = forwardRef(({
     const listRef = useRef(null);
     const [headerHeight, setHeaderHeight] = useState(92);
     const previousPeekY = useRef(null);
+    const isDragging = useRef(false);
 
-    // Non-modal bottom sheet implemented with Animated + PanResponder
-    // Peek height only shows header (handle + title + subtitle)
     const peekHeight = headerHeight;
     const maxHeight = useMemo(() => {
         const availableHeight = Math.max(
             peekHeight,
             SCREEN_HEIGHT - topInset - SHEET_EXPANDED_TOP_GAP - SHEET_BOTTOM_OFFSET
         );
-
         return Math.min(Math.round(peekHeight + 420), availableHeight);
     }, [peekHeight, topInset]);
+
     const EXPANDED_Y = 0;
     const PEEK_Y = Math.max(0, maxHeight - peekHeight);
     const HIDDEN_Y = maxHeight + 48;
     const translateY = useRef(new Animated.Value(PEEK_Y)).current;
     const dragStartY = useRef(PEEK_Y);
 
-    useImperativeHandle(ref, () => ({
-        present: () => animateTo(EXPANDED_Y),
-        dismiss: () => animateTo(PEEK_Y),
-    }));
-
-    const animateTo = useCallback((to, velocity = 0) => {
+    // Tighter spring for expand (user is waiting to see content)
+    const expandTo = useCallback((velocity = 0) => {
         Animated.spring(translateY, {
-            toValue: to,
+            toValue: EXPANDED_Y,
             velocity,
-            tension: 58,
+            tension: 68,
+            friction: 9,
+            useNativeDriver: true,
+        }).start();
+    }, [translateY, EXPANDED_Y]);
+
+    // Slightly faster spring for collapse — exit should feel snappier than enter
+    const collapseTo = useCallback((velocity = 0) => {
+        Animated.spring(translateY, {
+            toValue: PEEK_Y,
+            velocity,
+            tension: 76,
             friction: 10,
             useNativeDriver: true,
         }).start();
 
-        // Scroll list back to top when collapsing to peek
-        if (to === PEEK_Y) {
+        // Coordinate scroll-to-top with collapse — slight delay so both
+        // motions feel like one gesture, not a jump-then-slide
+        setTimeout(() => {
             listRef.current?.scrollToOffset({ offset: 0, animated: true });
-        }
+        }, 80);
     }, [translateY, PEEK_Y]);
+
+    useImperativeHandle(ref, () => ({
+        present: () => expandTo(),
+        dismiss: () => collapseTo(),
+    }));
 
     const handleHeaderLayout = useCallback((event) => {
         const measuredHeight = Math.max(96, Math.ceil(event.nativeEvent.layout.height));
@@ -99,6 +118,8 @@ const ParkingBottomSheet = forwardRef(({
         });
     }, [PEEK_Y, translateY]);
 
+    // When a marker is tapped, expand the sheet first, then scroll to the item.
+    // Without this, the scroll fires behind the collapsed sheet — invisible.
     useEffect(() => {
         if (!selectedSpot?.id || !spots.length) {
             return;
@@ -109,33 +130,68 @@ const ParkingBottomSheet = forwardRef(({
             return;
         }
 
+        // Expand sheet, then scroll after the spring has mostly settled
+        expandTo();
         const timer = setTimeout(() => {
             listRef.current?.scrollToIndex({
                 index: selectedIndex,
                 animated: true,
                 viewPosition: 0.45,
             });
-        }, 120);
+        }, 280);
 
         return () => clearTimeout(timer);
-    }, [selectedSpot?.id, spots]);
+    }, [selectedSpot?.id, spots, expandTo]);
 
     const panResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
-            onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+            onMoveShouldSetPanResponder: (_, g) =>
+                Math.abs(g.dy) > 4 && Math.abs(g.dy) > Math.abs(g.dx),
             onPanResponderGrant: () => {
-                translateY.stopAnimation((cur) => { dragStartY.current = cur ?? PEEK_Y; });
+                // Multi-touch protection: ignore if already dragging
+                if (isDragging.current) return;
+                isDragging.current = true;
+
+                translateY.stopAnimation((cur) => {
+                    dragStartY.current = cur ?? PEEK_Y;
+                });
             },
             onPanResponderMove: (_, g) => {
-                const next = clamp(dragStartY.current + g.dy, EXPANDED_Y, HIDDEN_Y);
-                translateY.setValue(next);
+                const raw = dragStartY.current + g.dy;
+
+                // Rubber-band damping when pulling past the top boundary
+                if (raw < EXPANDED_Y) {
+                    const overPull = EXPANDED_Y - raw;
+                    const damped = EXPANDED_Y - (overPull * RUBBER_BAND_FACTOR);
+                    translateY.setValue(damped);
+                } else {
+                    translateY.setValue(clamp(raw, EXPANDED_Y, HIDDEN_Y));
+                }
             },
             onPanResponderRelease: (_, g) => {
+                isDragging.current = false;
+
                 const finalY = clamp(dragStartY.current + g.dy, EXPANDED_Y, HIDDEN_Y);
+                const velocity = Math.abs(g.vy);
+
+                // Momentum-based snap: a quick flick should decide regardless of position
+                if (velocity > VELOCITY_THRESHOLD) {
+                    if (g.vy < 0) {
+                        expandTo(g.vy);
+                    } else {
+                        collapseTo(g.vy);
+                    }
+                    return;
+                }
+
+                // Position-based snap for slow drags
                 const mid = (PEEK_Y + EXPANDED_Y) / 2;
-                if (finalY <= mid || g.vy < -0.5) animateTo(EXPANDED_Y, g.vy);
-                else animateTo(PEEK_Y, g.vy);
+                if (finalY <= mid) {
+                    expandTo(g.vy);
+                } else {
+                    collapseTo(g.vy);
+                }
             },
         })
     ).current;
@@ -165,7 +221,6 @@ const ParkingBottomSheet = forwardRef(({
 
                 <View style={styles.headerContent}>
                     <View style={styles.headerLeft}>
-                        {/* Simple icon with solid color */}
                         <View style={[
                             styles.searchModeIndicator,
                             searchMode === 'pinned' && styles.searchModeIndicatorPinned
@@ -327,8 +382,11 @@ const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
     },
+    // Scale-based press feedback instead of opacity-only.
+    // Emil: "Buttons must feel responsive. Add scale(0.97) on active."
     clearButtonPressed: {
-        opacity: 0.6,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.8,
     },
     clearButtonText: {
         fontSize: 13,
