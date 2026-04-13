@@ -1,11 +1,4 @@
 // src/components/ParkingList/ParkingListItem.js
-//
-// Minimalist row redesign driven by .agents/skills/:
-//   distill  → card chrome removed, divide-y row pattern, one semantic dot (no type pills)
-//   quieter  → one accent; type indicator is a single primary dot, all others muted
-//   arrange  → tight grouping within rows, hairline divider between rows, space as hierarchy
-//   typeset  → numLarge / body / caption from TYPOGRAPHY tokens, tabular-nums, 3 weights only
-//   polish   → 200ms ease-out press feedback, 44x44 hit target
 
 import { useRef } from 'react';
 import {
@@ -18,8 +11,6 @@ import {
 import { SPACING, TOKENS, TYPOGRAPHY, alpha } from '../../constants/theme';
 import { logger } from '../../utils/loggers';
 
-// Two semantic roles only: "street" (primary accent) vs everything else (muted).
-// Replaces the old 4-way colored-pill config that pulled from amber/cream/yale ramps.
 const TYPE_LABELS = {
     on_street: 'Street',
     off_street: 'Lot',
@@ -56,7 +47,6 @@ export default function ParkingListItem({
     const isCheckSigns = displayPrice === 'Check signs';
     const lowCapacity = spot.capacity > 0 && spot.capacity <= 5;
 
-    // 200ms ease-out feedback — polish skill, consistent across Pressables.
     const handlePressIn = () => {
         Animated.timing(scaleAnim, {
             toValue: 0.98,
@@ -88,7 +78,7 @@ export default function ParkingListItem({
     };
 
     return (
-        <Animated.View style={[styles.rowWrapper, { transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <Pressable
                 onPress={handleRowPress}
                 onPressIn={handlePressIn}
@@ -99,10 +89,10 @@ export default function ParkingListItem({
                 accessibilityLabel={`Parking at ${spot.address}, ${spot.distance} meters away, ${isFree ? 'free' : `price ${displayPrice} per hour`}`}
                 hitSlop={4}
             >
-                {/* Walking time — bare numeric, no background */}
+                {/* Walking time */}
                 <View style={styles.walkBlock}>
                     <Text style={styles.walkValue}>{spot.walkingTime}</Text>
-                    <Text style={styles.walkUnit}>MIN</Text>
+                    <Text style={styles.walkUnit}>min</Text>
                 </View>
 
                 {/* Primary content */}
@@ -139,7 +129,7 @@ export default function ParkingListItem({
                     </View>
                 </View>
 
-                {/* Price — inline, tabular-nums, no badge background */}
+                {/* Price */}
                 <View style={styles.priceBlock}>
                     {isFree ? (
                         <Text style={styles.freeLabel}>FREE</Text>
@@ -160,69 +150,48 @@ export default function ParkingListItem({
 }
 
 const styles = StyleSheet.create({
-    // Outer wrapper adds spacing between each row-card
-    rowWrapper: {
-        marginHorizontal: 14,
-        marginBottom: 10,
-    },
-
-    // Each spot is a self-contained tinted card with soft corners
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        minHeight: 78,
-        paddingHorizontal: 16,
+        minHeight: 72,
+        paddingHorizontal: 20,
         paddingVertical: 14,
         gap: 14,
-        backgroundColor: TOKENS.surfaceTint,
-        borderRadius: 16,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
-        shadowColor: TOKENS.primaryDeep,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 1,
+        backgroundColor: TOKENS.surface,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.divider,
     },
     rowSelected: {
-        backgroundColor: TOKENS.primaryTint,
-        borderColor: TOKENS.primaryBorder,
-        shadowOpacity: 0.10,
+        backgroundColor: alpha(TOKENS.primary, 0.05),
     },
 
-    // Walk-time slab — strong cerulean presence as the anchor
     walkBlock: {
         alignItems: 'center',
         justifyContent: 'center',
-        width: 56,
-        paddingVertical: 8,
-        borderRadius: 14,
-        backgroundColor: TOKENS.primary,
+        width: 44,
     },
     walkValue: {
         ...TYPOGRAPHY.numMedium,
-        fontSize: 22,
-        lineHeight: 24,
-        color: '#fff',
-        fontWeight: '700',
+        fontSize: 20,
+        lineHeight: 22,
+        color: TOKENS.text,
     },
     walkUnit: {
-        ...TYPOGRAPHY.caption,
-        color: 'rgba(255,255,255,0.7)',
+        fontSize: 11,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
         marginTop: 1,
-        fontSize: 10,
     },
 
-    // Middle content
     content: {
         flex: 1,
-        gap: 5,
+        gap: 4,
     },
     address: {
-        ...TYPOGRAPHY.subheading,
         fontSize: 15,
-        fontWeight: '700',
-        color: TOKENS.primaryDeep,
+        fontWeight: '600',
+        color: TOKENS.text,
+        letterSpacing: -0.1,
     },
     metaRow: {
         flexDirection: 'row',
@@ -231,19 +200,16 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     metaText: {
-        ...TYPOGRAPHY.body,
         fontSize: 13,
+        fontWeight: '400',
         color: TOKENS.textMuted,
-        fontWeight: '500',
     },
     metaTextWarning: {
-        ...TYPOGRAPHY.body,
         fontSize: 13,
+        fontWeight: '500',
         color: TOKENS.warning,
-        fontWeight: '600',
     },
     metaDivider: {
-        ...TYPOGRAPHY.body,
         fontSize: 13,
         color: TOKENS.textFaint,
     },
@@ -254,9 +220,9 @@ const styles = StyleSheet.create({
         gap: 5,
     },
     typeDot: {
-        width: 7,
-        height: 7,
-        borderRadius: 4,
+        width: 6,
+        height: 6,
+        borderRadius: 3,
     },
     typeDotPrimary: {
         backgroundColor: TOKENS.primary,
@@ -268,38 +234,31 @@ const styles = StyleSheet.create({
         backgroundColor: TOKENS.warning,
     },
 
-    // Price block — tinted chip on the right
     priceBlock: {
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
-        minWidth: 70,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        borderRadius: 12,
-        backgroundColor: TOKENS.surface,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        minWidth: 60,
     },
     priceValue: {
-        ...TYPOGRAPHY.numMedium,
         fontSize: 16,
-        lineHeight: 20,
-        color: TOKENS.primaryAlt,
-        fontWeight: '700',
+        fontWeight: '600',
+        color: TOKENS.text,
+        fontVariant: ['tabular-nums'],
     },
     priceUnit: {
-        fontSize: 11,
-        fontWeight: '500',
+        fontSize: 12,
+        fontWeight: '400',
         color: TOKENS.textMuted,
     },
     freeLabel: {
         fontSize: 13,
-        fontWeight: '700',
-        letterSpacing: 0.4,
+        fontWeight: '600',
         color: TOKENS.success,
+        letterSpacing: 0.2,
     },
     priceNote: {
-        ...TYPOGRAPHY.caption,
+        fontSize: 12,
+        fontWeight: '500',
         color: TOKENS.textMuted,
     },
 });

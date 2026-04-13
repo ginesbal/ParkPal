@@ -3,7 +3,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ParkingListItem from '../../../components/ParkingList/ParkingListItem';
-import { TOKENS } from '../../../constants/theme';
+import { TOKENS, alpha } from '../../../constants/theme';
 import { SCREEN_HEIGHT } from '../constants';
 
 // Helper function to clamp a value between min and max
@@ -167,7 +167,7 @@ const ParkingBottomSheet = forwardRef(({
                         ]}>
                             <MaterialCommunityIcons
                                 name={searchMode === 'pinned' ? 'map-marker' : 'crosshairs-gps'}
-                                size={18}
+                                size={16}
                                 color="#fff"
                             />
                         </View>
@@ -199,8 +199,8 @@ const ParkingBottomSheet = forwardRef(({
                         >
                             <MaterialCommunityIcons
                                 name="close-circle"
-                                size={16}
-                                color={TOKENS.primaryAlt}
+                                size={14}
+                                color={TOKENS.textMuted}
                             />
                             <Text style={styles.clearButtonText}>Clear pin</Text>
                         </Pressable>
@@ -208,13 +208,15 @@ const ParkingBottomSheet = forwardRef(({
                 </View>
             </View>
 
+            <View style={styles.listSeparator} />
+
             {spots.length === 0 ? (
                 <View style={styles.emptyState}>
                     <View style={styles.emptyIconContainer}>
                         <MaterialCommunityIcons
                             name={searchMode === 'pinned' ? 'map-marker-remove' : 'parking'}
                             size={40}
-                            color={TOKENS.textLight}
+                            color={TOKENS.textFaint}
                         />
                     </View>
                     <Text style={styles.emptyTitle}>Nothing here yet</Text>
@@ -257,32 +259,29 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 10,
         right: 10,
-        borderRadius: 22,
-        backgroundColor: TOKENS.bg,
+        borderRadius: 18,
+        backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         overflow: 'hidden',
-        shadowColor: TOKENS.primaryDeep,
-        shadowOffset: { width: 0, height: -6 },
-        shadowOpacity: 0.10,
-        shadowRadius: 20,
-        elevation: 8,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
     header: {
-        paddingTop: 14,
-        paddingBottom: 16,
-        backgroundColor: TOKENS.primaryTint,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.primaryHairline,
+        paddingTop: 12,
+        paddingBottom: 14,
+        backgroundColor: TOKENS.surface,
     },
     handle: {
         alignSelf: 'center',
-        backgroundColor: TOKENS.primary,
-        width: 40,
-        height: 4,
+        backgroundColor: alpha(TOKENS.text, 0.12),
+        width: 36,
+        height: 3,
         borderRadius: 2,
-        marginBottom: 14,
-        opacity: 0.4,
+        marginBottom: 12,
     },
     headerContent: {
         flexDirection: 'row',
@@ -298,91 +297,86 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     searchModeIndicator: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
+        width: 36,
+        height: 36,
+        borderRadius: 10,
         backgroundColor: TOKENS.primary,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: TOKENS.primaryDeep,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.24,
-        shadowRadius: 8,
-        elevation: 4,
     },
     searchModeIndicatorPinned: {
-        backgroundColor: TOKENS.primaryDeep,
+        backgroundColor: TOKENS.primaryAlt,
     },
     headerInfo: {
-        gap: 5,
+        gap: 3,
         flex: 1,
     },
     clearButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 14,
-        paddingVertical: 9,
-        borderRadius: 12,
+        gap: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 10,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryBorder,
+        borderColor: TOKENS.hairline,
     },
     clearButtonPressed: {
-        backgroundColor: TOKENS.primarySoft,
+        opacity: 0.6,
     },
     clearButtonText: {
         fontSize: 13,
-        fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: TOKENS.primaryDeep,
-        letterSpacing: -0.3,
+        fontSize: 16,
+        fontWeight: '600',
+        color: TOKENS.text,
+        letterSpacing: -0.2,
     },
     headerSubtitle: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: TOKENS.primaryAlt,
-        letterSpacing: -0.1,
-        lineHeight: 17,
-        opacity: 0.8,
+        fontSize: 12,
+        fontWeight: '400',
+        color: TOKENS.textMuted,
+        lineHeight: 16,
+    },
+    listSeparator: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: TOKENS.divider,
+        marginHorizontal: 18,
     },
     listContent: {
-        paddingTop: 14,
+        paddingTop: 4,
     },
     emptyState: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 56,
+        paddingVertical: 48,
         paddingHorizontal: 32,
     },
     emptyIconContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 24,
-        backgroundColor: TOKENS.primaryTint,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        width: 64,
+        height: 64,
+        borderRadius: 16,
+        backgroundColor: TOKENS.surfaceMuted,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
+        marginBottom: 14,
     },
     emptyTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: TOKENS.primaryDeep,
-        marginBottom: 8,
-        letterSpacing: -0.1,
+        fontSize: 15,
+        fontWeight: '600',
+        color: TOKENS.text,
+        marginBottom: 6,
     },
     emptyHint: {
-        fontSize: 14,
-        lineHeight: 20,
+        fontSize: 13,
+        lineHeight: 18,
         color: TOKENS.textMuted,
         textAlign: 'center',
-        maxWidth: 280,
+        maxWidth: 260,
     },
 });
 

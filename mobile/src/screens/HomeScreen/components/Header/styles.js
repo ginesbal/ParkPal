@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
     header: {
         backgroundColor: TOKENS.surface,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.primaryHairline,
+        borderBottomColor: TOKENS.hairline,
     },
     mainHeader: {
         paddingHorizontal: 20,
@@ -20,10 +20,10 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 14,
         marginBottom: 10,
-        borderRadius: 16,
-        backgroundColor: TOKENS.primaryTint,
+        borderRadius: 14,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
     },
     locationSectionPressed: {
         opacity: 0.6,
@@ -36,16 +36,16 @@ export const styles = StyleSheet.create({
     },
     locationLabel: {
         fontSize: 11,
-        color: TOKENS.primary,
+        color: TOKENS.textMuted,
         letterSpacing: 0.6,
         marginBottom: 2,
-        fontWeight: '600',
+        fontWeight: '500',
         textTransform: 'uppercase',
     },
     locationText: {
         fontSize: 18,
-        fontWeight: '700',
-        color: TOKENS.primaryDeep,
+        fontWeight: '600',
+        color: TOKENS.text,
         letterSpacing: -0.3,
     },
 
@@ -56,10 +56,10 @@ export const styles = StyleSheet.create({
         paddingVertical: 14,
         paddingHorizontal: 16,
         marginBottom: 10,
-        borderRadius: 16,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 14,
+        backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
     },
     quickInfoItem: {
         flexDirection: 'row',
@@ -69,8 +69,8 @@ export const styles = StyleSheet.create({
     },
     quickInfoValue: {
         fontSize: 26,
-        fontWeight: '700',
-        color: TOKENS.primaryAlt,
+        fontWeight: '600',
+        color: TOKENS.text,
         letterSpacing: -0.7,
         fontVariant: ['tabular-nums'],
     },
@@ -114,10 +114,10 @@ export const styles = StyleSheet.create({
         minHeight: 44,
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 14,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
     },
     filterChipActive: {
@@ -129,12 +129,12 @@ export const styles = StyleSheet.create({
     },
     filterChipText: {
         fontSize: 13,
-        fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        fontWeight: '500',
+        color: TOKENS.text,
     },
     filterChipTextActive: {
         color: '#fff',
-        fontWeight: '700',
+        fontWeight: '600',
     },
     distanceRow: {
         flexDirection: 'row',
@@ -159,10 +159,10 @@ export const styles = StyleSheet.create({
         minHeight: 44,
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 14,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
     },
     distanceOptionActive: {
@@ -174,12 +174,12 @@ export const styles = StyleSheet.create({
     },
     distanceOptionText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        fontWeight: '500',
+        color: TOKENS.text,
     },
     distanceOptionTextActive: {
         color: '#fff',
-        fontWeight: '700',
+        fontWeight: '600',
     },
     statusBanner: {
         flexDirection: 'row',

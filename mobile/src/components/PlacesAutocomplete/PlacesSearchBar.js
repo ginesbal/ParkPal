@@ -183,7 +183,7 @@ export default function PlacesSearchBar({
         <MaterialCommunityIcons
           name="magnify"
           size={20}
-          color={isFocused ? TOKENS.primary : TOKENS.primaryAlt}
+          color={isFocused ? TOKENS.primary : TOKENS.textMuted}
         />
 
         <TextInput
@@ -283,22 +283,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 14,
+    borderRadius: 12,
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: TOKENS.primaryHairline,
+    borderColor: TOKENS.hairline,
   },
 
   inputContainerFocused: {
     borderColor: TOKENS.primary,
     backgroundColor: '#fff',
-    shadowColor: TOKENS.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowColor: TOKENS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
 
   input: {
@@ -338,17 +338,17 @@ const styles = StyleSheet.create({
 
   suggestionsContainer: {
     marginTop: 6,
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: TOKENS.surface,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: TOKENS.primaryHairline,
+    borderColor: TOKENS.hairline,
     maxHeight: 280,
-    shadowColor: TOKENS.primaryDeep,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.10,
-    shadowRadius: 18,
-    elevation: 4,
+    shadowColor: TOKENS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
   },
 
   suggestionsList: {
@@ -372,12 +372,10 @@ const styles = StyleSheet.create({
   },
 
   suggestionIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: TOKENS.primaryTint,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: TOKENS.primaryHairline,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: TOKENS.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -389,8 +387,8 @@ const styles = StyleSheet.create({
 
   mainText: {
     fontSize: 15,
-    fontWeight: '700',
-    color: TOKENS.primaryDeep,
+    fontWeight: '600',
+    color: TOKENS.text,
     marginBottom: 3,
     lineHeight: 20,
   },

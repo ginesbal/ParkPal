@@ -21,8 +21,8 @@ export const styles = StyleSheet.create({
     },
     title: {
         fontSize: 22,
-        fontWeight: '700',
-        color: TOKENS.primaryDeep,
+        fontWeight: '600',
+        color: TOKENS.text,
         letterSpacing: -0.3,
     },
     subtitle: {
@@ -31,18 +31,17 @@ export const styles = StyleSheet.create({
         marginTop: 6,
     },
 
-    // Card container — soft corners, tinted background, visible separation
     setupCard: {
         backgroundColor: TOKENS.surface,
-        borderRadius: 22,
+        borderRadius: 18,
         padding: 22,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
-        shadowColor: TOKENS.primaryDeep,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.08,
-        shadowRadius: 16,
-        elevation: 2,
+        borderColor: TOKENS.hairline,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 1,
     },
 
     setupSection: {
@@ -53,9 +52,9 @@ export const styles = StyleSheet.create({
         width: 30,
         height: 30,
         borderRadius: 10,
-        backgroundColor: TOKENS.primaryTint,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 14,
@@ -63,7 +62,7 @@ export const styles = StyleSheet.create({
     },
     stepNumber: {
         fontSize: 13,
-        fontWeight: '700',
+        fontWeight: '600',
         color: TOKENS.primary,
     },
     setupContent: {
@@ -79,14 +78,14 @@ export const styles = StyleSheet.create({
 
     plateInput: {
         minHeight: 50,
-        borderRadius: 14,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 12,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         paddingHorizontal: 16,
         fontSize: 18,
         fontWeight: '600',
-        color: TOKENS.primaryDeep,
+        color: TOKENS.text,
         letterSpacing: 2,
         textAlign: 'center',
         textTransform: 'uppercase',
@@ -102,30 +101,30 @@ export const styles = StyleSheet.create({
     durationOption: {
         width: '48%',
         minHeight: 60,
-        borderRadius: 14,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 12,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 10,
         paddingHorizontal: 10,
     },
     durationOptionActive: {
-        backgroundColor: TOKENS.primaryTint,
+        backgroundColor: TOKENS.primaryWash,
         borderColor: TOKENS.primary,
     },
     durationTime: {
         fontSize: 16,
         fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        color: TOKENS.text,
         marginBottom: 4,
         textAlign: 'center',
         fontVariant: ['tabular-nums'],
     },
     durationTimeActive: {
-        color: TOKENS.primaryDeep,
-        fontWeight: '700',
+        color: TOKENS.primary,
+        fontWeight: '600',
     },
     durationCost: {
         fontSize: 12,
@@ -136,7 +135,7 @@ export const styles = StyleSheet.create({
     },
     durationCostActive: {
         color: TOKENS.primary,
-        fontWeight: '600',
+        fontWeight: '500',
     },
 
     rateOptions: {
@@ -146,10 +145,10 @@ export const styles = StyleSheet.create({
     rateOption: {
         flex: 1,
         minHeight: 44,
-        borderRadius: 14,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -159,24 +158,23 @@ export const styles = StyleSheet.create({
     },
     rateText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        fontWeight: '500',
+        color: TOKENS.text,
         fontVariant: ['tabular-nums'],
     },
     rateTextActive: {
         color: '#fff',
-        fontWeight: '700',
+        fontWeight: '600',
     },
 
-    // Summary → hairline divider rows, no bg
     summaryBox: {
         paddingVertical: 16,
         paddingHorizontal: 16,
         marginBottom: 16,
-        borderRadius: 14,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 12,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
     },
     summaryRow: {
         flexDirection: 'row',
@@ -190,35 +188,35 @@ export const styles = StyleSheet.create({
     },
     summaryValue: {
         fontSize: 16,
-        fontWeight: '700',
-        color: TOKENS.primaryDeep,
+        fontWeight: '600',
+        color: TOKENS.text,
         fontVariant: ['tabular-nums'],
     },
     summaryValueLarge: {
         fontSize: 20,
-        fontWeight: '700',
+        fontWeight: '600',
         color: TOKENS.primary,
         fontVariant: ['tabular-nums'],
     },
     summaryDivider: {
         height: StyleSheet.hairlineWidth,
-        backgroundColor: TOKENS.primaryHairline,
+        backgroundColor: TOKENS.divider,
         marginVertical: 10,
     },
 
     primaryButton: {
         minHeight: 54,
-        borderRadius: 16,
+        borderRadius: 14,
         backgroundColor: TOKENS.primary,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        shadowColor: TOKENS.primaryDeep,
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.28,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
         shadowRadius: 10,
-        elevation: 4,
+        elevation: 2,
     },
     primaryButtonDisabled: {
         backgroundColor: alpha(TOKENS.textMuted, 0.2),
@@ -226,7 +224,7 @@ export const styles = StyleSheet.create({
     },
     primaryButtonText: {
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#fff',
     },
 });

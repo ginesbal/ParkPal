@@ -101,7 +101,7 @@ function AppNavigation() {
                     tabBarStyle: {
                         backgroundColor: TOKENS.surface,
                         borderTopWidth: StyleSheet.hairlineWidth,
-                        borderTopColor: TOKENS.primaryHairline,
+                        borderTopColor: TOKENS.hairline,
                         height: tabBarHeight,
                         paddingTop: 10,
                         paddingBottom: tabBarBottomPadding,
@@ -171,6 +171,6 @@ const navStyles = StyleSheet.create({
         fontWeight: '600',
     },
     labelActive: {
-        fontWeight: '700',
+        fontWeight: '600',
     },
 });

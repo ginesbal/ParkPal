@@ -46,6 +46,7 @@ function FlippableParkingCard({
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     const pagesScrollRef = useRef(null);
+    const detailScrollRefs = useRef([]);
     const pageWidth = CONTENT_WIDTH;
 
     const scrollToPage = (i) => {
@@ -112,6 +113,14 @@ function FlippableParkingCard({
         const toValue = isFlipped ? 0 : 1;
 
         if (!isFlipped) {
+            // Opening details — reset horizontal pager and all vertical scrolls
+            pagesScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
+            setCurrentPage(0);
+        } else {
+            // Collapsing back to front — reset all detail scroll positions
+            detailScrollRefs.current.forEach(ref => {
+                ref?.scrollTo?.({ x: 0, y: 0, animated: false });
+            });
             pagesScrollRef.current?.scrollTo({ x: 0, y: 0, animated: false });
             setCurrentPage(0);
         }
@@ -391,6 +400,7 @@ function FlippableParkingCard({
                         {detailsPages.map((page, pageIndex) => (
                             <View key={pageIndex} style={[styles.detailPage, { width: CONTENT_WIDTH }]}>
                                 <ScrollView
+                                    ref={el => { detailScrollRefs.current[pageIndex] = el; }}
                                     style={styles.detailsListLarge}
                                     showsVerticalScrollIndicator={false}
                                     contentContainerStyle={styles.detailsContent}

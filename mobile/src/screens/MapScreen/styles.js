@@ -25,18 +25,18 @@ export const styles = StyleSheet.create({
     },
 
     headerBar: {
-        backgroundColor: TOKENS.primaryGlass,
-        borderRadius: 18,
+        backgroundColor: TOKENS.surfaceOverlay,
+        borderRadius: 16,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         paddingHorizontal: 12,
         paddingVertical: 10,
         gap: 8,
-        shadowColor: TOKENS.primaryDeep,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.10,
-        shadowRadius: 18,
-        elevation: 4,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
 
     searchInputRow: {
@@ -57,10 +57,10 @@ export const styles = StyleSheet.create({
     quickAction: {
         width: 44,
         height: 44,
-        borderRadius: 14,
+        borderRadius: 12,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -87,12 +87,12 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        borderColor: TOKENS.primaryGlass,
+        borderColor: TOKENS.surface,
     },
 
     filterBadgeText: {
         fontSize: 10,
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#fff',
         letterSpacing: -0.2,
     },
@@ -106,16 +106,16 @@ export const styles = StyleSheet.create({
         paddingTop: 8,
         marginTop: 2,
         borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: TOKENS.primaryHairline,
+        borderTopColor: TOKENS.hairline,
     },
 
     miniChip: {
         paddingHorizontal: 12,
         paddingVertical: 7,
-        borderRadius: 12,
+        borderRadius: 10,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
     },
 
     miniChipActive: {
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
     miniChipText: {
         fontSize: 12,
         fontWeight: '500',
-        color: TOKENS.primaryAlt,
+        color: TOKENS.text,
     },
 
     miniChipTextActive: {
@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
         width: 3,
         height: 3,
         borderRadius: 2,
-        backgroundColor: TOKENS.primaryBorder,
+        backgroundColor: TOKENS.hairline,
     },
 
     filterChipPressed: {
@@ -262,7 +262,7 @@ export const styles = StyleSheet.create({
         borderRadius: 24,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 8,
@@ -270,12 +270,12 @@ export const styles = StyleSheet.create({
 
     fabPrimary: {
         backgroundColor: TOKENS.primary,
-        borderColor: TOKENS.primaryAlt,
-        shadowColor: TOKENS.primaryDeep,
+        borderColor: TOKENS.primary,
+        shadowColor: TOKENS.shadow,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.22,
+        shadowOpacity: 0.04,
         shadowRadius: 10,
-        elevation: 4,
+        elevation: 3,
     },
 
     fabPressed: {
@@ -344,13 +344,13 @@ export const styles = StyleSheet.create({
         paddingVertical: 5,
         gap: 4,
         borderRadius: 999,
-        backgroundColor: TOKENS.primaryTint,
+        backgroundColor: TOKENS.surfaceMuted,
     },
 
     modeBadgeText: {
         fontSize: 12,
         fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        color: TOKENS.textMuted,
     },
 
     // ===== Map/List toggle =====
@@ -371,10 +371,10 @@ export const styles = StyleSheet.create({
         gap: 6,
         paddingHorizontal: 14,
         paddingVertical: 8,
-        borderRadius: 12,
-        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        borderColor: TOKENS.hairline,
     },
 
     topToggleActive: {
@@ -388,13 +388,13 @@ export const styles = StyleSheet.create({
 
     topToggleText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        fontWeight: '500',
+        color: TOKENS.text,
     },
 
     topToggleTextActive: {
         color: '#fff',
-        fontWeight: '700',
+        fontWeight: '600',
     },
 
     sheetContent: {
