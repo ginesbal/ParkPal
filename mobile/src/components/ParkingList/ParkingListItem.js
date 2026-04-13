@@ -88,7 +88,7 @@ export default function ParkingListItem({
     };
 
     return (
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Animated.View style={[styles.rowWrapper, { transform: [{ scale: scaleAnim }] }]}>
             <Pressable
                 onPress={handleRowPress}
                 onPressIn={handlePressIn}
@@ -160,51 +160,69 @@ export default function ParkingListItem({
 }
 
 const styles = StyleSheet.create({
+    // Outer wrapper adds spacing between each row-card
+    rowWrapper: {
+        marginHorizontal: 14,
+        marginBottom: 10,
+    },
+
+    // Each spot is a self-contained tinted card with soft corners
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        minHeight: 72,
-        paddingHorizontal: SPACING.xl,
-        paddingVertical: SPACING.md,
-        gap: SPACING.lg,
-        backgroundColor: TOKENS.surface,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.hairline,
+        minHeight: 78,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        gap: 14,
+        backgroundColor: TOKENS.surfaceTint,
+        borderRadius: 16,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.primaryHairline,
+        shadowColor: TOKENS.primaryDeep,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 1,
     },
     rowSelected: {
-        backgroundColor: TOKENS.primarySoft,
+        backgroundColor: TOKENS.primaryTint,
+        borderColor: TOKENS.primaryBorder,
+        shadowOpacity: 0.10,
     },
 
+    // Walk-time slab — strong cerulean presence as the anchor
     walkBlock: {
         alignItems: 'center',
         justifyContent: 'center',
-        minWidth: 52,
-        paddingVertical: 6,
-        paddingHorizontal: 4,
-        borderRadius: 10,
-        backgroundColor: TOKENS.primaryTint,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primaryHairline,
+        width: 56,
+        paddingVertical: 8,
+        borderRadius: 14,
+        backgroundColor: TOKENS.primary,
     },
     walkValue: {
         ...TYPOGRAPHY.numMedium,
         fontSize: 22,
         lineHeight: 24,
-        color: TOKENS.primaryAlt,
+        color: '#fff',
+        fontWeight: '700',
     },
     walkUnit: {
         ...TYPOGRAPHY.caption,
-        color: TOKENS.primary,
+        color: 'rgba(255,255,255,0.7)',
         marginTop: 1,
+        fontSize: 10,
     },
 
+    // Middle content
     content: {
         flex: 1,
-        gap: 4,
+        gap: 5,
     },
     address: {
         ...TYPOGRAPHY.subheading,
         fontSize: 15,
+        fontWeight: '700',
+        color: TOKENS.primaryDeep,
     },
     metaRow: {
         flexDirection: 'row',
@@ -216,11 +234,13 @@ const styles = StyleSheet.create({
         ...TYPOGRAPHY.body,
         fontSize: 13,
         color: TOKENS.textMuted,
+        fontWeight: '500',
     },
     metaTextWarning: {
         ...TYPOGRAPHY.body,
         fontSize: 13,
         color: TOKENS.warning,
+        fontWeight: '600',
     },
     metaDivider: {
         ...TYPOGRAPHY.body,
@@ -231,12 +251,12 @@ const styles = StyleSheet.create({
     typeGroup: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 5,
     },
     typeDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
+        width: 7,
+        height: 7,
+        borderRadius: 4,
     },
     typeDotPrimary: {
         backgroundColor: TOKENS.primary,
@@ -248,24 +268,34 @@ const styles = StyleSheet.create({
         backgroundColor: TOKENS.warning,
     },
 
+    // Price block — tinted chip on the right
     priceBlock: {
-        alignItems: 'flex-end',
+        alignItems: 'center',
         justifyContent: 'center',
-        minWidth: 64,
+        minWidth: 70,
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+        backgroundColor: TOKENS.surface,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.primaryHairline,
     },
     priceValue: {
         ...TYPOGRAPHY.numMedium,
         fontSize: 16,
         lineHeight: 20,
         color: TOKENS.primaryAlt,
+        fontWeight: '700',
     },
     priceUnit: {
-        fontSize: 12,
-        fontWeight: '400',
+        fontSize: 11,
+        fontWeight: '500',
         color: TOKENS.textMuted,
     },
     freeLabel: {
-        ...TYPOGRAPHY.caption,
+        fontSize: 13,
+        fontWeight: '700',
+        letterSpacing: 0.4,
         color: TOKENS.success,
     },
     priceNote: {

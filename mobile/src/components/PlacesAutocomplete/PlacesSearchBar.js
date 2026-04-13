@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 14,
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
@@ -295,10 +295,10 @@ const styles = StyleSheet.create({
     borderColor: TOKENS.primary,
     backgroundColor: '#fff',
     shadowColor: TOKENS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.14,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 3,
   },
 
   input: {
@@ -338,17 +338,17 @@ const styles = StyleSheet.create({
 
   suggestionsContainer: {
     marginTop: 6,
-    borderRadius: 10,
+    borderRadius: 16,
     backgroundColor: TOKENS.surface,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.primaryHairline,
     maxHeight: 280,
     shadowColor: TOKENS.primaryDeep,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.10,
+    shadowRadius: 18,
+    elevation: 4,
   },
 
   suggestionsList: {
@@ -372,10 +372,12 @@ const styles = StyleSheet.create({
   },
 
   suggestionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: alpha(TOKENS.primary, 0.08),
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: TOKENS.primaryTint,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.primaryHairline,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -387,8 +389,8 @@ const styles = StyleSheet.create({
 
   mainText: {
     fontSize: 15,
-    fontWeight: '600',
-    color: TOKENS.text,
+    fontWeight: '700',
+    color: TOKENS.primaryDeep,
     marginBottom: 3,
     lineHeight: 20,
   },

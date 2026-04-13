@@ -116,13 +116,15 @@ export const SPACING = {
     '3xl': 32,
 };
 
-// Radii collapsed to 2 real values (sm 6, md 10). Legacy names map to 10 so call
-// sites keep compiling; Phase 5 replaces the legacy references explicitly.
+// Radii — softer corners across the board. The redesign calls for a friendlier
+// shape language on cards, rows, and panels. sm/md stay for small chips & tags;
+// lg/xl/2xl are for rows, panels, and the hero card respectively.
 export const RADIUS = {
     sm: 6,
     md: 10,
-    lg: 10,
-    xl: 10,
+    lg: 14,
+    xl: 18,
+    '2xl': 22,
     pill: 9999,
     full: 9999,
 };
