@@ -227,7 +227,7 @@ const ParkingBottomSheet = forwardRef(({
                         ]}>
                             <MaterialCommunityIcons
                                 name={searchMode === 'pinned' ? 'map-marker' : 'crosshairs-gps'}
-                                size={16}
+                                size={14}
                                 color="#fff"
                             />
                         </View>
@@ -240,8 +240,8 @@ const ParkingBottomSheet = forwardRef(({
                                 {selectedSpot?.address
                                     ? `Selected: ${selectedSpot.address}`
                                     : searchMode === 'pinned'
-                                        ? 'Searching around your pinned location'
-                                        : 'Searching near your current location'}
+                                        ? 'Around your pinned location'
+                                        : 'Near your current location'}
                             </Text>
                         </View>
                     </View>
@@ -275,15 +275,15 @@ const ParkingBottomSheet = forwardRef(({
                     <View style={styles.emptyIconContainer}>
                         <MaterialCommunityIcons
                             name={searchMode === 'pinned' ? 'map-marker-remove' : 'parking'}
-                            size={40}
+                            size={28}
                             color={TOKENS.textFaint}
                         />
                     </View>
-                    <Text style={styles.emptyTitle}>Nothing here yet</Text>
+                    <Text style={styles.emptyTitle}>No spots in this area</Text>
                     <Text style={styles.emptyHint}>
                         {searchMode === 'pinned'
-                            ? 'Move your pin or widen the radius to find spots'
-                            : 'Pan or zoom the map to search a different area'}
+                            ? 'Move your pin or widen the radius'
+                            : 'Pan or zoom the map to search elsewhere'}
                     </Text>
                 </View>
             ) : (
@@ -347,19 +347,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 18,
+        paddingHorizontal: 20,
         gap: 12,
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
-        gap: 12,
+        gap: 10,
     },
+    // Calmer indicator — smaller, less dominant. Color carries the meaning, size doesn't need to.
     searchModeIndicator: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
+        width: 28,
+        height: 28,
+        borderRadius: 8,
         backgroundColor: TOKENS.primary,
         alignItems: 'center',
         justifyContent: 'center',
@@ -368,7 +369,7 @@ const styles = StyleSheet.create({
         backgroundColor: TOKENS.primaryAlt,
     },
     headerInfo: {
-        gap: 3,
+        gap: 4,
         flex: 1,
     },
     clearButton: {
@@ -400,15 +401,15 @@ const styles = StyleSheet.create({
         letterSpacing: -0.2,
     },
     headerSubtitle: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '400',
         color: TOKENS.textMuted,
-        lineHeight: 16,
+        lineHeight: 18,
     },
     listSeparator: {
         height: StyleSheet.hairlineWidth,
         backgroundColor: TOKENS.divider,
-        marginHorizontal: 18,
+        marginHorizontal: 20,
     },
     listContent: {
         paddingTop: 4,
@@ -420,9 +421,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 32,
     },
     emptyIconContainer: {
-        width: 64,
-        height: 64,
-        borderRadius: 16,
+        width: 48,
+        height: 48,
+        borderRadius: 12,
         backgroundColor: TOKENS.surfaceMuted,
         alignItems: 'center',
         justifyContent: 'center',

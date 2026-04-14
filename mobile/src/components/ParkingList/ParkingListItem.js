@@ -8,7 +8,7 @@ import {
     Text,
     View,
 } from 'react-native';
-import { SPACING, TOKENS, TYPOGRAPHY, alpha } from '../../constants/theme';
+import { TOKENS, TYPOGRAPHY, alpha } from '../../constants/theme';
 import { logger } from '../../utils/loggers';
 
 const TYPE_LABELS = {
@@ -41,7 +41,6 @@ export default function ParkingListItem({
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const typeLabel = TYPE_LABELS[spot.spot_type] || 'Street';
-    const isPrimaryType = spot.spot_type === 'on_street';
     const displayPrice = formatPrice(price);
     const isFree = displayPrice === 'FREE';
     const isCheckSigns = displayPrice === 'Check signs';
@@ -79,6 +78,10 @@ export default function ParkingListItem({
 
     return (
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            {/* Selected stripe — a 3px primary ink rail on the leading edge.
+                Emil: "Color is a signal. Make it earn its place." Selection needs
+                to register at a glance without tinting the whole row. */}
+            {isSelected && <View style={styles.selectedStripe} pointerEvents="none" />}
             <Pressable
                 onPress={handleRowPress}
                 onPressIn={handlePressIn}
@@ -102,18 +105,9 @@ export default function ParkingListItem({
                     </Text>
 
                     <View style={styles.metaRow}>
-                        <View style={styles.typeGroup}>
-                            <View
-                                style={[
-                                    styles.typeDot,
-                                    isPrimaryType ? styles.typeDotPrimary : styles.typeDotMuted,
-                                ]}
-                            />
-                            <Text style={styles.metaText}>{typeLabel}</Text>
-                        </View>
-
+                        <Text style={styles.metaText}>{typeLabel}</Text>
                         <Text style={styles.metaDivider}>·</Text>
-                        <Text style={styles.metaText}>{spot.distance}m</Text>
+                        <Text style={styles.metaTextNum}>{spot.distance}m</Text>
 
                         {lowCapacity && (
                             <>
@@ -153,16 +147,27 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        minHeight: 72,
+        minHeight: 64,
         paddingHorizontal: 20,
-        paddingVertical: 14,
+        paddingVertical: 12,
         gap: 14,
         backgroundColor: TOKENS.surface,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: TOKENS.divider,
     },
+    // Selection bg tint bumped 0.05 → 0.08 so it reads at a glance without shouting.
     rowSelected: {
-        backgroundColor: alpha(TOKENS.primary, 0.05),
+        backgroundColor: alpha(TOKENS.primary, 0.08),
+    },
+    // 3px primary rail on the leading edge — the real selection signal.
+    selectedStripe: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 3,
+        backgroundColor: TOKENS.primary,
+        zIndex: 1,
     },
 
     walkBlock: {
@@ -170,10 +175,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: 44,
     },
+    // Equalized with priceValue at 18px so neither side dominates.
     walkValue: {
         ...TYPOGRAPHY.numMedium,
-        fontSize: 20,
-        lineHeight: 22,
+        fontSize: 18,
+        lineHeight: 20,
         color: TOKENS.text,
     },
     walkUnit: {
@@ -204,6 +210,13 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         color: TOKENS.textMuted,
     },
+    // Distance needs tabular alignment so values don't jitter as users scroll.
+    metaTextNum: {
+        fontSize: 13,
+        fontWeight: '400',
+        color: TOKENS.textMuted,
+        fontVariant: ['tabular-nums'],
+    },
     metaTextWarning: {
         fontSize: 13,
         fontWeight: '500',
@@ -214,6 +227,7 @@ const styles = StyleSheet.create({
         color: TOKENS.textFaint,
     },
 
+    // Kept for the warning dot only — decorative type dots were removed.
     typeGroup: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -223,12 +237,6 @@ const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
-    },
-    typeDotPrimary: {
-        backgroundColor: TOKENS.primary,
-    },
-    typeDotMuted: {
-        backgroundColor: TOKENS.textFaint,
     },
     typeDotWarning: {
         backgroundColor: TOKENS.warning,
@@ -240,9 +248,10 @@ const styles = StyleSheet.create({
         minWidth: 60,
     },
     priceValue: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: '600',
         color: TOKENS.text,
+        letterSpacing: -0.2,
         fontVariant: ['tabular-nums'],
     },
     priceUnit: {
