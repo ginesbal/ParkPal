@@ -273,7 +273,8 @@ const ParkingBottomSheet = forwardRef(({
                             <MaterialCommunityIcons
                                 name="close-circle"
                                 size={14}
-                                color={TOKENS.textMuted}
+                                color={TOKENS.primary}
+                                shadowColor={TOKENS.primary}
                             />
                             <Text style={styles.clearButtonText}>Clear pin</Text>
                         </Pressable>
@@ -398,7 +399,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
+        borderColor: TOKENS.primaryBorder,
     },
     // Scale-based press feedback instead of opacity-only.
     // Emil: "Buttons must feel responsive. Add scale(0.97) on active."
@@ -413,12 +414,12 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: 'bold',
         color: TOKENS.text,
         letterSpacing: -0.2,
     },
     headerSubtitle: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: '400',
         color: TOKENS.textMuted,
         lineHeight: 18,
