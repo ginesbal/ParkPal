@@ -22,6 +22,11 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingBottom: 8,
         zIndex: 1000,
+        // Android: without elevation, taps on the header (search + quick
+        // actions) can fall through to the underlying MapView SurfaceView.
+        // Must be >= any child's elevation so the whole header is a single
+        // touch target from Android's compositor perspective.
+        elevation: 10,
     },
 
     headerBar: {

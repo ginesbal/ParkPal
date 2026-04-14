@@ -289,6 +289,11 @@ const styles = StyleSheet.create({
     gap: 10,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
+    // Android: react-native-maps draws via a SurfaceView. RN overlays above
+    // the map need a positive `elevation` or touch events fail to route
+    // through — the input can visually focus but keystrokes never land.
+    // Keep the shadow muted on iOS so the visual stays minimal.
+    elevation: 3,
   },
 
   inputContainerFocused: {
@@ -298,7 +303,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
-    elevation: 2,
+    // Bumped above the base elevation (3) so focus state still layers higher.
+    elevation: 4,
   },
 
   input: {
