@@ -5,6 +5,7 @@ import * as Location from 'expo-location';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Animated,
+    Keyboard,
     Linking,
     Pressable,
     StatusBar,
@@ -66,7 +67,6 @@ function MapScreen() {
     const [searchRadius, setSearchRadius] = useState(150);
     const [selectedSpot, setSelectedSpot] = useState(null);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
-    const [shouldDismissSearch, setShouldDismissSearch] = useState(false);
 
     // pin state
     const [pinnedLocation, setPinnedLocation] = useState(null);
@@ -288,10 +288,56 @@ function MapScreen() {
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-            {/* header */}
+            {/* map — rendered FIRST so iOS hitTest routes taps on later siblings
+                (header, FAB, bottom sheet) to those overlays instead of leaking
+                through to the map's onPress. */}
+            <MapView
+                ref={mapRef}
+                style={styles.map}
+                provider={PROVIDER_GOOGLE}
+                initialRegion={region}
+                onRegionChangeComplete={setRegion}
+                onPanDrag={() => {
+                    handleMapInteraction();
+                    setFlippableCardVisible(false);
+                }}
+                onPress={() => {
+                    // Dismiss the keyboard directly — no state round-trip,
+                    // no race with the search input's focus lifecycle.
+                    if (isSearchFocused) Keyboard.dismiss();
+                    setSelectedSpot(null);
+                    setFlippableCardVisible(false);
+                }}
+                onLongPress={handleMapLongPress}
+                showsUserLocation
+                showsMyLocationButton={false}
+                showsCompass={false}
+                paddingAdjustmentBehavior="always"
+                mapPadding={{
+                    left: 0,
+                    right: 0,
+                    top: navigationHeight,
+                    bottom: BOTTOM_UI_OFFSET,
+                }}
+            >
+                <MapOverlays
+                    searchCenter={searchCenter}
+                    searchRadius={searchRadius}
+                    searchMode={searchMode}
+                    pinnedLocation={pinnedLocation}
+                    pinDropAnim={pinDropAnim}
+                    spots={spots}
+                    selectedSpot={selectedSpot}
+                    selScale={selScale}
+                    selTranslateY={selTranslateY}
+                    onSelectSpot={selectSpot}
+                />
+            </MapView>
+
+            {/* header — rendered AFTER the map so it sits on top for both
+                painting and iOS touch routing. */}
             <View style={dynamicStyles.topNavigation} onLayout={handleNavigationLayout}>
                 <MapHeader
-                    shouldDismissSearch={shouldDismissSearch}
                     isSearchFocused={isSearchFocused}
                     isDetailActive={flippableCardVisible}
                     setIsSearchFocused={setIsSearchFocused}
@@ -336,52 +382,6 @@ function MapScreen() {
                     </Text>
                 </Animated.View>
             )}
-
-            {/* map — full screen, header floats over it */}
-            <MapView
-                ref={mapRef}
-                style={styles.map}
-                provider={PROVIDER_GOOGLE}
-                initialRegion={region}
-                onRegionChangeComplete={setRegion}
-                onPanDrag={() => {
-                    handleMapInteraction();
-                    setFlippableCardVisible(false);
-                }}
-                onPress={() => {
-                    if (isSearchFocused) {
-                        setShouldDismissSearch(true);
-                        setTimeout(() => setShouldDismissSearch(false), 100);
-                    }
-
-                    setSelectedSpot(null);
-                    setFlippableCardVisible(false);
-                }}
-                onLongPress={handleMapLongPress}
-                showsUserLocation
-                showsMyLocationButton={false}
-                showsCompass={false}
-                paddingAdjustmentBehavior="always"
-                mapPadding={{
-                    left: 0,
-                    right: 0,
-                    top: navigationHeight,
-                    bottom: BOTTOM_UI_OFFSET,
-                }}
-            >
-                <MapOverlays
-                    searchCenter={searchCenter}
-                    searchRadius={searchRadius}
-                    searchMode={searchMode}
-                    pinnedLocation={pinnedLocation}
-                    pinDropAnim={pinDropAnim}
-                    spots={spots}
-                    selectedSpot={selectedSpot}
-                    selScale={selScale}
-                    selTranslateY={selTranslateY}
-                    onSelectSpot={selectSpot}
-                />
-            </MapView>
 
             {/* floating recenter button */}
             <Animated.View

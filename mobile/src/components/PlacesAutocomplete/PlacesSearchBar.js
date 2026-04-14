@@ -86,7 +86,6 @@ function SearchLoadingDots() {
 export default function PlacesSearchBar({
   onPlaceSelected = () => { },
   onFocusChange = () => { },
-  shouldDismiss = false,
   fetcher = __DEV__ ? devDirectFetcher : productionFetcher,
   components = 'country:ca',
   placeholder = 'Search address or place',
@@ -112,15 +111,6 @@ export default function PlacesSearchBar({
     minChars,
     debounceMs
   });
-
-  useEffect(() => {
-    if (shouldDismiss && isFocused) {
-      inputRef.current?.blur();
-      setIsFocused(false);
-      setShowSuggestions(false);
-      onFocusChange(false);
-    }
-  }, [shouldDismiss, isFocused, onFocusChange]);
 
   // handles place selection: gets details, extracts coordinates, notifies parent
   const handleSelect = async (item) => {
@@ -154,13 +144,12 @@ export default function PlacesSearchBar({
   };
 
   const handleBlur = () => {
-    setTimeout(() => {
-      setIsFocused(false);
-      if (!input) {
-        setShowSuggestions(false);
-      }
-      onFocusChange(false);
-    }, 200);
+    // Fire immediately. Suggestion taps work because the FlatList uses
+    // keyboardShouldPersistTaps="handled", so the tap is delivered to the
+    // suggestion row before the TextInput blurs.
+    setIsFocused(false);
+    if (!input) setShowSuggestions(false);
+    onFocusChange(false);
   };
 
   const handleChangeText = (text) => {
