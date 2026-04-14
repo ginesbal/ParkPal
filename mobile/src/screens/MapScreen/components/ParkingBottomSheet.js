@@ -10,6 +10,11 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const SHEET_BOTTOM_OFFSET = 10;
 const SHEET_EXPANDED_TOP_GAP = 18;
 
+// Inset row separator — aligns under the address text, not the walk-time anchor.
+// The walk block (44) + row padding (20) + gap (10) = 74. Letting the walk column
+// "run free" vertically makes it read as the anchor for each row.
+const RowSeparator = () => <View style={styles.rowSeparator} />;
+
 // Momentum threshold — a quick flick should snap regardless of drag distance.
 // Emil: "Don't require dragging past a threshold. If velocity exceeds ~0.11, dismiss."
 const VELOCITY_THRESHOLD = 0.11;
@@ -292,6 +297,7 @@ const ParkingBottomSheet = forwardRef(({
                     data={spots}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={renderItem}
+                    ItemSeparatorComponent={RowSeparator}
                     contentContainerStyle={[
                         styles.listContent,
                         { paddingBottom: insets.bottom + tabBarHeight + 16 },
@@ -413,6 +419,13 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingTop: 4,
+    },
+    // Inset so the line begins where the address text begins —
+    // padding(20) + walkBlock(44) + gap(10) = 74.
+    rowSeparator: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: TOKENS.divider,
+        marginLeft: 74,
     },
     emptyState: {
         alignItems: 'center',

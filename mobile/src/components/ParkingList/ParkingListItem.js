@@ -98,6 +98,10 @@ export default function ParkingListItem({
                     <Text style={styles.walkUnit}>min</Text>
                 </View>
 
+                {/* Quiet vertical rule — just enough to say "these are related but distinct".
+                    Emil: "Elements should only take the space they need." 28px tall, not full row. */}
+                <View style={styles.sectionDivider} />
+
                 {/* Primary content */}
                 <View style={styles.content}>
                     <Text style={styles.address} numberOfLines={1}>
@@ -122,6 +126,8 @@ export default function ParkingListItem({
                         )}
                     </View>
                 </View>
+
+                <View style={styles.sectionDivider} />
 
                 {/* Price */}
                 <View style={styles.priceBlock}>
@@ -150,10 +156,9 @@ const styles = StyleSheet.create({
         minHeight: 64,
         paddingHorizontal: 20,
         paddingVertical: 12,
-        gap: 14,
+        // Tighter gap since the vertical rules now carry some of the separation.
+        gap: 10,
         backgroundColor: TOKENS.surface,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.divider,
     },
     // Selection bg tint bumped 0.05 → 0.08 so it reads at a glance without shouting.
     rowSelected: {
@@ -168,6 +173,14 @@ const styles = StyleSheet.create({
         width: 3,
         backgroundColor: TOKENS.primary,
         zIndex: 1,
+    },
+    // Vertical hairline between info regions. Not full row height —
+    // never touches the horizontal separators above/below.
+    sectionDivider: {
+        width: StyleSheet.hairlineWidth,
+        height: 28,
+        backgroundColor: TOKENS.divider,
+        alignSelf: 'center',
     },
 
     walkBlock: {
