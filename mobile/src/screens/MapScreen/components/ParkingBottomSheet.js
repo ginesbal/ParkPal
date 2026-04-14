@@ -36,7 +36,11 @@ const ParkingBottomSheet = forwardRef(({
 }, ref) => {
     const insets = useSafeAreaInsets();
     const listRef = useRef(null);
-    const [headerHeight, setHeaderHeight] = useState(92);
+    // Start conservatively low — onLayout will set the real height on first
+    // paint. Undershooting is safer than overshooting: a slightly-too-short
+    // peek is corrected upward once measured; a too-tall peek would leak the
+    // list through before correction.
+    const [headerHeight, setHeaderHeight] = useState(72);
     const previousPeekY = useRef(null);
     const isDragging = useRef(false);
 
@@ -89,7 +93,11 @@ const ParkingBottomSheet = forwardRef(({
     }));
 
     const handleHeaderLayout = useCallback((event) => {
-        const measuredHeight = Math.max(96, Math.ceil(event.nativeEvent.layout.height));
+        // Use the header's true measured height — no artificial floor.
+        // A floor larger than the real header would expose the listSeparator
+        // and first list row through the collapsed peek.
+        const measuredHeight = Math.ceil(event.nativeEvent.layout.height);
+        if (measuredHeight <= 0) return;
         setHeaderHeight((currentHeight) => (
             Math.abs(currentHeight - measuredHeight) > 1 ? measuredHeight : currentHeight
         ));
@@ -273,8 +281,6 @@ const ParkingBottomSheet = forwardRef(({
                 </View>
             </View>
 
-            <View style={styles.listSeparator} />
-
             {spots.length === 0 ? (
                 <View style={styles.emptyState}>
                     <View style={styles.emptyIconContainer}>
@@ -340,6 +346,11 @@ const styles = StyleSheet.create({
         paddingTop: 12,
         paddingBottom: 14,
         backgroundColor: TOKENS.surface,
+        // Closing hairline below the header. Living on the header (not as a
+        // separate sibling) means it's part of the measured peek height, so
+        // the list never peeks through when collapsed.
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: TOKENS.divider,
     },
     handle: {
         alignSelf: 'center',
@@ -411,11 +422,6 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         color: TOKENS.textMuted,
         lineHeight: 18,
-    },
-    listSeparator: {
-        height: StyleSheet.hairlineWidth,
-        backgroundColor: TOKENS.divider,
-        marginHorizontal: 20,
     },
     listContent: {
         paddingTop: 4,
