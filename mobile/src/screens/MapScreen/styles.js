@@ -22,16 +22,26 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingBottom: 8,
         zIndex: 1000,
+        // Android: without elevation, taps on the header (search + quick
+        // actions) can fall through to the underlying MapView SurfaceView.
+        // Must be >= any child's elevation so the whole header is a single
+        // touch target from Android's compositor perspective.
+        elevation: 10,
     },
 
     headerBar: {
         backgroundColor: TOKENS.surfaceOverlay,
-        borderRadius: 10,
+        borderRadius: 16,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
         gap: 8,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
 
     searchInputRow: {
@@ -52,7 +62,7 @@ export const styles = StyleSheet.create({
     quickAction: {
         width: 44,
         height: 44,
-        borderRadius: 10,
+        borderRadius: 12,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
@@ -61,6 +71,7 @@ export const styles = StyleSheet.create({
     },
 
     quickActionActive: {
+        backgroundColor: TOKENS.primary,
         borderColor: TOKENS.primary,
     },
 
@@ -71,20 +82,24 @@ export const styles = StyleSheet.create({
     // Small count badge on the filter button
     filterBadge: {
         position: 'absolute',
-        top: 4,
-        right: 4,
-        width: 14,
-        height: 14,
-        borderRadius: 7,
+        top: 2,
+        right: 2,
+        minWidth: 16,
+        height: 16,
+        paddingHorizontal: 4,
+        borderRadius: 8,
         backgroundColor: TOKENS.primary,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1.5,
+        borderColor: TOKENS.surface,
     },
 
     filterBadgeText: {
-        fontSize: 9,
+        fontSize: 10,
         fontWeight: '600',
         color: '#fff',
+        letterSpacing: -0.2,
     },
 
     // Inline filter chips row (expandable)
@@ -93,31 +108,34 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         flexWrap: 'wrap',
-        paddingTop: 4,
+        paddingTop: 8,
+        marginTop: 2,
         borderTopWidth: StyleSheet.hairlineWidth,
         borderTopColor: TOKENS.hairline,
     },
 
     miniChip: {
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
     },
 
     miniChipActive: {
+        backgroundColor: TOKENS.primary,
         borderColor: TOKENS.primary,
     },
 
     miniChipText: {
         fontSize: 12,
         fontWeight: '500',
-        color: TOKENS.textMuted,
+        color: TOKENS.text,
     },
 
     miniChipTextActive: {
-        color: TOKENS.primary,
+        color: '#fff',
         fontWeight: '600',
     },
 
@@ -244,9 +262,9 @@ export const styles = StyleSheet.create({
     },
 
     fab: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
@@ -257,6 +275,12 @@ export const styles = StyleSheet.create({
 
     fabPrimary: {
         backgroundColor: TOKENS.primary,
+        borderColor: TOKENS.primary,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
+        elevation: 3,
     },
 
     fabPressed: {
@@ -324,12 +348,14 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 5,
         gap: 4,
+        borderRadius: 999,
+        backgroundColor: TOKENS.surfaceMuted,
     },
 
     modeBadgeText: {
         fontSize: 12,
-        fontWeight: '500',
-        color: TOKENS.primary,
+        fontWeight: '600',
+        color: TOKENS.textMuted,
     },
 
     // ===== Map/List toggle =====
@@ -348,15 +374,16 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        paddingHorizontal: 12,
+        paddingHorizontal: 14,
         paddingVertical: 8,
-        borderRadius: 6,
-        backgroundColor: 'transparent',
+        borderRadius: 10,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
     },
 
     topToggleActive: {
+        backgroundColor: TOKENS.primary,
         borderColor: TOKENS.primary,
     },
 
@@ -367,11 +394,11 @@ export const styles = StyleSheet.create({
     topToggleText: {
         fontSize: 12,
         fontWeight: '500',
-        color: TOKENS.textMuted,
+        color: TOKENS.text,
     },
 
     topToggleTextActive: {
-        color: TOKENS.primary,
+        color: '#fff',
         fontWeight: '600',
     },
 

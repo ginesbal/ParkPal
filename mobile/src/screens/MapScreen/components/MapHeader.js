@@ -84,8 +84,8 @@ function MapHeader({
                         >
                             <MaterialCommunityIcons
                                 name="tune-vertical"
-                                size={18}
-                                color={filtersExpanded ? TOKENS.primary : TOKENS.text}
+                                size={20}
+                                color={filtersExpanded ? '#fff' : TOKENS.primaryAlt}
                             />
                             {activeFilterCount > 0 && !filtersExpanded && (
                                 <View style={styles.filterBadge}>
@@ -108,8 +108,8 @@ function MapHeader({
                             >
                                 <MaterialCommunityIcons
                                     name="map-marker"
-                                    size={18}
-                                    color={searchMode === 'pinned' ? TOKENS.primary : TOKENS.textMuted}
+                                    size={20}
+                                    color={searchMode === 'pinned' ? '#fff' : TOKENS.primaryAlt}
                                 />
                             </Pressable>
                         ) : (
@@ -124,8 +124,8 @@ function MapHeader({
                             >
                                 <MaterialCommunityIcons
                                     name="map-marker-plus"
-                                    size={18}
-                                    color={TOKENS.text}
+                                    size={20}
+                                    color={TOKENS.primaryAlt}
                                 />
                             </Pressable>
                         )}

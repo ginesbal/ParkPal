@@ -282,18 +282,29 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: TOKENS.surface,
-    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderRadius: 12,
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
+    // Android: react-native-maps draws via a SurfaceView. RN overlays above
+    // the map need a positive `elevation` or touch events fail to route
+    // through — the input can visually focus but keystrokes never land.
+    // Keep the shadow muted on iOS so the visual stays minimal.
+    elevation: 3,
   },
 
   inputContainerFocused: {
-    borderColor: alpha(TOKENS.primary, 0.4),
+    borderColor: TOKENS.primary,
     backgroundColor: '#fff',
+    shadowColor: TOKENS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    // Bumped above the base elevation (3) so focus state still layers higher.
+    elevation: 4,
   },
 
   input: {
@@ -333,12 +344,17 @@ const styles = StyleSheet.create({
 
   suggestionsContainer: {
     marginTop: 6,
-    borderRadius: 10,
+    borderRadius: 14,
     backgroundColor: TOKENS.surface,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
     maxHeight: 280,
+    shadowColor: TOKENS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
   },
 
   suggestionsList: {
@@ -364,8 +380,8 @@ const styles = StyleSheet.create({
   suggestionIcon: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: alpha(TOKENS.primary, 0.08),
+    borderRadius: 10,
+    backgroundColor: TOKENS.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,

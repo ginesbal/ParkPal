@@ -19,7 +19,7 @@ const LocationSection = ({ locationName, onPress }) => {
         >
             <MaterialCommunityIcons
                 name="map-marker"
-                size={16}
+                size={18}
                 color={TOKENS.primary}
                 style={styles.locationIcon}
             />
@@ -34,7 +34,7 @@ const LocationSection = ({ locationName, onPress }) => {
             <MaterialCommunityIcons
                 name="chevron-right"
                 size={18}
-                color={TOKENS.textLight}
+                color={TOKENS.primary}
             />
         </Pressable>
     );

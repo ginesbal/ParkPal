@@ -1,11 +1,4 @@
 // src/components/ParkingList/ParkingListItem.js
-//
-// Minimalist row redesign driven by .agents/skills/:
-//   distill  → card chrome removed, divide-y row pattern, one semantic dot (no type pills)
-//   quieter  → one accent; type indicator is a single primary dot, all others muted
-//   arrange  → tight grouping within rows, hairline divider between rows, space as hierarchy
-//   typeset  → numLarge / body / caption from TYPOGRAPHY tokens, tabular-nums, 3 weights only
-//   polish   → 200ms ease-out press feedback, 44x44 hit target
 
 import { useRef } from 'react';
 import {
@@ -15,11 +8,9 @@ import {
     Text,
     View,
 } from 'react-native';
-import { SPACING, TOKENS, TYPOGRAPHY, alpha } from '../../constants/theme';
+import { TOKENS, TYPOGRAPHY, alpha } from '../../constants/theme';
 import { logger } from '../../utils/loggers';
 
-// Two semantic roles only: "street" (primary accent) vs everything else (muted).
-// Replaces the old 4-way colored-pill config that pulled from amber/cream/yale ramps.
 const TYPE_LABELS = {
     on_street: 'Street',
     off_street: 'Lot',
@@ -50,13 +41,11 @@ export default function ParkingListItem({
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const typeLabel = TYPE_LABELS[spot.spot_type] || 'Street';
-    const isPrimaryType = spot.spot_type === 'on_street';
     const displayPrice = formatPrice(price);
     const isFree = displayPrice === 'FREE';
     const isCheckSigns = displayPrice === 'Check signs';
     const lowCapacity = spot.capacity > 0 && spot.capacity <= 5;
 
-    // 200ms ease-out feedback — polish skill, consistent across Pressables.
     const handlePressIn = () => {
         Animated.timing(scaleAnim, {
             toValue: 0.98,
@@ -89,6 +78,10 @@ export default function ParkingListItem({
 
     return (
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            {/* Selected stripe — a 3px primary ink rail on the leading edge.
+                Emil: "Color is a signal. Make it earn its place." Selection needs
+                to register at a glance without tinting the whole row. */}
+            {isSelected && <View style={styles.selectedStripe} pointerEvents="none" />}
             <Pressable
                 onPress={handleRowPress}
                 onPressIn={handlePressIn}
@@ -99,11 +92,15 @@ export default function ParkingListItem({
                 accessibilityLabel={`Parking at ${spot.address}, ${spot.distance} meters away, ${isFree ? 'free' : `price ${displayPrice} per hour`}`}
                 hitSlop={4}
             >
-                {/* Walking time — bare numeric, no background */}
+                {/* Walking time */}
                 <View style={styles.walkBlock}>
                     <Text style={styles.walkValue}>{spot.walkingTime}</Text>
-                    <Text style={styles.walkUnit}>MIN</Text>
+                    <Text style={styles.walkUnit}>min</Text>
                 </View>
+
+                {/* Quiet vertical rule — just enough to say "these are related but distinct".
+                    Emil: "Elements should only take the space they need." 28px tall, not full row. */}
+                <View style={styles.sectionDivider} />
 
                 {/* Primary content */}
                 <View style={styles.content}>
@@ -112,18 +109,9 @@ export default function ParkingListItem({
                     </Text>
 
                     <View style={styles.metaRow}>
-                        <View style={styles.typeGroup}>
-                            <View
-                                style={[
-                                    styles.typeDot,
-                                    isPrimaryType ? styles.typeDotPrimary : styles.typeDotMuted,
-                                ]}
-                            />
-                            <Text style={styles.metaText}>{typeLabel}</Text>
-                        </View>
-
+                        <Text style={styles.metaText}>{typeLabel}</Text>
                         <Text style={styles.metaDivider}>·</Text>
-                        <Text style={styles.metaText}>{spot.distance}m</Text>
+                        <Text style={styles.metaTextNum}>{spot.distance}m</Text>
 
                         {lowCapacity && (
                             <>
@@ -139,7 +127,9 @@ export default function ParkingListItem({
                     </View>
                 </View>
 
-                {/* Price — inline, tabular-nums, no badge background */}
+                <View style={styles.sectionDivider} />
+
+                {/* Price */}
                 <View style={styles.priceBlock}>
                     {isFree ? (
                         <Text style={styles.freeLabel}>FREE</Text>
@@ -163,31 +153,52 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        minHeight: 72,
-        paddingHorizontal: SPACING.xl,
-        paddingVertical: SPACING.md,
-        gap: SPACING.lg,
+        minHeight: 64,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        // Tighter gap since the vertical rules now carry some of the separation.
+        gap: 10,
         backgroundColor: TOKENS.surface,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.hairline,
     },
+    // Selection bg tint bumped 0.05 → 0.08 so it reads at a glance without shouting.
     rowSelected: {
-        backgroundColor: TOKENS.primaryWash,
+        backgroundColor: alpha(TOKENS.primary, 0.08),
+    },
+    // 3px primary rail on the leading edge — the real selection signal.
+    selectedStripe: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 3,
+        backgroundColor: TOKENS.primary,
+        zIndex: 1,
+    },
+    // Vertical hairline between info regions. Not full row height —
+    // never touches the horizontal separators above/below.
+    sectionDivider: {
+        width: StyleSheet.hairlineWidth,
+        height: 28,
+        backgroundColor: TOKENS.divider,
+        alignSelf: 'center',
     },
 
     walkBlock: {
         alignItems: 'center',
         justifyContent: 'center',
-        minWidth: 44,
+        width: 44,
     },
+    // Equalized with priceValue at 18px so neither side dominates.
     walkValue: {
         ...TYPOGRAPHY.numMedium,
-        fontSize: 22,
-        lineHeight: 24,
+        fontSize: 18,
+        lineHeight: 20,
+        color: TOKENS.text,
     },
     walkUnit: {
-        ...TYPOGRAPHY.caption,
-        color: TOKENS.textFaint,
+        fontSize: 11,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
         marginTop: 1,
     },
 
@@ -196,8 +207,10 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     address: {
-        ...TYPOGRAPHY.subheading,
         fontSize: 15,
+        fontWeight: '600',
+        color: TOKENS.text,
+        letterSpacing: -0.1,
     },
     metaRow: {
         flexDirection: 'row',
@@ -206,36 +219,37 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     metaText: {
-        ...TYPOGRAPHY.body,
         fontSize: 13,
+        fontWeight: '400',
         color: TOKENS.textMuted,
     },
-    metaTextWarning: {
-        ...TYPOGRAPHY.body,
+    // Distance needs tabular alignment so values don't jitter as users scroll.
+    metaTextNum: {
         fontSize: 13,
+        fontWeight: '400',
+        color: TOKENS.textMuted,
+        fontVariant: ['tabular-nums'],
+    },
+    metaTextWarning: {
+        fontSize: 13,
+        fontWeight: '500',
         color: TOKENS.warning,
     },
     metaDivider: {
-        ...TYPOGRAPHY.body,
         fontSize: 13,
         color: TOKENS.textFaint,
     },
 
+    // Kept for the warning dot only — decorative type dots were removed.
     typeGroup: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 5,
     },
     typeDot: {
         width: 6,
         height: 6,
         borderRadius: 3,
-    },
-    typeDotPrimary: {
-        backgroundColor: TOKENS.primary,
-    },
-    typeDotMuted: {
-        backgroundColor: TOKENS.textFaint,
     },
     typeDotWarning: {
         backgroundColor: TOKENS.warning,
@@ -244,12 +258,14 @@ const styles = StyleSheet.create({
     priceBlock: {
         alignItems: 'flex-end',
         justifyContent: 'center',
-        minWidth: 64,
+        minWidth: 60,
     },
     priceValue: {
-        ...TYPOGRAPHY.numMedium,
-        fontSize: 16,
-        lineHeight: 20,
+        fontSize: 18,
+        fontWeight: '600',
+        color: TOKENS.text,
+        letterSpacing: -0.2,
+        fontVariant: ['tabular-nums'],
     },
     priceUnit: {
         fontSize: 12,
@@ -257,11 +273,14 @@ const styles = StyleSheet.create({
         color: TOKENS.textMuted,
     },
     freeLabel: {
-        ...TYPOGRAPHY.caption,
+        fontSize: 13,
+        fontWeight: '600',
         color: TOKENS.success,
+        letterSpacing: 0.2,
     },
     priceNote: {
-        ...TYPOGRAPHY.caption,
+        fontSize: 12,
+        fontWeight: '500',
         color: TOKENS.textMuted,
     },
 });

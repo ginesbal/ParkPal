@@ -3,13 +3,25 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ParkingListItem from '../../../components/ParkingList/ParkingListItem';
-import { TOKENS } from '../../../constants/theme';
+import { TOKENS, alpha } from '../../../constants/theme';
 import { SCREEN_HEIGHT } from '../constants';
 
-// Helper function to clamp a value between min and max
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const SHEET_BOTTOM_OFFSET = 10;
 const SHEET_EXPANDED_TOP_GAP = 18;
+
+// Inset row separator — aligns under the address text, not the walk-time anchor.
+// The walk block (44) + row padding (20) + gap (10) = 74. Letting the walk column
+// "run free" vertically makes it read as the anchor for each row.
+const RowSeparator = () => <View style={styles.rowSeparator} />;
+
+// Momentum threshold — a quick flick should snap regardless of drag distance.
+// Emil: "Don't require dragging past a threshold. If velocity exceeds ~0.11, dismiss."
+const VELOCITY_THRESHOLD = 0.11;
+
+// Rubber-band damping factor for over-pull at top boundary.
+// Emil: "Things in real life don't suddenly stop; they slow down first."
+const RUBBER_BAND_FACTOR = 0.35;
 
 const ParkingBottomSheet = forwardRef(({
     spots,
@@ -24,43 +36,68 @@ const ParkingBottomSheet = forwardRef(({
 }, ref) => {
     const insets = useSafeAreaInsets();
     const listRef = useRef(null);
-    const [headerHeight, setHeaderHeight] = useState(92);
+    // Start conservatively low — onLayout will set the real height on first
+    // paint. Undershooting is safer than overshooting: a slightly-too-short
+    // peek is corrected upward once measured; a too-tall peek would leak the
+    // list through before correction.
+    const [headerHeight, setHeaderHeight] = useState(72);
     const previousPeekY = useRef(null);
+    const isDragging = useRef(false);
 
-    // Non-modal bottom sheet implemented with Animated + PanResponder
-    // Peek height only shows header (handle + title + subtitle)
     const peekHeight = headerHeight;
     const maxHeight = useMemo(() => {
         const availableHeight = Math.max(
             peekHeight,
             SCREEN_HEIGHT - topInset - SHEET_EXPANDED_TOP_GAP - SHEET_BOTTOM_OFFSET
         );
-
         return Math.min(Math.round(peekHeight + 420), availableHeight);
     }, [peekHeight, topInset]);
+
     const EXPANDED_Y = 0;
     const PEEK_Y = Math.max(0, maxHeight - peekHeight);
     const HIDDEN_Y = maxHeight + 48;
     const translateY = useRef(new Animated.Value(PEEK_Y)).current;
     const dragStartY = useRef(PEEK_Y);
 
-    useImperativeHandle(ref, () => ({
-        present: () => animateTo(EXPANDED_Y),
-        dismiss: () => animateTo(PEEK_Y),
-    }));
-
-    const animateTo = useCallback((to, velocity = 0) => {
+    // Tighter spring for expand (user is waiting to see content)
+    const expandTo = useCallback((velocity = 0) => {
         Animated.spring(translateY, {
-            toValue: to,
+            toValue: EXPANDED_Y,
             velocity,
-            tension: 58,
+            tension: 68,
+            friction: 9,
+            useNativeDriver: true,
+        }).start();
+    }, [translateY, EXPANDED_Y]);
+
+    // Slightly faster spring for collapse — exit should feel snappier than enter
+    const collapseTo = useCallback((velocity = 0) => {
+        Animated.spring(translateY, {
+            toValue: PEEK_Y,
+            velocity,
+            tension: 76,
             friction: 10,
             useNativeDriver: true,
         }).start();
-    }, [translateY]);
+
+        // Coordinate scroll-to-top with collapse — slight delay so both
+        // motions feel like one gesture, not a jump-then-slide
+        setTimeout(() => {
+            listRef.current?.scrollToOffset({ offset: 0, animated: true });
+        }, 80);
+    }, [translateY, PEEK_Y]);
+
+    useImperativeHandle(ref, () => ({
+        present: () => expandTo(),
+        dismiss: () => collapseTo(),
+    }));
 
     const handleHeaderLayout = useCallback((event) => {
-        const measuredHeight = Math.max(96, Math.ceil(event.nativeEvent.layout.height));
+        // Use the header's true measured height — no artificial floor.
+        // A floor larger than the real header would expose the listSeparator
+        // and first list row through the collapsed peek.
+        const measuredHeight = Math.ceil(event.nativeEvent.layout.height);
+        if (measuredHeight <= 0) return;
         setHeaderHeight((currentHeight) => (
             Math.abs(currentHeight - measuredHeight) > 1 ? measuredHeight : currentHeight
         ));
@@ -94,6 +131,8 @@ const ParkingBottomSheet = forwardRef(({
         });
     }, [PEEK_Y, translateY]);
 
+    // When a marker is tapped, expand the sheet first, then scroll to the item.
+    // Without this, the scroll fires behind the collapsed sheet — invisible.
     useEffect(() => {
         if (!selectedSpot?.id || !spots.length) {
             return;
@@ -104,33 +143,68 @@ const ParkingBottomSheet = forwardRef(({
             return;
         }
 
+        // Expand sheet, then scroll after the spring has mostly settled
+        expandTo();
         const timer = setTimeout(() => {
             listRef.current?.scrollToIndex({
                 index: selectedIndex,
                 animated: true,
                 viewPosition: 0.45,
             });
-        }, 120);
+        }, 280);
 
         return () => clearTimeout(timer);
-    }, [selectedSpot?.id, spots]);
+    }, [selectedSpot?.id, spots, expandTo]);
 
     const panResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
-            onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+            onMoveShouldSetPanResponder: (_, g) =>
+                Math.abs(g.dy) > 4 && Math.abs(g.dy) > Math.abs(g.dx),
             onPanResponderGrant: () => {
-                translateY.stopAnimation((cur) => { dragStartY.current = cur ?? PEEK_Y; });
+                // Multi-touch protection: ignore if already dragging
+                if (isDragging.current) return;
+                isDragging.current = true;
+
+                translateY.stopAnimation((cur) => {
+                    dragStartY.current = cur ?? PEEK_Y;
+                });
             },
             onPanResponderMove: (_, g) => {
-                const next = clamp(dragStartY.current + g.dy, EXPANDED_Y, HIDDEN_Y);
-                translateY.setValue(next);
+                const raw = dragStartY.current + g.dy;
+
+                // Rubber-band damping when pulling past the top boundary
+                if (raw < EXPANDED_Y) {
+                    const overPull = EXPANDED_Y - raw;
+                    const damped = EXPANDED_Y - (overPull * RUBBER_BAND_FACTOR);
+                    translateY.setValue(damped);
+                } else {
+                    translateY.setValue(clamp(raw, EXPANDED_Y, HIDDEN_Y));
+                }
             },
             onPanResponderRelease: (_, g) => {
+                isDragging.current = false;
+
                 const finalY = clamp(dragStartY.current + g.dy, EXPANDED_Y, HIDDEN_Y);
+                const velocity = Math.abs(g.vy);
+
+                // Momentum-based snap: a quick flick should decide regardless of position
+                if (velocity > VELOCITY_THRESHOLD) {
+                    if (g.vy < 0) {
+                        expandTo(g.vy);
+                    } else {
+                        collapseTo(g.vy);
+                    }
+                    return;
+                }
+
+                // Position-based snap for slow drags
                 const mid = (PEEK_Y + EXPANDED_Y) / 2;
-                if (finalY <= mid || g.vy < -0.5) animateTo(EXPANDED_Y, g.vy);
-                else animateTo(PEEK_Y, g.vy);
+                if (finalY <= mid) {
+                    expandTo(g.vy);
+                } else {
+                    collapseTo(g.vy);
+                }
             },
         })
     ).current;
@@ -160,14 +234,13 @@ const ParkingBottomSheet = forwardRef(({
 
                 <View style={styles.headerContent}>
                     <View style={styles.headerLeft}>
-                        {/* Simple icon with solid color */}
                         <View style={[
                             styles.searchModeIndicator,
                             searchMode === 'pinned' && styles.searchModeIndicatorPinned
                         ]}>
                             <MaterialCommunityIcons
                                 name={searchMode === 'pinned' ? 'map-marker' : 'crosshairs-gps'}
-                                size={18}
+                                size={14}
                                 color="#fff"
                             />
                         </View>
@@ -180,8 +253,8 @@ const ParkingBottomSheet = forwardRef(({
                                 {selectedSpot?.address
                                     ? `Selected: ${selectedSpot.address}`
                                     : searchMode === 'pinned'
-                                        ? 'Searching around your pinned location'
-                                        : 'Searching near your current location'}
+                                        ? 'Around your pinned location'
+                                        : 'Near your current location'}
                             </Text>
                         </View>
                     </View>
@@ -199,8 +272,8 @@ const ParkingBottomSheet = forwardRef(({
                         >
                             <MaterialCommunityIcons
                                 name="close-circle"
-                                size={16}
-                                color={TOKENS.primaryAlt}
+                                size={14}
+                                color={TOKENS.textMuted}
                             />
                             <Text style={styles.clearButtonText}>Clear pin</Text>
                         </Pressable>
@@ -213,15 +286,15 @@ const ParkingBottomSheet = forwardRef(({
                     <View style={styles.emptyIconContainer}>
                         <MaterialCommunityIcons
                             name={searchMode === 'pinned' ? 'map-marker-remove' : 'parking'}
-                            size={40}
-                            color={TOKENS.textLight}
+                            size={28}
+                            color={TOKENS.textFaint}
                         />
                     </View>
-                    <Text style={styles.emptyTitle}>Nothing here yet</Text>
+                    <Text style={styles.emptyTitle}>No spots in this area</Text>
                     <Text style={styles.emptyHint}>
                         {searchMode === 'pinned'
-                            ? 'Move your pin or widen the radius to find spots'
-                            : 'Pan or zoom the map to search a different area'}
+                            ? 'Move your pin or widen the radius'
+                            : 'Pan or zoom the map to search elsewhere'}
                     </Text>
                 </View>
             ) : (
@@ -230,6 +303,7 @@ const ParkingBottomSheet = forwardRef(({
                     data={spots}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={renderItem}
+                    ItemSeparatorComponent={RowSeparator}
                     contentContainerStyle={[
                         styles.listContent,
                         { paddingBottom: insets.bottom + tabBarHeight + 16 },
@@ -257,43 +331,53 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 10,
         right: 10,
-        borderRadius: 10,
+        borderRadius: 18,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         overflow: 'hidden',
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
     header: {
-        paddingTop: 18,
-        paddingBottom: 16,
+        paddingTop: 12,
+        paddingBottom: 14,
+        backgroundColor: TOKENS.surface,
+        // Closing hairline below the header. Living on the header (not as a
+        // separate sibling) means it's part of the measured peek height, so
+        // the list never peeks through when collapsed.
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.strokeLight,
+        borderBottomColor: TOKENS.divider,
     },
     handle: {
         alignSelf: 'center',
-        backgroundColor: TOKENS.stroke,
+        backgroundColor: alpha(TOKENS.text, 0.12),
         width: 36,
-        height: 4,
+        height: 3,
         borderRadius: 2,
-        marginBottom: 14,
+        marginBottom: 12,
     },
     headerContent: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 18,
+        paddingHorizontal: 20,
         gap: 12,
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
-        gap: 12,
+        gap: 10,
     },
+    // Calmer indicator — smaller, less dominant. Color carries the meaning, size doesn't need to.
     searchModeIndicator: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
+        width: 28,
+        height: 28,
+        borderRadius: 8,
         backgroundColor: TOKENS.primary,
         alignItems: 'center',
         justifyContent: 'center',
@@ -302,70 +386,80 @@ const styles = StyleSheet.create({
         backgroundColor: TOKENS.primaryAlt,
     },
     headerInfo: {
-        gap: 5,
+        gap: 4,
         flex: 1,
     },
     clearButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 5,
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 10,
-        backgroundColor: TOKENS.surfaceMuted,
+        backgroundColor: TOKENS.surface,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
+    // Scale-based press feedback instead of opacity-only.
+    // Emil: "Buttons must feel responsive. Add scale(0.97) on active."
     clearButtonPressed: {
-        backgroundColor: TOKENS.strokeLight,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.8,
     },
     clearButtonText: {
         fontSize: 13,
-        fontWeight: '600',
-        color: TOKENS.primaryAlt,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '600',
         color: TOKENS.text,
-        letterSpacing: -0.3,
+        letterSpacing: -0.2,
     },
     headerSubtitle: {
         fontSize: 13,
-        fontWeight: '500',
+        fontWeight: '400',
         color: TOKENS.textMuted,
-        letterSpacing: -0.1,
-        lineHeight: 17,
+        lineHeight: 18,
     },
     listContent: {
-        paddingTop: 10,
+        paddingTop: 4,
+    },
+    // Inset so the line begins where the address text begins —
+    // padding(20) + walkBlock(44) + gap(10) = 74.
+    rowSeparator: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: TOKENS.divider,
+        marginLeft: 74,
     },
     emptyState: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 56,
+        paddingVertical: 48,
         paddingHorizontal: 32,
     },
     emptyIconContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: 48,
+        height: 48,
+        borderRadius: 12,
         backgroundColor: TOKENS.surfaceMuted,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
+        marginBottom: 14,
     },
     emptyTitle: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
         color: TOKENS.text,
-        marginBottom: 8,
-        letterSpacing: -0.1,
+        marginBottom: 6,
     },
     emptyHint: {
-        fontSize: 14,
-        lineHeight: 20,
+        fontSize: 13,
+        lineHeight: 18,
         color: TOKENS.textMuted,
         textAlign: 'center',
-        maxWidth: 280,
+        maxWidth: 260,
     },
 });
 

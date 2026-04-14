@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
     header: {
         backgroundColor: TOKENS.surface,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.strokeLight,
+        borderBottomColor: TOKENS.hairline,
     },
     mainHeader: {
         paddingHorizontal: 20,
@@ -16,12 +16,14 @@ export const styles = StyleSheet.create({
     locationSection: {
         flexDirection: 'row',
         alignItems: 'center',
-        minHeight: 52,
-        paddingHorizontal: 0,
-        paddingVertical: 10,
-        marginBottom: 8,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.hairline,
+        minHeight: 56,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        marginBottom: 10,
+        borderRadius: 14,
+        backgroundColor: TOKENS.surfaceMuted,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     locationSectionPressed: {
         opacity: 0.6,
@@ -33,11 +35,12 @@ export const styles = StyleSheet.create({
         flex: 1,
     },
     locationLabel: {
-        fontSize: 12,
-        color: TOKENS.textLight,
-        letterSpacing: 0.2,
+        fontSize: 11,
+        color: TOKENS.textMuted,
+        letterSpacing: 0.6,
         marginBottom: 2,
-        fontWeight: '600',
+        fontWeight: '500',
+        textTransform: 'uppercase',
     },
     locationText: {
         fontSize: 18,
@@ -50,11 +53,13 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 10,
-        paddingHorizontal: 0,
-        marginBottom: 8,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.hairline,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        marginBottom: 10,
+        borderRadius: 14,
+        backgroundColor: TOKENS.surface,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     quickInfoItem: {
         flexDirection: 'row',
@@ -64,7 +69,7 @@ export const styles = StyleSheet.create({
     },
     quickInfoValue: {
         fontSize: 26,
-        fontWeight: '500',
+        fontWeight: '600',
         color: TOKENS.text,
         letterSpacing: -0.7,
         fontVariant: ['tabular-nums'],
@@ -107,16 +112,16 @@ export const styles = StyleSheet.create({
     },
     filterChip: {
         minHeight: 44,
-        paddingHorizontal: 14,
+        paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 10,
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         justifyContent: 'center',
     },
     filterChipActive: {
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.primary,
         borderColor: TOKENS.primary,
     },
     filterChipPressed: {
@@ -125,10 +130,10 @@ export const styles = StyleSheet.create({
     filterChipText: {
         fontSize: 13,
         fontWeight: '500',
-        color: TOKENS.textMuted,
+        color: TOKENS.text,
     },
     filterChipTextActive: {
-        color: TOKENS.primary,
+        color: '#fff',
         fontWeight: '600',
     },
     distanceRow: {
@@ -152,16 +157,16 @@ export const styles = StyleSheet.create({
     },
     distanceOption: {
         minHeight: 44,
-        paddingHorizontal: 14,
+        paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 10,
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         justifyContent: 'center',
     },
     distanceOptionActive: {
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.primary,
         borderColor: TOKENS.primary,
     },
     distanceOptionPressed: {
@@ -170,10 +175,10 @@ export const styles = StyleSheet.create({
     distanceOptionText: {
         fontSize: 12,
         fontWeight: '500',
-        color: TOKENS.textMuted,
+        color: TOKENS.text,
     },
     distanceOptionTextActive: {
-        color: TOKENS.primary,
+        color: '#fff',
         fontWeight: '600',
     },
     statusBanner: {

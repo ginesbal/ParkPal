@@ -1,4 +1,11 @@
 // src/components/ParkingCard/cardStyles.js
+//
+// Spacing rhythm: 12px within groups, 14px between sections.
+// Per Emil Kowalski's design engineering principles:
+//   - Every detail compounds into something that feels right
+//   - Consistent spacing rhythm, no mixed values
+//   - Buttons must feel responsive (scale on press)
+//   - No invisible containers — elements only take the space they need
 
 import { StyleSheet } from 'react-native';
 import { TOKENS, alpha } from '../../constants/theme';
@@ -11,7 +18,7 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: alpha(TOKENS.shadow, 0.18),
+    backgroundColor: alpha(TOKENS.shadow, 0.2),
     zIndex: 1500,
     elevation: 15,
   },
@@ -28,41 +35,45 @@ export const styles = StyleSheet.create({
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
     backgroundColor: TOKENS.surface,
-    borderRadius: 10,
+    borderRadius: 18,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
-    elevation: 2,
     backfaceVisibility: 'hidden',
+    shadowColor: TOKENS.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 16,
+    elevation: 4,
   },
 
   cardFront: {
-    padding: 24,
+    padding: 20,
     zIndex: 2,
   },
 
   cardBack: {
-    padding: 24,
+    padding: 20,
     zIndex: 1,
   },
 
+  // --- Header rows (front + back) ---
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'space-between',
+    marginBottom: 14,
   },
 
   cardHeaderBack: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-    gap: 12,
+    marginBottom: 14,
+    gap: 10,
   },
 
   spotTypeTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
-    marginRight: 12,
     gap: 6,
   },
 
@@ -75,16 +86,16 @@ export const styles = StyleSheet.create({
 
   spotTypeText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: '600',
     color: TOKENS.primary,
     textTransform: 'uppercase',
-    letterSpacing: 0.4,
+    letterSpacing: 0.5,
   },
 
   backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: 'transparent',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
@@ -93,14 +104,15 @@ export const styles = StyleSheet.create({
   },
 
   closeBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: TOKENS.text,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
+  // --- Front content ---
   frontContent: {
     flex: 1,
   },
@@ -109,35 +121,37 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: TOKENS.text,
-    marginBottom: 24,
-    lineHeight: 25,
+    marginBottom: 14,
+    lineHeight: 24,
     letterSpacing: -0.3,
   },
 
+  // Stat rows — tight rhythm with hairline dividers
   quickStatsLarge: {
-    marginBottom: 24,
-    gap: 14,
+    marginBottom: 14,
   },
 
   statRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: TOKENS.divider,
   },
 
   statLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
     minWidth: 0,
     flex: 1,
   },
 
+  // Icon sits inline — no invisible container
   statIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'transparent',
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -150,7 +164,7 @@ export const styles = StyleSheet.create({
 
   statValueRight: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: TOKENS.text,
     textAlign: 'right',
     marginLeft: 12,
@@ -160,26 +174,21 @@ export const styles = StyleSheet.create({
 
   statValuePrimary: {
     color: TOKENS.primary,
+    fontWeight: '600',
   },
 
-  statDividerLarge: {
-    display: 'none',
-  },
-
+  // Badges — simple inline text
   badgesLarge: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 20,
+    gap: 10,
+    marginBottom: 14,
   },
 
   badgeLarge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 0,
-    paddingVertical: 4,
-    borderRadius: 0,
-    gap: 6,
+    gap: 5,
   },
 
   badgeDefault: {},
@@ -198,9 +207,10 @@ export const styles = StyleSheet.create({
   badgeTextInfo: { color: TOKENS.textMuted },
   badgeTextDanger: { color: TOKENS.danger },
 
+  // Action buttons — min 48px touch target per accessibility
   actionsLarge: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
     marginTop: 'auto',
   },
 
@@ -209,17 +219,17 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 48,
     backgroundColor: 'transparent',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
-    paddingVertical: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     gap: 6,
   },
 
   detailsBtnTextLarge: {
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '600',
     color: TOKENS.text,
   },
 
@@ -228,9 +238,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 48,
     backgroundColor: TOKENS.primary,
-    paddingVertical: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     gap: 7,
   },
 
@@ -240,34 +250,30 @@ export const styles = StyleSheet.create({
     color: '#ffffff',
   },
 
-  // horizontal pager
+  // --- Back: horizontal pager ---
   pagesContainer: {
     flex: 1,
-    marginTop: 0,
   },
 
   detailPage: {
-    paddingHorizontal: 0,
-    paddingTop: 0,
     flexShrink: 0,
   },
 
   detailsListLarge: {
     flex: 1,
-    marginBottom: 12,
   },
 
   detailsContent: {
-    gap: 0,
+    paddingBottom: 4,
   },
 
   detailRowLarge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 13,
+    paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: TOKENS.hairline,
+    borderBottomColor: TOKENS.divider,
   },
 
   detailRowHighlightLarge: {
@@ -275,8 +281,8 @@ export const styles = StyleSheet.create({
   },
 
   detailLabelLarge: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     color: TOKENS.textMuted,
     flex: 1,
     fontWeight: '400',
@@ -299,29 +305,25 @@ export const styles = StyleSheet.create({
   },
 
   detailValueHighlight: {
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 14,
     fontWeight: '600',
     color: TOKENS.primary,
   },
 
+  // Pager nav — proper spacing from content
   pagerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 0,
-    paddingTop: 14,
-    paddingBottom: 0,
-    marginHorizontal: 0,
-    marginBottom: 0,
+    paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: TOKENS.hairline,
+    borderTopColor: TOKENS.divider,
   },
 
   pagerArrow: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: 'transparent',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
@@ -350,16 +352,13 @@ export const styles = StyleSheet.create({
   },
 
   pagerDotActive: {
-    width: 20,
+    width: 18,
     height: 6,
     borderRadius: 3,
     backgroundColor: TOKENS.primary,
   },
 
-  pagerMeta: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-  },
+  pagerMeta: {},
 
   pagerMetaText: {
     fontSize: 12,
@@ -382,16 +381,16 @@ export const styles = StyleSheet.create({
 
   backActionsLarge: {
     marginTop: 'auto',
-    paddingTop: 0,
+    paddingTop: 12,
   },
 
   navBtnFullLarge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 48,
     backgroundColor: TOKENS.primary,
-    paddingVertical: 16,
-    borderRadius: 10,
+    borderRadius: 12,
     gap: 8,
   },
 });

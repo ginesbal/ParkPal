@@ -163,12 +163,12 @@ const navStyles = StyleSheet.create({
         marginBottom: 2,
     },
     label: {
-        fontSize: 11,
-        letterSpacing: 0.2,
+        fontSize: 12,
+        letterSpacing: 0.1,
         textAlign: 'center',
     },
     labelInactive: {
-        fontWeight: '500',
+        fontWeight: '600',
     },
     labelActive: {
         fontWeight: '600',

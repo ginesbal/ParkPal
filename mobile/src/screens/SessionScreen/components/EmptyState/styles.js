@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
         marginBottom: 12,
     },
     title: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: '600',
         color: TOKENS.text,
         letterSpacing: -0.3,
@@ -31,13 +31,17 @@ export const styles = StyleSheet.create({
         marginTop: 6,
     },
 
-    // Card container → just a surface with hairline border, no shadow
     setupCard: {
         backgroundColor: TOKENS.surface,
-        borderRadius: 10,
-        padding: 20,
+        borderRadius: 18,
+        padding: 22,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 1,
     },
 
     setupSection: {
@@ -45,12 +49,12 @@ export const styles = StyleSheet.create({
         marginBottom: 20,
     },
     stepIndicator: {
-        width: 28,
-        height: 28,
-        borderRadius: 12,
-        backgroundColor: 'transparent',
+        width: 30,
+        height: 30,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.primary,
+        borderColor: TOKENS.hairline,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 14,
@@ -73,14 +77,14 @@ export const styles = StyleSheet.create({
     },
 
     plateInput: {
-        minHeight: 48,
-        borderRadius: 10,
+        minHeight: 50,
+        borderRadius: 12,
         backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         paddingHorizontal: 16,
         fontSize: 18,
-        fontWeight: '500',
+        fontWeight: '600',
         color: TOKENS.text,
         letterSpacing: 2,
         textAlign: 'center',
@@ -97,8 +101,8 @@ export const styles = StyleSheet.create({
     durationOption: {
         width: '48%',
         minHeight: 60,
-        borderRadius: 10,
-        backgroundColor: 'transparent',
+        borderRadius: 12,
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         alignItems: 'center',
@@ -107,12 +111,12 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     durationOptionActive: {
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.primaryWash,
         borderColor: TOKENS.primary,
     },
     durationTime: {
         fontSize: 16,
-        fontWeight: '500',
+        fontWeight: '600',
         color: TOKENS.text,
         marginBottom: 4,
         textAlign: 'center',
@@ -131,6 +135,7 @@ export const styles = StyleSheet.create({
     },
     durationCostActive: {
         color: TOKENS.primary,
+        fontWeight: '500',
     },
 
     rateOptions: {
@@ -141,35 +146,35 @@ export const styles = StyleSheet.create({
         flex: 1,
         minHeight: 44,
         borderRadius: 10,
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         alignItems: 'center',
         justifyContent: 'center',
     },
     rateOptionActive: {
-        backgroundColor: 'transparent',
+        backgroundColor: TOKENS.primary,
         borderColor: TOKENS.primary,
     },
     rateText: {
         fontSize: 12,
         fontWeight: '500',
-        color: TOKENS.textMuted,
+        color: TOKENS.text,
         fontVariant: ['tabular-nums'],
     },
     rateTextActive: {
-        color: TOKENS.primary,
+        color: '#fff',
         fontWeight: '600',
     },
 
-    // Summary → hairline divider rows, no bg
     summaryBox: {
-        paddingVertical: 14,
+        paddingVertical: 16,
+        paddingHorizontal: 16,
         marginBottom: 16,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: TOKENS.hairline,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.hairline,
+        borderRadius: 12,
+        backgroundColor: TOKENS.surfaceMuted,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
     },
     summaryRow: {
         flexDirection: 'row',
@@ -183,33 +188,39 @@ export const styles = StyleSheet.create({
     },
     summaryValue: {
         fontSize: 16,
-        fontWeight: '500',
+        fontWeight: '600',
         color: TOKENS.text,
         fontVariant: ['tabular-nums'],
     },
     summaryValueLarge: {
         fontSize: 20,
-        fontWeight: '500',
+        fontWeight: '600',
         color: TOKENS.primary,
         fontVariant: ['tabular-nums'],
     },
     summaryDivider: {
         height: StyleSheet.hairlineWidth,
-        backgroundColor: TOKENS.hairline,
+        backgroundColor: TOKENS.divider,
         marginVertical: 10,
     },
 
     primaryButton: {
-        minHeight: 52,
-        borderRadius: 10,
+        minHeight: 54,
+        borderRadius: 14,
         backgroundColor: TOKENS.primary,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
+        elevation: 2,
     },
     primaryButtonDisabled: {
         backgroundColor: alpha(TOKENS.textMuted, 0.2),
+        shadowOpacity: 0,
     },
     primaryButtonText: {
         fontSize: 16,

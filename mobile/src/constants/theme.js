@@ -48,6 +48,9 @@ export const PALETTE = {
 };
 
 // Single accent (cerulean ~78% saturation), near-black tinted ink, one hairline border.
+// Tinted surfaces deliberately reintroduce cerulean on key interactive regions
+// (header, active chips, numeric blocks) so information is visibly grouped without
+// competing with the content. Stay below alpha 0.18 to preserve the calm brand voice.
 export const TOKENS = {
     // canvas
     bg: '#F6F8FA',
@@ -56,13 +59,20 @@ export const TOKENS = {
     surfaceRaised: '#FFFFFF',
     surfaceOverlay: 'rgba(255, 255, 255, 0.96)',
     surfaceAccent: alpha(PALETTE.cerulean[500], 0.06),
+    // Cool-tinted canvas for list separators and "info slab" backgrounds
+    surfaceTint: '#EFF4F8',
+    surfaceCool: '#E9F1F6',
 
     // borders — one hairline color, legacy aliases collapsed
     stroke: '#E6EAF0',
     strokeStrong: '#D8DEE7',
     strokeLight: '#EEF1F5',
     hairline: '#E6EAF0',
+    hairlineStrong: '#D4DDE6',
     divider: '#EEF1F5',
+    // Translucent cerulean outlines for tinted surfaces
+    primaryHairline: alpha(PALETTE.cerulean[500], 0.18),
+    primaryBorder: alpha(PALETTE.cerulean[500], 0.28),
 
     // text
     text: '#0F1A26',
@@ -70,12 +80,16 @@ export const TOKENS = {
     textLight: '#90A0B0',
     textFaint: '#90A0B0',
 
-    // primary (single accent)
+    // primary (single accent) — 5 tint steps, low → medium → solid
     primary: PALETTE.cerulean[500],
     primaryAlt: PALETTE.cerulean[700],
     primaryInk: PALETTE.cerulean[700],
-    primarySoft: alpha(PALETTE.cerulean[500], 0.08),
-    primaryWash: alpha(PALETTE.cerulean[500], 0.06),
+    primaryDeep: PALETTE.cerulean[800],
+    primaryWash: alpha(PALETTE.cerulean[500], 0.06),   // barely-there
+    primarySoft: alpha(PALETTE.cerulean[500], 0.10),   // quiet tint
+    primaryTint: alpha(PALETTE.cerulean[500], 0.14),   // visible tint — header, slabs
+    primaryFill: alpha(PALETTE.cerulean[500], 0.18),   // confident fill — active chips
+    primaryGlass: 'rgba(237, 246, 249, 0.94)',         // cerulean[50] as overlay
     accent: PALETTE.cerulean[500],
     accentAlt: PALETTE.cerulean[400],
 
@@ -102,13 +116,15 @@ export const SPACING = {
     '3xl': 32,
 };
 
-// Radii collapsed to 2 real values (sm 6, md 10). Legacy names map to 10 so call
-// sites keep compiling; Phase 5 replaces the legacy references explicitly.
+// Radii — softer corners across the board. The redesign calls for a friendlier
+// shape language on cards, rows, and panels. sm/md stay for small chips & tags;
+// lg/xl/2xl are for rows, panels, and the hero card respectively.
 export const RADIUS = {
     sm: 6,
     md: 10,
-    lg: 10,
-    xl: 10,
+    lg: 14,
+    xl: 18,
+    '2xl': 22,
     pill: 9999,
     full: 9999,
 };
