@@ -294,25 +294,45 @@ function MapScreen() {
     // onPress that fires from Google Maps' native tap recognizer on iOS.
     const handleSearchFocusChange = useCallback((focused) => {
         if (focused) searchFocusAtRef.current = Date.now();
+        logger.log('dbg_search_focus_change', {
+            focused,
+            focusedAt: searchFocusAtRef.current,
+        }, 'DBG');
         setIsSearchFocused(focused);
     }, []);
 
-    const handleMapPress = useCallback(() => {
+    const handleMapPress = useCallback((e) => {
         // Google Maps iOS SDK fires its native tap recognizer in parallel with
         // RN's touch delivery, so tapping the search bar also triggers this
         // onPress. If the search was focused within the last 400ms, assume the
         // onPress is that echo and ignore it — otherwise the keyboard would
         // dismiss the instant it appears.
-        if (Date.now() - searchFocusAtRef.current < 400) return;
+        const dtSinceFocus = Date.now() - searchFocusAtRef.current;
+        const bailed = dtSinceFocus < 400;
+        logger.log('dbg_map_onPress', {
+            dtSinceFocus,
+            bailed,
+            isSearchFocused,
+            // position is reported by GoogleMaps iOS — useful to confirm the
+            // tap landed in the search-bar region.
+            position: e?.nativeEvent?.position,
+            coordinate: e?.nativeEvent?.coordinate,
+        }, 'DBG');
+        if (bailed) return;
         if (isSearchFocused) Keyboard.dismiss();
         setSelectedSpot(null);
         setFlippableCardVisible(false);
     }, [isSearchFocused]);
 
-    const handleMapPanDrag = useCallback(() => {
+    const handleMapPanDrag = useCallback((e) => {
+        logger.log('dbg_map_onPanDrag', {
+            dtSinceFocus: Date.now() - searchFocusAtRef.current,
+            isSearchFocused,
+            position: e?.nativeEvent?.position,
+        }, 'DBG');
         handleMapInteraction();
         setFlippableCardVisible(false);
-    }, [handleMapInteraction]);
+    }, [handleMapInteraction, isSearchFocused]);
 
     // Stable setSearchMode wrapper for MapHeader — keeps memo(MapHeader) intact.
     const handleSearchModeChange = useCallback((mode) => {

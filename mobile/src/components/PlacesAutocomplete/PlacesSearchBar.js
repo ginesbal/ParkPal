@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { RADIUS, TOKENS, alpha } from '../../constants/theme';
 import usePlacesAutocomplete from '../../hooks/usePlacesAutocomplete';
+import { logger } from '../../utils/loggers';
 
 // Generic, non-leaky message for the error card. We never surface raw
 // fetch/API error text to users — it can expose backend internals.
@@ -149,7 +150,16 @@ export default function PlacesSearchBar({
     });
   };
 
+  // Debug: confirm mount/unmount. If we ever see mount on every tap, the
+  // search bar is being unmounted — which would also blur the TextInput and
+  // explain a dismiss.
+  useEffect(() => {
+    logger.log('dbg_search_mount', { t: Date.now() }, 'DBG');
+    return () => logger.log('dbg_search_unmount', { t: Date.now() }, 'DBG');
+  }, []);
+
   const handleFocus = () => {
+    logger.log('dbg_search_onFocus', { t: Date.now() }, 'DBG');
     setIsFocused(true);
     setShowSuggestions(true);
     onFocusChange(true);
@@ -159,6 +169,7 @@ export default function PlacesSearchBar({
     // Fire immediately. Suggestion taps work because the FlatList uses
     // keyboardShouldPersistTaps="handled", so the tap is delivered to the
     // suggestion row before the TextInput blurs.
+    logger.log('dbg_search_onBlur', { t: Date.now() }, 'DBG');
     setIsFocused(false);
     if (!input) setShowSuggestions(false);
     onFocusChange(false);
