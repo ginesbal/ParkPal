@@ -419,7 +419,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
-    borderWidth: StyleSheet.hairlineWidth,
+    // NOTE: this borderWidth MUST match inputContainerFocused.borderWidth.
+    // iOS auto-resigns the TextInput's first responder if its frame changes
+    // during the keyboard-show animation, and a borderWidth switch shifts
+    // the inner content by ~2px — enough to dismiss the keyboard on every
+    // tap. Keep the outer frame identical between focused and unfocused
+    // states; differentiate focus visually via color only.
+    borderWidth: 1,
     borderColor: TOKENS.hairline,
     // Android: react-native-maps draws via a SurfaceView. RN overlays above
     // the map need a positive `elevation` or touch events fail to route
@@ -430,8 +436,8 @@ const styles = StyleSheet.create({
 
   inputContainerFocused: {
     borderColor: TOKENS.primary,
-    // Thicker focus ring — hairline is too subtle against a map background.
-    borderWidth: 1,
+    // borderWidth intentionally omitted — keep it identical to the base
+    // style so the TextInput's frame is stable across focus transitions.
     backgroundColor: '#fff',
     shadowColor: TOKENS.shadow,
     shadowOffset: { width: 0, height: 2 },
