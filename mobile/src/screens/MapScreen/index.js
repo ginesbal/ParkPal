@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // shared components
 import FlippableParkingCard from '../../components/ParkingCard/FlippableParkingCard';
+import DebugLogOverlay from '../../components/DebugLogOverlay';
 
 // app constants/services
 import { DEFAULT_LOCATION } from '../../constants/config';
@@ -504,6 +505,9 @@ function MapScreen() {
                 }}
                 onNavigate={() => onNavigate(flippableCardSpot)}
             />
+
+            {/* In-app debug overlay — __DEV__ only, renders nothing in prod. */}
+            <DebugLogOverlay />
         </View>
 
 
