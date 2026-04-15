@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { RADIUS, TOKENS, alpha } from '../../constants/theme';
 import usePlacesAutocomplete from '../../hooks/usePlacesAutocomplete';
-import { logger } from '../../utils/loggers';
 
 // Generic, non-leaky message for the error card. We never surface raw
 // fetch/API error text to users — it can expose backend internals.
@@ -98,7 +97,6 @@ function SearchLoadingDots() {
 
 export default function PlacesSearchBar({
   onPlaceSelected = () => { },
-  onFocusChange = () => { },
   fetcher = __DEV__ ? devDirectFetcher : productionFetcher,
   components = 'country:ca',
   placeholder = 'Search address or place',
@@ -108,29 +106,7 @@ export default function PlacesSearchBar({
   style,
 }) {
   const inputRef = useRef(null);
-  const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  // --- DEBUG INSTRUMENTATION -------------------------------------------
-  // Unique per-mount identifier. If this value is different when blur fires
-  // vs when focus fired, the component was remounted (i.e., the native
-  // TextInput was destroyed and recreated — which always resigns first
-  // responder and dismisses the keyboard).
-  const mountIdRef = useRef(null);
-  if (mountIdRef.current == null) {
-    mountIdRef.current = Math.random().toString(36).slice(2, 8);
-  }
-  // Render counter — if this jumps between focus and blur, we're re-rendering
-  // the TextInput a suspicious number of times.
-  const renderCountRef = useRef(0);
-  renderCountRef.current += 1;
-  logger.log('dbg_search_render', {
-    mountId: mountIdRef.current,
-    renderCount: renderCountRef.current,
-    isFocused,
-    showSuggestions,
-  }, 'DBG');
-  // --------------------------------------------------------------------
 
   const {
     input,
@@ -171,81 +147,17 @@ export default function PlacesSearchBar({
     });
   };
 
-  // Debug: confirm mount/unmount. If we ever see mount on every tap, the
-  // search bar is being unmounted — which would also blur the TextInput and
-  // explain a dismiss.
-  useEffect(() => {
-    logger.log('dbg_search_mount', {
-      mountId: mountIdRef.current,
-      t: Date.now(),
-    }, 'DBG');
-    return () => logger.log('dbg_search_unmount', {
-      mountId: mountIdRef.current,
-      t: Date.now(),
-    }, 'DBG');
-  }, []);
-
-  const handleFocus = () => {
-    logger.log('dbg_search_onFocus', {
-      mountId: mountIdRef.current,
-      renderCount: renderCountRef.current,
-      t: Date.now(),
-    }, 'DBG');
-    setIsFocused(true);
-    setShowSuggestions(true);
-    onFocusChange(true);
-  };
-
-  const handleBlur = () => {
-    // Fire immediately. Suggestion taps work because the FlatList uses
-    // keyboardShouldPersistTaps="handled", so the tap is delivered to the
-    // suggestion row before the TextInput blurs.
-    logger.log('dbg_search_onBlur', {
-      mountId: mountIdRef.current,
-      renderCount: renderCountRef.current,
-      t: Date.now(),
-    }, 'DBG');
-    setIsFocused(false);
-    if (!input) setShowSuggestions(false);
-    onFocusChange(false);
-  };
-
-  // onEndEditing fires after native resignFirstResponder — if this fires
-  // without us calling .blur() or Keyboard.dismiss(), it confirms the
-  // resignation came from iOS (unmount, gesture steal, etc.).
-  const handleEndEditing = () => {
-    logger.log('dbg_search_onEndEditing', {
-      mountId: mountIdRef.current,
-      t: Date.now(),
-    }, 'DBG');
-  };
-
-  // onLayout tells us when the native view's frame changes. If the TextInput's
-  // width or height collapses to 0 (or near-0) during the focus cycle, iOS
-  // will auto-resign first responder — which matches the symptom exactly.
-  const handleInputLayout = (e) => {
-    const { x, y, width, height } = e.nativeEvent.layout;
-    logger.log('dbg_search_inputLayout', {
-      mountId: mountIdRef.current,
-      x: Math.round(x),
-      y: Math.round(y),
-      width: Math.round(width),
-      height: Math.round(height),
-    }, 'DBG');
-  };
-
-  const handleContainerLayout = (e) => {
-    const { width, height } = e.nativeEvent.layout;
-    logger.log('dbg_search_containerLayout', {
-      mountId: mountIdRef.current,
-      width: Math.round(width),
-      height: Math.round(height),
-    }, 'DBG');
-  };
-
   const handleChangeText = (text) => {
     onChangeText(text);
     setShowSuggestions(text.length >= minChars);
+  };
+
+  // Hide the suggestions list when the user dismisses the keyboard on an
+  // empty field. No other focus-state tracking — we deliberately keep the
+  // TextInput visually static across focus transitions so iOS doesn't
+  // resign first responder mid-animation.
+  const handleBlur = () => {
+    if (!input) setShowSuggestions(false);
   };
 
   // Return key: pick the top suggestion if we have one, otherwise just
@@ -274,17 +186,11 @@ export default function PlacesSearchBar({
 
   return (
     <View style={[styles.container, containerStyle, style]}>
-      <View
-        onLayout={handleContainerLayout}
-        style={[
-          styles.inputContainer,
-          isFocused && styles.inputContainerFocused,
-        ]}
-      >
+      <View style={styles.inputContainer}>
         <MaterialCommunityIcons
           name="magnify"
           size={20}
-          color={isFocused ? TOKENS.primary : TOKENS.textMuted}
+          color={TOKENS.textMuted}
         />
 
         <TextInput
@@ -292,11 +198,8 @@ export default function PlacesSearchBar({
           value={input}
           placeholder={placeholder}
           onChangeText={handleChangeText}
-          onFocus={handleFocus}
           onBlur={handleBlur}
-          onEndEditing={handleEndEditing}
           onSubmitEditing={handleSubmit}
-          onLayout={handleInputLayout}
           style={styles.input}
           placeholderTextColor={TOKENS.textMuted}
           autoCapitalize="none"
@@ -411,6 +314,10 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
 
+  // Plain, static input container. NO focus variant — any style diff during
+  // the iOS keyboard-show animation causes UIKit to auto-resign first
+  // responder and instantly dismiss the keyboard. Border color, shadow,
+  // elevation, width, height all stay identical regardless of focus.
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -419,32 +326,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
-    // NOTE: this borderWidth MUST match inputContainerFocused.borderWidth.
-    // iOS auto-resigns the TextInput's first responder if its frame changes
-    // during the keyboard-show animation, and a borderWidth switch shifts
-    // the inner content by ~2px — enough to dismiss the keyboard on every
-    // tap. Keep the outer frame identical between focused and unfocused
-    // states; differentiate focus visually via color only.
     borderWidth: 1,
     borderColor: TOKENS.hairline,
     // Android: react-native-maps draws via a SurfaceView. RN overlays above
     // the map need a positive `elevation` or touch events fail to route
     // through — the input can visually focus but keystrokes never land.
-    // Keep the shadow muted on iOS so the visual stays minimal.
     elevation: 3,
-  },
-
-  inputContainerFocused: {
-    borderColor: TOKENS.primary,
-    // borderWidth intentionally omitted — keep it identical to the base
-    // style so the TextInput's frame is stable across focus transitions.
-    backgroundColor: '#fff',
-    shadowColor: TOKENS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    // Bumped above the base elevation (3) so focus state still layers higher.
-    elevation: 4,
   },
 
   input: {
