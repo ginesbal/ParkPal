@@ -1,8 +1,9 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, LayoutAnimation, Platform, Pressable, Text, UIManager, View } from 'react-native';
 import PlacesSearchBar from '../../../components/PlacesAutocomplete/PlacesSearchBar';
 import { TOKENS } from '../../../constants/theme';
+import { logger } from '../../../utils/loggers';
 import { styles } from '../styles';
 
 // Enable LayoutAnimation on Android
@@ -39,6 +40,24 @@ function MapHeader({
     onPlaceSelected,
 }) {
     const [filtersExpanded, setFiltersExpanded] = useState(false);
+
+    // Proof-of-life log: confirms the latest MapHeader code is running on
+    // device. `fixVersion` is hand-bumped whenever we change this file so
+    // we can tell from logs whether Expo Go has the new bundle or is
+    // serving stale code. Also logs whether quickActions is in the tree.
+    logger.log('dbg_header_render', {
+        fixVersion: 'quickActions-always-mounted-v2',
+        isSearchFocused,
+        isDetailActive,
+        quickActionsMounted: true,
+    }, 'DBG');
+
+    useEffect(() => {
+        logger.log('dbg_header_mount', {
+            fixVersion: 'quickActions-always-mounted-v2',
+        }, 'DBG');
+        return () => logger.log('dbg_header_unmount', {}, 'DBG');
+    }, []);
 
     const handleFilterPress = useCallback((type) => {
         setFilterType(type);
