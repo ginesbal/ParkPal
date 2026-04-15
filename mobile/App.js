@@ -101,7 +101,11 @@ function AppNavigation() {
                     },
                     tabBarActiveTintColor: TOKENS.primary,
                     tabBarInactiveTintColor: TOKENS.textMuted,
-                    tabBarHideOnKeyboard: true,
+                    // TEMPORARY A/B: disabled to test whether RN Navigation's
+                    // tab-bar-hide-on-keyboard layout race is causing iOS to
+                    // auto-resign the search TextInput mid-show-animation.
+                    // If the keyboard now stays up on tap, this was the cause.
+                    tabBarHideOnKeyboard: false,
                     tabBarStyle: {
                         backgroundColor: TOKENS.surface,
                         borderTopWidth: StyleSheet.hairlineWidth,

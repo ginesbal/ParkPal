@@ -220,6 +220,29 @@ export default function PlacesSearchBar({
     }, 'DBG');
   };
 
+  // onLayout tells us when the native view's frame changes. If the TextInput's
+  // width or height collapses to 0 (or near-0) during the focus cycle, iOS
+  // will auto-resign first responder — which matches the symptom exactly.
+  const handleInputLayout = (e) => {
+    const { x, y, width, height } = e.nativeEvent.layout;
+    logger.log('dbg_search_inputLayout', {
+      mountId: mountIdRef.current,
+      x: Math.round(x),
+      y: Math.round(y),
+      width: Math.round(width),
+      height: Math.round(height),
+    }, 'DBG');
+  };
+
+  const handleContainerLayout = (e) => {
+    const { width, height } = e.nativeEvent.layout;
+    logger.log('dbg_search_containerLayout', {
+      mountId: mountIdRef.current,
+      width: Math.round(width),
+      height: Math.round(height),
+    }, 'DBG');
+  };
+
   const handleChangeText = (text) => {
     onChangeText(text);
     setShowSuggestions(text.length >= minChars);
@@ -251,10 +274,13 @@ export default function PlacesSearchBar({
 
   return (
     <View style={[styles.container, containerStyle, style]}>
-      <View style={[
-        styles.inputContainer,
-        isFocused && styles.inputContainerFocused
-      ]}>
+      <View
+        onLayout={handleContainerLayout}
+        style={[
+          styles.inputContainer,
+          isFocused && styles.inputContainerFocused,
+        ]}
+      >
         <MaterialCommunityIcons
           name="magnify"
           size={20}
@@ -270,6 +296,7 @@ export default function PlacesSearchBar({
           onBlur={handleBlur}
           onEndEditing={handleEndEditing}
           onSubmitEditing={handleSubmit}
+          onLayout={handleInputLayout}
           style={styles.input}
           placeholderTextColor={TOKENS.textMuted}
           autoCapitalize="none"
