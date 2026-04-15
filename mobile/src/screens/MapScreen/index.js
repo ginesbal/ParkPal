@@ -53,6 +53,11 @@ function MapScreen() {
     const bottomSheetRef = useRef(null);
     const lastMapInteraction = useRef(null);
     const hideControlsTimer = useRef(null);
+    // Tracks the last time the search input became focused. Used to suppress
+    // the spurious MapView.onPress that Google Maps' native gesture recognizer
+    // fires on iOS when the user taps the search bar (the native recognizer
+    // fires in parallel with RN's touch delivery to the TextInput).
+    const searchFocusAtRef = useRef(0);
 
     // animations
     const controlsOpacity = useRef(new Animated.Value(1)).current;
@@ -284,6 +289,54 @@ function MapScreen() {
         ));
     }, []);
 
+    // Wrap setIsSearchFocused so we stamp the focus time whenever focus is
+    // gained. The stamp is read by handleMapPress to ignore the spurious
+    // onPress that fires from Google Maps' native tap recognizer on iOS.
+    const handleSearchFocusChange = useCallback((focused) => {
+        if (focused) searchFocusAtRef.current = Date.now();
+        setIsSearchFocused(focused);
+    }, []);
+
+    const handleMapPress = useCallback(() => {
+        // Google Maps iOS SDK fires its native tap recognizer in parallel with
+        // RN's touch delivery, so tapping the search bar also triggers this
+        // onPress. If the search was focused within the last 400ms, assume the
+        // onPress is that echo and ignore it — otherwise the keyboard would
+        // dismiss the instant it appears.
+        if (Date.now() - searchFocusAtRef.current < 400) return;
+        if (isSearchFocused) Keyboard.dismiss();
+        setSelectedSpot(null);
+        setFlippableCardVisible(false);
+    }, [isSearchFocused]);
+
+    const handleMapPanDrag = useCallback(() => {
+        handleMapInteraction();
+        setFlippableCardVisible(false);
+    }, [handleMapInteraction]);
+
+    // Stable setSearchMode wrapper for MapHeader — keeps memo(MapHeader) intact.
+    const handleSearchModeChange = useCallback((mode) => {
+        logger.log('search_mode_changed', { to: mode }, 'INFO');
+        setSearchMode(mode);
+    }, []);
+
+    // Stable place-selected handler for MapHeader.
+    const handlePlaceSelected = useCallback((place) => {
+        if (place?.lat && place?.lng) {
+            const newRegion = {
+                latitude: place.lat,
+                longitude: place.lng,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+            };
+            setRegion(newRegion);
+            mapRef.current?.animateToRegion(newRegion, 300);
+            setPinnedLocation(newRegion);
+            setSearchMode('pinned');
+            logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
+        }
+    }, []);
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#fff" />
@@ -297,17 +350,8 @@ function MapScreen() {
                 provider={PROVIDER_GOOGLE}
                 initialRegion={region}
                 onRegionChangeComplete={setRegion}
-                onPanDrag={() => {
-                    handleMapInteraction();
-                    setFlippableCardVisible(false);
-                }}
-                onPress={() => {
-                    // Dismiss the keyboard directly — no state round-trip,
-                    // no race with the search input's focus lifecycle.
-                    if (isSearchFocused) Keyboard.dismiss();
-                    setSelectedSpot(null);
-                    setFlippableCardVisible(false);
-                }}
+                onPanDrag={handleMapPanDrag}
+                onPress={handleMapPress}
                 onLongPress={handleMapLongPress}
                 showsUserLocation
                 showsMyLocationButton={false}
@@ -340,36 +384,19 @@ function MapScreen() {
                 <MapHeader
                     isSearchFocused={isSearchFocused}
                     isDetailActive={flippableCardVisible}
-                    setIsSearchFocused={setIsSearchFocused}
+                    setIsSearchFocused={handleSearchFocusChange}
                     pinnedLocation={pinnedLocation}
                     setPinnedLocation={setPinnedLocation}
                     showPinInstructions={showPinInstructions}
                     setShowPinInstructions={setShowPinInstructions}
                     searchMode={searchMode}
                     // important: track mode changes from the header controls
-                    setSearchMode={(mode) => {
-                        logger.log('search_mode_changed', { to: mode }, 'INFO');
-                        setSearchMode(mode);
-                    }}
+                    setSearchMode={handleSearchModeChange}
                     filterType={filterType}
                     setFilterType={setFilterType}
                     searchRadius={searchRadius}
                     setSearchRadius={setSearchRadius}
-                    onPlaceSelected={(place) => {
-                        if (place?.lat && place?.lng) {
-                            const newRegion = {
-                                latitude: place.lat,
-                                longitude: place.lng,
-                                latitudeDelta: 0.005,
-                                longitudeDelta: 0.005,
-                            };
-                            setRegion(newRegion);
-                            mapRef.current?.animateToRegion(newRegion, 300);
-                            setPinnedLocation(newRegion);
-                            setSearchMode('pinned');
-                            logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
-                        }
-                    }}
+                    onPlaceSelected={handlePlaceSelected}
                 />
             </View>
 

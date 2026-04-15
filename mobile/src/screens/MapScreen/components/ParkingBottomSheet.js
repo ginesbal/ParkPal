@@ -23,6 +23,11 @@ const VELOCITY_THRESHOLD = 0.11;
 // Emil: "Things in real life don't suddenly stop; they slow down first."
 const RUBBER_BAND_FACTOR = 0.35;
 
+// Fully-expanded translateY. Hoisted to module scope so expandTo's useCallback
+// keeps a stable identity across renders — prevents the selectedSpot effect
+// that depends on expandTo from re-running on every parent re-render.
+const EXPANDED_Y = 0;
+
 const ParkingBottomSheet = forwardRef(({
     spots,
     selectedSpot,
@@ -53,7 +58,6 @@ const ParkingBottomSheet = forwardRef(({
         return Math.min(Math.round(peekHeight + 420), availableHeight);
     }, [peekHeight, topInset]);
 
-    const EXPANDED_Y = 0;
     const PEEK_Y = Math.max(0, maxHeight - peekHeight);
     const HIDDEN_Y = maxHeight + 48;
     const translateY = useRef(new Animated.Value(PEEK_Y)).current;
@@ -68,7 +72,7 @@ const ParkingBottomSheet = forwardRef(({
             friction: 9,
             useNativeDriver: true,
         }).start();
-    }, [translateY, EXPANDED_Y]);
+    }, [translateY]);
 
     // Slightly faster spring for collapse — exit should feel snappier than enter
     const collapseTo = useCallback((velocity = 0) => {
