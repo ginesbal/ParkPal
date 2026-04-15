@@ -59,6 +59,13 @@ export const styles = StyleSheet.create({
         gap: 6,
     },
 
+    // Visually hide the quick actions without unmounting them — unmounting
+    // reflows the search bar's flex siblings during the keyboard animation,
+    // which causes iOS to auto-resign the TextInput's first responder.
+    quickActionsHidden: {
+        opacity: 0,
+    },
+
     quickAction: {
         width: 44,
         height: 44,

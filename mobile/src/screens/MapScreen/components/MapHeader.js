@@ -67,68 +67,81 @@ function MapHeader({
                     style={styles.searchContainer}
                 />
 
-                {!isSearchFocused && !isDetailActive && (
-                    <View style={styles.quickActions}>
-                        {/* Filter toggle */}
+                {/* Keep this View mounted at all times: unmounting it on focus
+                    shifts the search-bar frame ~100px wider mid-keyboard-show
+                    animation, which makes iOS auto-resign first responder and
+                    instantly dismiss the keyboard. We hide it via opacity and
+                    gate interaction with pointerEvents instead. */}
+                <View
+                    style={[
+                        styles.quickActions,
+                        (isSearchFocused || isDetailActive) && styles.quickActionsHidden,
+                    ]}
+                    pointerEvents={(isSearchFocused || isDetailActive) ? 'none' : 'auto'}
+                    accessibilityElementsHidden={isSearchFocused || isDetailActive}
+                    importantForAccessibility={
+                        (isSearchFocused || isDetailActive) ? 'no-hide-descendants' : 'auto'
+                    }
+                >
+                    {/* Filter toggle */}
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.quickAction,
+                            filtersExpanded && styles.quickActionActive,
+                            pressed && styles.quickActionPressed,
+                        ]}
+                        onPress={toggleFilters}
+                        accessibilityRole="button"
+                        accessibilityLabel={filtersExpanded ? 'Hide filters' : 'Show filters'}
+                    >
+                        <MaterialCommunityIcons
+                            name="tune-vertical"
+                            size={20}
+                            color={filtersExpanded ? '#fff' : TOKENS.primaryAlt}
+                        />
+                        {activeFilterCount > 0 && !filtersExpanded && (
+                            <View style={styles.filterBadge}>
+                                <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+                            </View>
+                        )}
+                    </Pressable>
+
+                    {/* Pin / location toggle */}
+                    {pinnedLocation ? (
                         <Pressable
                             style={({ pressed }) => [
                                 styles.quickAction,
-                                filtersExpanded && styles.quickActionActive,
+                                searchMode === 'pinned' && styles.quickActionActive,
                                 pressed && styles.quickActionPressed,
                             ]}
-                            onPress={toggleFilters}
+                            onPress={() => setSearchMode(searchMode === 'pinned' ? 'current' : 'pinned')}
                             accessibilityRole="button"
-                            accessibilityLabel={filtersExpanded ? 'Hide filters' : 'Show filters'}
+                            accessibilityLabel={searchMode === 'pinned' ? 'Switch to current location' : 'Use pinned location'}
                         >
                             <MaterialCommunityIcons
-                                name="tune-vertical"
+                                name="map-marker"
                                 size={20}
-                                color={filtersExpanded ? '#fff' : TOKENS.primaryAlt}
+                                color={searchMode === 'pinned' ? '#fff' : TOKENS.primaryAlt}
                             />
-                            {activeFilterCount > 0 && !filtersExpanded && (
-                                <View style={styles.filterBadge}>
-                                    <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
-                                </View>
-                            )}
                         </Pressable>
-
-                        {/* Pin / location toggle */}
-                        {pinnedLocation ? (
-                            <Pressable
-                                style={({ pressed }) => [
-                                    styles.quickAction,
-                                    searchMode === 'pinned' && styles.quickActionActive,
-                                    pressed && styles.quickActionPressed,
-                                ]}
-                                onPress={() => setSearchMode(searchMode === 'pinned' ? 'current' : 'pinned')}
-                                accessibilityRole="button"
-                                accessibilityLabel={searchMode === 'pinned' ? 'Switch to current location' : 'Use pinned location'}
-                            >
-                                <MaterialCommunityIcons
-                                    name="map-marker"
-                                    size={20}
-                                    color={searchMode === 'pinned' ? '#fff' : TOKENS.primaryAlt}
-                                />
-                            </Pressable>
-                        ) : (
-                            <Pressable
-                                style={({ pressed }) => [
-                                    styles.quickAction,
-                                    pressed && styles.quickActionPressed,
-                                ]}
-                                onPress={() => setShowPinInstructions(!showPinInstructions)}
-                                accessibilityRole="button"
-                                accessibilityLabel="Drop a pin on the map"
-                            >
-                                <MaterialCommunityIcons
-                                    name="map-marker-plus"
-                                    size={20}
-                                    color={TOKENS.primaryAlt}
-                                />
-                            </Pressable>
-                        )}
-                    </View>
-                )}
+                    ) : (
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.quickAction,
+                                pressed && styles.quickActionPressed,
+                            ]}
+                            onPress={() => setShowPinInstructions(!showPinInstructions)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Drop a pin on the map"
+                        >
+                            <MaterialCommunityIcons
+                                name="map-marker-plus"
+                                size={20}
+                                color={TOKENS.primaryAlt}
+                            />
+                        </Pressable>
+                    )}
+                </View>
             </View>
 
             {/* Expandable filters — single inline row */}
