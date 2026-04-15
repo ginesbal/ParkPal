@@ -111,6 +111,27 @@ export default function PlacesSearchBar({
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // --- DEBUG INSTRUMENTATION -------------------------------------------
+  // Unique per-mount identifier. If this value is different when blur fires
+  // vs when focus fired, the component was remounted (i.e., the native
+  // TextInput was destroyed and recreated — which always resigns first
+  // responder and dismisses the keyboard).
+  const mountIdRef = useRef(null);
+  if (mountIdRef.current == null) {
+    mountIdRef.current = Math.random().toString(36).slice(2, 8);
+  }
+  // Render counter — if this jumps between focus and blur, we're re-rendering
+  // the TextInput a suspicious number of times.
+  const renderCountRef = useRef(0);
+  renderCountRef.current += 1;
+  logger.log('dbg_search_render', {
+    mountId: mountIdRef.current,
+    renderCount: renderCountRef.current,
+    isFocused,
+    showSuggestions,
+  }, 'DBG');
+  // --------------------------------------------------------------------
+
   const {
     input,
     onChangeText,
@@ -154,12 +175,22 @@ export default function PlacesSearchBar({
   // search bar is being unmounted — which would also blur the TextInput and
   // explain a dismiss.
   useEffect(() => {
-    logger.log('dbg_search_mount', { t: Date.now() }, 'DBG');
-    return () => logger.log('dbg_search_unmount', { t: Date.now() }, 'DBG');
+    logger.log('dbg_search_mount', {
+      mountId: mountIdRef.current,
+      t: Date.now(),
+    }, 'DBG');
+    return () => logger.log('dbg_search_unmount', {
+      mountId: mountIdRef.current,
+      t: Date.now(),
+    }, 'DBG');
   }, []);
 
   const handleFocus = () => {
-    logger.log('dbg_search_onFocus', { t: Date.now() }, 'DBG');
+    logger.log('dbg_search_onFocus', {
+      mountId: mountIdRef.current,
+      renderCount: renderCountRef.current,
+      t: Date.now(),
+    }, 'DBG');
     setIsFocused(true);
     setShowSuggestions(true);
     onFocusChange(true);
@@ -169,10 +200,24 @@ export default function PlacesSearchBar({
     // Fire immediately. Suggestion taps work because the FlatList uses
     // keyboardShouldPersistTaps="handled", so the tap is delivered to the
     // suggestion row before the TextInput blurs.
-    logger.log('dbg_search_onBlur', { t: Date.now() }, 'DBG');
+    logger.log('dbg_search_onBlur', {
+      mountId: mountIdRef.current,
+      renderCount: renderCountRef.current,
+      t: Date.now(),
+    }, 'DBG');
     setIsFocused(false);
     if (!input) setShowSuggestions(false);
     onFocusChange(false);
+  };
+
+  // onEndEditing fires after native resignFirstResponder — if this fires
+  // without us calling .blur() or Keyboard.dismiss(), it confirms the
+  // resignation came from iOS (unmount, gesture steal, etc.).
+  const handleEndEditing = () => {
+    logger.log('dbg_search_onEndEditing', {
+      mountId: mountIdRef.current,
+      t: Date.now(),
+    }, 'DBG');
   };
 
   const handleChangeText = (text) => {
@@ -223,6 +268,7 @@ export default function PlacesSearchBar({
           onChangeText={handleChangeText}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onEndEditing={handleEndEditing}
           onSubmitEditing={handleSubmit}
           style={styles.input}
           placeholderTextColor={TOKENS.textMuted}
