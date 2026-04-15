@@ -1,9 +1,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, LayoutAnimation, Platform, Pressable, Text, UIManager, View } from 'react-native';
+import { memo, useCallback, useState } from 'react';
+import { LayoutAnimation, Platform, Pressable, Text, UIManager, View } from 'react-native';
 import PlacesSearchBar from '../../../components/PlacesAutocomplete/PlacesSearchBar';
 import { TOKENS } from '../../../constants/theme';
-import { logger } from '../../../utils/loggers';
 import { styles } from '../styles';
 
 // Enable LayoutAnimation on Android
@@ -25,9 +24,7 @@ const DISTANCE_PRESETS = [
 ];
 
 function MapHeader({
-    isSearchFocused,
     isDetailActive,
-    setIsSearchFocused,
     pinnedLocation,
     showPinInstructions,
     setShowPinInstructions,
@@ -40,24 +37,6 @@ function MapHeader({
     onPlaceSelected,
 }) {
     const [filtersExpanded, setFiltersExpanded] = useState(false);
-
-    // Proof-of-life log: confirms the latest MapHeader code is running on
-    // device. `fixVersion` is hand-bumped whenever we change this file so
-    // we can tell from logs whether Expo Go has the new bundle or is
-    // serving stale code. Also logs whether quickActions is in the tree.
-    logger.log('dbg_header_render', {
-        fixVersion: 'quickActions-always-mounted-v2',
-        isSearchFocused,
-        isDetailActive,
-        quickActionsMounted: true,
-    }, 'DBG');
-
-    useEffect(() => {
-        logger.log('dbg_header_mount', {
-            fixVersion: 'quickActions-always-mounted-v2',
-        }, 'DBG');
-        return () => logger.log('dbg_header_unmount', {}, 'DBG');
-    }, []);
 
     const handleFilterPress = useCallback((type) => {
         setFilterType(type);
@@ -78,93 +57,86 @@ function MapHeader({
 
     return (
         <View style={styles.headerBar}>
-            {/* Single search row: input + action buttons */}
-            <View style={styles.searchInputRow}>
-                <PlacesSearchBar
-                    onPlaceSelected={onPlaceSelected}
-                    onFocusChange={setIsSearchFocused}
-                    style={styles.searchContainer}
-                />
-
-                {/* Keep this View mounted at all times: unmounting it on focus
-                    shifts the search-bar frame ~100px wider mid-keyboard-show
-                    animation, which makes iOS auto-resign first responder and
-                    instantly dismiss the keyboard. We hide it via opacity and
-                    gate interaction with pointerEvents instead. */}
-                <View
-                    style={[
-                        styles.quickActions,
-                        (isSearchFocused || isDetailActive) && styles.quickActionsHidden,
+            {/* Quick actions row — filter + pin buttons sit above the search
+                bar, right-aligned. Hidden while the flippable detail card is
+                open so the header stays minimal. */}
+            <View
+                style={[
+                    styles.quickActions,
+                    isDetailActive && styles.quickActionsHidden,
+                ]}
+                pointerEvents={isDetailActive ? 'none' : 'auto'}
+                accessibilityElementsHidden={isDetailActive}
+                importantForAccessibility={isDetailActive ? 'no-hide-descendants' : 'auto'}
+            >
+                {/* Filter toggle */}
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.quickAction,
+                        filtersExpanded && styles.quickActionActive,
+                        pressed && styles.quickActionPressed,
                     ]}
-                    pointerEvents={(isSearchFocused || isDetailActive) ? 'none' : 'auto'}
-                    accessibilityElementsHidden={isSearchFocused || isDetailActive}
-                    importantForAccessibility={
-                        (isSearchFocused || isDetailActive) ? 'no-hide-descendants' : 'auto'
-                    }
+                    onPress={toggleFilters}
+                    accessibilityRole="button"
+                    accessibilityLabel={filtersExpanded ? 'Hide filters' : 'Show filters'}
                 >
-                    {/* Filter toggle */}
+                    <MaterialCommunityIcons
+                        name="tune-vertical"
+                        size={20}
+                        color={filtersExpanded ? '#fff' : TOKENS.primaryAlt}
+                    />
+                    {activeFilterCount > 0 && !filtersExpanded && (
+                        <View style={styles.filterBadge}>
+                            <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+                        </View>
+                    )}
+                </Pressable>
+
+                {/* Pin / location toggle */}
+                {pinnedLocation ? (
                     <Pressable
                         style={({ pressed }) => [
                             styles.quickAction,
-                            filtersExpanded && styles.quickActionActive,
+                            searchMode === 'pinned' && styles.quickActionActive,
                             pressed && styles.quickActionPressed,
                         ]}
-                        onPress={toggleFilters}
+                        onPress={() => setSearchMode(searchMode === 'pinned' ? 'current' : 'pinned')}
                         accessibilityRole="button"
-                        accessibilityLabel={filtersExpanded ? 'Hide filters' : 'Show filters'}
+                        accessibilityLabel={searchMode === 'pinned' ? 'Switch to current location' : 'Use pinned location'}
                     >
                         <MaterialCommunityIcons
-                            name="tune-vertical"
+                            name="map-marker"
                             size={20}
-                            color={filtersExpanded ? '#fff' : TOKENS.primaryAlt}
+                            color={searchMode === 'pinned' ? '#fff' : TOKENS.primaryAlt}
                         />
-                        {activeFilterCount > 0 && !filtersExpanded && (
-                            <View style={styles.filterBadge}>
-                                <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
-                            </View>
-                        )}
                     </Pressable>
-
-                    {/* Pin / location toggle */}
-                    {pinnedLocation ? (
-                        <Pressable
-                            style={({ pressed }) => [
-                                styles.quickAction,
-                                searchMode === 'pinned' && styles.quickActionActive,
-                                pressed && styles.quickActionPressed,
-                            ]}
-                            onPress={() => setSearchMode(searchMode === 'pinned' ? 'current' : 'pinned')}
-                            accessibilityRole="button"
-                            accessibilityLabel={searchMode === 'pinned' ? 'Switch to current location' : 'Use pinned location'}
-                        >
-                            <MaterialCommunityIcons
-                                name="map-marker"
-                                size={20}
-                                color={searchMode === 'pinned' ? '#fff' : TOKENS.primaryAlt}
-                            />
-                        </Pressable>
-                    ) : (
-                        <Pressable
-                            style={({ pressed }) => [
-                                styles.quickAction,
-                                pressed && styles.quickActionPressed,
-                            ]}
-                            onPress={() => setShowPinInstructions(!showPinInstructions)}
-                            accessibilityRole="button"
-                            accessibilityLabel="Drop a pin on the map"
-                        >
-                            <MaterialCommunityIcons
-                                name="map-marker-plus"
-                                size={20}
-                                color={TOKENS.primaryAlt}
-                            />
-                        </Pressable>
-                    )}
-                </View>
+                ) : (
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.quickAction,
+                            pressed && styles.quickActionPressed,
+                        ]}
+                        onPress={() => setShowPinInstructions(!showPinInstructions)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Drop a pin on the map"
+                    >
+                        <MaterialCommunityIcons
+                            name="map-marker-plus"
+                            size={20}
+                            color={TOKENS.primaryAlt}
+                        />
+                    </Pressable>
+                )}
             </View>
 
+            {/* Search bar — full width, below the quick actions. */}
+            <PlacesSearchBar
+                onPlaceSelected={onPlaceSelected}
+                style={styles.searchContainer}
+            />
+
             {/* Expandable filters — single inline row */}
-            {filtersExpanded && !isDetailActive && !isSearchFocused && (
+            {filtersExpanded && !isDetailActive && (
                 <View style={styles.filtersInline}>
                     {/* Type chips */}
                     {TYPE_FILTERS.map(f => (

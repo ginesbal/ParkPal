@@ -44,24 +44,18 @@ export const styles = StyleSheet.create({
         elevation: 3,
     },
 
-    searchInputRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-
     searchContainer: {
-        flex: 1,
+        width: '100%',
     },
 
     quickActions: {
         flexDirection: 'row',
+        justifyContent: 'flex-end',
         gap: 6,
     },
 
-    // Visually hide the quick actions without unmounting them — unmounting
-    // reflows the search bar's flex siblings during the keyboard animation,
-    // which causes iOS to auto-resign the TextInput's first responder.
+    // Used to fade out the quick actions while keeping them mounted, so we
+    // never reflow the header layout mid-animation.
     quickActionsHidden: {
         opacity: 0,
     },
