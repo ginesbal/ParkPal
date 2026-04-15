@@ -24,7 +24,6 @@ const DISTANCE_PRESETS = [
 ];
 
 function MapHeader({
-    shouldDismissSearch,
     isSearchFocused,
     isDetailActive,
     setIsSearchFocused,
@@ -63,7 +62,6 @@ function MapHeader({
             {/* Single search row: input + action buttons */}
             <View style={styles.searchInputRow}>
                 <PlacesSearchBar
-                    shouldDismiss={shouldDismissSearch}
                     onPlaceSelected={onPlaceSelected}
                     onFocusChange={setIsSearchFocused}
                     style={styles.searchContainer}

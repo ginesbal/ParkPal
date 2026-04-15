@@ -4,15 +4,27 @@ import {
   Animated,
   FlatList,
   Keyboard,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
-import { TOKENS, alpha } from '../../constants/theme';
+import { RADIUS, TOKENS, alpha } from '../../constants/theme';
 import usePlacesAutocomplete from '../../hooks/usePlacesAutocomplete';
+
+// Generic, non-leaky message for the error card. We never surface raw
+// fetch/API error text to users — it can expose backend internals.
+const USER_ERROR_MESSAGE = 'Search is offline. Check your connection.';
+
+// Maps Google Places prediction types to a glyph. Coerces `types` to an array
+// so malformed payloads can't crash the row render.
+const iconForTypes = (types) => {
+  const t = Array.isArray(types) ? types : [];
+  if (t.includes('airport')) return 'airplane';
+  if (t.includes('establishment')) return 'domain';
+  return 'map-marker';
+};
 
 // dev fetcher: calls google places api directly (exposes api key in bundle)
 // requires "places api" (legacy) enabled in google cloud console
@@ -86,7 +98,6 @@ function SearchLoadingDots() {
 export default function PlacesSearchBar({
   onPlaceSelected = () => { },
   onFocusChange = () => { },
-  shouldDismiss = false,
   fetcher = __DEV__ ? devDirectFetcher : productionFetcher,
   components = 'country:ca',
   placeholder = 'Search address or place',
@@ -112,15 +123,6 @@ export default function PlacesSearchBar({
     minChars,
     debounceMs
   });
-
-  useEffect(() => {
-    if (shouldDismiss && isFocused) {
-      inputRef.current?.blur();
-      setIsFocused(false);
-      setShowSuggestions(false);
-      onFocusChange(false);
-    }
-  }, [shouldDismiss, isFocused, onFocusChange]);
 
   // handles place selection: gets details, extracts coordinates, notifies parent
   const handleSelect = async (item) => {
@@ -154,13 +156,12 @@ export default function PlacesSearchBar({
   };
 
   const handleBlur = () => {
-    setTimeout(() => {
-      setIsFocused(false);
-      if (!input) {
-        setShowSuggestions(false);
-      }
-      onFocusChange(false);
-    }, 200);
+    // Fire immediately. Suggestion taps work because the FlatList uses
+    // keyboardShouldPersistTaps="handled", so the tap is delivered to the
+    // suggestion row before the TextInput blurs.
+    setIsFocused(false);
+    if (!input) setShowSuggestions(false);
+    onFocusChange(false);
   };
 
   const handleChangeText = (text) => {
@@ -168,11 +169,29 @@ export default function PlacesSearchBar({
     setShowSuggestions(text.length >= minChars);
   };
 
+  // Return key: pick the top suggestion if we have one, otherwise just
+  // dismiss the keyboard. `blurOnSubmit={false}` on the input means we
+  // control the blur explicitly via handleSelect / Keyboard.dismiss.
+  const handleSubmit = () => {
+    if (suggestions.length > 0) {
+      handleSelect(suggestions[0]);
+      return;
+    }
+    Keyboard.dismiss();
+  };
+
   const clearInput = () => {
     onChangeText('');
     setShowSuggestions(false);
     inputRef.current?.focus();
   };
+
+  const showEmptyState =
+    showSuggestions &&
+    !loading &&
+    !error &&
+    input.length >= minChars &&
+    suggestions.length === 0;
 
   return (
     <View style={[styles.container, containerStyle, style]}>
@@ -193,12 +212,19 @@ export default function PlacesSearchBar({
           onChangeText={handleChangeText}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onSubmitEditing={handleSubmit}
           style={styles.input}
           placeholderTextColor={TOKENS.textMuted}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
+          blurOnSubmit={false}
           clearButtonMode="never"
+          keyboardType="default"
+          textContentType="fullStreetAddress"
+          autoComplete="street-address"
+          accessibilityLabel="Search address or place"
+          accessibilityHint="Shows matching addresses as you type"
         />
 
         {/* fixed search container prevents layout shift when loading/clear appears */}
@@ -206,7 +232,13 @@ export default function PlacesSearchBar({
           {loading ? (
             <SearchLoadingDots />
           ) : input.length > 0 ? (
-            <TouchableOpacity onPress={clearInput} style={styles.clearButton}>
+            <TouchableOpacity
+              onPress={clearInput}
+              style={styles.clearButton}
+              accessibilityRole="button"
+              accessibilityLabel="Clear search"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
               <MaterialCommunityIcons
                 name="close-circle"
                 size={20}
@@ -223,39 +255,44 @@ export default function PlacesSearchBar({
             keyboardShouldPersistTaps="handled"
             data={suggestions}
             keyExtractor={(item) => item.place_id}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                style={[
-                  styles.suggestionItem,
-                  index === 0 && styles.suggestionItemFirst,
-                  index === suggestions.length - 1 && styles.suggestionItemLast
-                ]}
-                onPress={() => handleSelect(item)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.suggestionIcon}>
-                  <MaterialCommunityIcons
-                    name={
-                      item.types?.includes('airport') ? 'airplane' :
-                        item.types?.includes('establishment') ? 'domain' :
-                          'map-marker'
-                    }
-                    size={18}
-                    color={TOKENS.primary}
-                  />
-                </View>
+            renderItem={({ item, index }) => {
+              const mainText = item.structured_formatting?.main_text
+                || item.description.split(',')[0];
+              const secondaryText = item.structured_formatting?.secondary_text
+                || item.description.split(',').slice(1).join(',').trim();
+              return (
+                <TouchableOpacity
+                  style={[
+                    styles.suggestionItem,
+                    index === 0 && styles.suggestionItemFirst,
+                    index === suggestions.length - 1 && styles.suggestionItemLast
+                  ]}
+                  onPress={() => handleSelect(item)}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    secondaryText ? `${mainText}, ${secondaryText}` : mainText
+                  }
+                >
+                  <View style={styles.suggestionIcon}>
+                    <MaterialCommunityIcons
+                      name={iconForTypes(item.types)}
+                      size={18}
+                      color={TOKENS.primary}
+                    />
+                  </View>
 
-                <View style={styles.suggestionText}>
-                  <Text style={styles.mainText} numberOfLines={1}>
-                    {item.structured_formatting?.main_text || item.description.split(',')[0]}
-                  </Text>
-                  <Text style={styles.secondaryText} numberOfLines={1}>
-                    {item.structured_formatting?.secondary_text ||
-                      item.description.split(',').slice(1).join(',')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
+                  <View style={styles.suggestionText}>
+                    <Text style={styles.mainText} numberOfLines={1}>
+                      {mainText}
+                    </Text>
+                    <Text style={styles.secondaryText} numberOfLines={1}>
+                      {secondaryText}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             style={styles.suggestionsList}
             nestedScrollEnabled
@@ -263,11 +300,22 @@ export default function PlacesSearchBar({
         </View>
       )}
 
-      {error && !loading && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>
-            {error.message || 'Search failed'}
+      {showEmptyState && (
+        <View style={styles.emptyStateContainer} accessibilityLiveRegion="polite">
+          <MaterialCommunityIcons
+            name="map-search-outline"
+            size={20}
+            color={TOKENS.textMuted}
+          />
+          <Text style={styles.emptyStateText}>
+            No matches — try a street or landmark
           </Text>
+        </View>
+      )}
+
+      {error && !loading && (
+        <View style={styles.errorContainer} accessibilityLiveRegion="polite">
+          <Text style={styles.errorText}>{USER_ERROR_MESSAGE}</Text>
         </View>
       )}
     </View>
@@ -283,7 +331,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
@@ -298,6 +346,8 @@ const styles = StyleSheet.create({
 
   inputContainerFocused: {
     borderColor: TOKENS.primary,
+    // Thicker focus ring — hairline is too subtle against a map background.
+    borderWidth: 1,
     backgroundColor: '#fff',
     shadowColor: TOKENS.shadow,
     shadowOffset: { width: 0, height: 2 },
@@ -338,13 +388,13 @@ const styles = StyleSheet.create({
   },
 
   clearButton: {
-    padding: 5,
-    borderRadius: 12,
+    padding: 6,
+    borderRadius: RADIUS.pill,
   },
 
   suggestionsContainer: {
     marginTop: 6,
-    borderRadius: 14,
+    borderRadius: RADIUS.lg,
     backgroundColor: TOKENS.surface,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
@@ -393,7 +443,7 @@ const styles = StyleSheet.create({
 
   mainText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
     color: TOKENS.text,
     marginBottom: 3,
     lineHeight: 20,
@@ -412,11 +462,32 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 
+  emptyStateContainer: {
+    marginTop: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: RADIUS.lg,
+    backgroundColor: TOKENS.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TOKENS.hairline,
+  },
+
+  emptyStateText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '500',
+    color: TOKENS.textMuted,
+    lineHeight: 18,
+  },
+
   errorContainer: {
     marginTop: 6,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     backgroundColor: TOKENS.dangerSoft,
     borderWidth: 1,
     borderColor: alpha(TOKENS.danger, 0.18),

@@ -5,6 +5,7 @@ import * as Location from 'expo-location';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Animated,
+    Keyboard,
     Linking,
     Pressable,
     StatusBar,
@@ -52,6 +53,11 @@ function MapScreen() {
     const bottomSheetRef = useRef(null);
     const lastMapInteraction = useRef(null);
     const hideControlsTimer = useRef(null);
+    // Tracks the last time the search input became focused. Used to suppress
+    // the spurious MapView.onPress that Google Maps' native gesture recognizer
+    // fires on iOS when the user taps the search bar (the native recognizer
+    // fires in parallel with RN's touch delivery to the TextInput).
+    const searchFocusAtRef = useRef(0);
 
     // animations
     const controlsOpacity = useRef(new Animated.Value(1)).current;
@@ -66,7 +72,6 @@ function MapScreen() {
     const [searchRadius, setSearchRadius] = useState(150);
     const [selectedSpot, setSelectedSpot] = useState(null);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
-    const [shouldDismissSearch, setShouldDismissSearch] = useState(false);
 
     // pin state
     const [pinnedLocation, setPinnedLocation] = useState(null);
@@ -284,79 +289,69 @@ function MapScreen() {
         ));
     }, []);
 
+    // Wrap setIsSearchFocused so we stamp the focus time whenever focus is
+    // gained. The stamp is read by handleMapPress to ignore the spurious
+    // onPress that fires from Google Maps' native tap recognizer on iOS.
+    const handleSearchFocusChange = useCallback((focused) => {
+        if (focused) searchFocusAtRef.current = Date.now();
+        setIsSearchFocused(focused);
+    }, []);
+
+    const handleMapPress = useCallback(() => {
+        // Google Maps iOS SDK fires its native tap recognizer in parallel with
+        // RN's touch delivery, so tapping the search bar also triggers this
+        // onPress. If the search was focused within the last 400ms, assume the
+        // onPress is that echo and ignore it — otherwise the keyboard would
+        // dismiss the instant it appears.
+        if (Date.now() - searchFocusAtRef.current < 400) return;
+        if (isSearchFocused) Keyboard.dismiss();
+        setSelectedSpot(null);
+        setFlippableCardVisible(false);
+    }, [isSearchFocused]);
+
+    const handleMapPanDrag = useCallback(() => {
+        handleMapInteraction();
+        setFlippableCardVisible(false);
+    }, [handleMapInteraction]);
+
+    // Stable setSearchMode wrapper for MapHeader — keeps memo(MapHeader) intact.
+    const handleSearchModeChange = useCallback((mode) => {
+        logger.log('search_mode_changed', { to: mode }, 'INFO');
+        setSearchMode(mode);
+    }, []);
+
+    // Stable place-selected handler for MapHeader.
+    const handlePlaceSelected = useCallback((place) => {
+        if (place?.lat && place?.lng) {
+            const newRegion = {
+                latitude: place.lat,
+                longitude: place.lng,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+            };
+            setRegion(newRegion);
+            mapRef.current?.animateToRegion(newRegion, 300);
+            setPinnedLocation(newRegion);
+            setSearchMode('pinned');
+            logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
+        }
+    }, []);
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-            {/* header */}
-            <View style={dynamicStyles.topNavigation} onLayout={handleNavigationLayout}>
-                <MapHeader
-                    shouldDismissSearch={shouldDismissSearch}
-                    isSearchFocused={isSearchFocused}
-                    isDetailActive={flippableCardVisible}
-                    setIsSearchFocused={setIsSearchFocused}
-                    pinnedLocation={pinnedLocation}
-                    setPinnedLocation={setPinnedLocation}
-                    showPinInstructions={showPinInstructions}
-                    setShowPinInstructions={setShowPinInstructions}
-                    searchMode={searchMode}
-                    // important: track mode changes from the header controls
-                    setSearchMode={(mode) => {
-                        logger.log('search_mode_changed', { to: mode }, 'INFO');
-                        setSearchMode(mode);
-                    }}
-                    filterType={filterType}
-                    setFilterType={setFilterType}
-                    searchRadius={searchRadius}
-                    setSearchRadius={setSearchRadius}
-                    onPlaceSelected={(place) => {
-                        if (place?.lat && place?.lng) {
-                            const newRegion = {
-                                latitude: place.lat,
-                                longitude: place.lng,
-                                latitudeDelta: 0.005,
-                                longitudeDelta: 0.005,
-                            };
-                            setRegion(newRegion);
-                            mapRef.current?.animateToRegion(newRegion, 300);
-                            setPinnedLocation(newRegion);
-                            setSearchMode('pinned');
-                            logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
-                        }
-                    }}
-                />
-            </View>
-
-            {/* pin instruction tooltip */}
-            {showPinInstructions && !pinnedLocation && (
-                <Animated.View style={dynamicStyles.tooltip}>
-                    <View style={styles.tooltipArrow} />
-                    <Text style={styles.tooltipText}>
-                        Press and hold anywhere on the map to search that location
-                    </Text>
-                </Animated.View>
-            )}
-
-            {/* map — full screen, header floats over it */}
+            {/* map — rendered FIRST so iOS hitTest routes taps on later siblings
+                (header, FAB, bottom sheet) to those overlays instead of leaking
+                through to the map's onPress. */}
             <MapView
                 ref={mapRef}
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
                 initialRegion={region}
                 onRegionChangeComplete={setRegion}
-                onPanDrag={() => {
-                    handleMapInteraction();
-                    setFlippableCardVisible(false);
-                }}
-                onPress={() => {
-                    if (isSearchFocused) {
-                        setShouldDismissSearch(true);
-                        setTimeout(() => setShouldDismissSearch(false), 100);
-                    }
-
-                    setSelectedSpot(null);
-                    setFlippableCardVisible(false);
-                }}
+                onPanDrag={handleMapPanDrag}
+                onPress={handleMapPress}
                 onLongPress={handleMapLongPress}
                 showsUserLocation
                 showsMyLocationButton={false}
@@ -382,6 +377,38 @@ function MapScreen() {
                     onSelectSpot={selectSpot}
                 />
             </MapView>
+
+            {/* header — rendered AFTER the map so it sits on top for both
+                painting and iOS touch routing. */}
+            <View style={dynamicStyles.topNavigation} onLayout={handleNavigationLayout}>
+                <MapHeader
+                    isSearchFocused={isSearchFocused}
+                    isDetailActive={flippableCardVisible}
+                    setIsSearchFocused={handleSearchFocusChange}
+                    pinnedLocation={pinnedLocation}
+                    setPinnedLocation={setPinnedLocation}
+                    showPinInstructions={showPinInstructions}
+                    setShowPinInstructions={setShowPinInstructions}
+                    searchMode={searchMode}
+                    // important: track mode changes from the header controls
+                    setSearchMode={handleSearchModeChange}
+                    filterType={filterType}
+                    setFilterType={setFilterType}
+                    searchRadius={searchRadius}
+                    setSearchRadius={setSearchRadius}
+                    onPlaceSelected={handlePlaceSelected}
+                />
+            </View>
+
+            {/* pin instruction tooltip */}
+            {showPinInstructions && !pinnedLocation && (
+                <Animated.View style={dynamicStyles.tooltip}>
+                    <View style={styles.tooltipArrow} />
+                    <Text style={styles.tooltipText}>
+                        Press and hold anywhere on the map to search that location
+                    </Text>
+                </Animated.View>
+            )}
 
             {/* floating recenter button */}
             <Animated.View
