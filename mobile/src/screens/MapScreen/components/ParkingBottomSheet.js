@@ -241,30 +241,17 @@ const ParkingBottomSheet = forwardRef(({
                 <View style={styles.handle} />
 
                 <View style={styles.headerContent}>
-                    <View style={styles.headerLeft}>
-                        <View style={[
-                            styles.searchModeIndicator,
-                            searchMode === 'pinned' && styles.searchModeIndicatorPinned
-                        ]}>
-                            <MaterialCommunityIcons
-                                name={searchMode === 'pinned' ? 'map-marker' : 'crosshairs-gps'}
-                                size={14}
-                                color="#fff"
-                            />
-                        </View>
-
-                        <View style={styles.headerInfo}>
-                            <Text style={styles.headerTitle}>
-                                {spots.length} {spots.length === 1 ? 'spot' : 'spots'} nearby
-                            </Text>
-                            <Text style={styles.headerSubtitle} numberOfLines={1}>
-                                {selectedSpot?.address
-                                    ? `Selected: ${selectedSpot.address}`
-                                    : searchMode === 'pinned'
-                                        ? 'Around your pinned location'
-                                        : 'Near your current location'}
-                            </Text>
-                        </View>
+                    <View style={styles.headerInfo}>
+                        <Text style={styles.headerTitle}>
+                            {spots.length} {spots.length === 1 ? 'spot' : 'spots'} nearby
+                        </Text>
+                        <Text style={styles.headerSubtitle} numberOfLines={1}>
+                            {selectedSpot?.address
+                                ? `Selected: ${selectedSpot.address}`
+                                : searchMode === 'pinned'
+                                    ? 'Around your pinned location'
+                                    : 'Near your current location'}
+                        </Text>
                     </View>
 
                     {searchMode === 'pinned' && onClearPin && (
@@ -373,7 +360,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 10,
         right: 10,
-        borderRadius: 18,
+        borderRadius: 22,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
@@ -409,33 +396,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         gap: 12,
     },
-    headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-        gap: 10,
-    },
-    // Calmer indicator — smaller, less dominant. Color carries the meaning, size doesn't need to.
-    searchModeIndicator: {
-        width: 28,
-        height: 28,
-        borderRadius: 8,
-        backgroundColor: TOKENS.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    searchModeIndicatorPinned: {
-        backgroundColor: TOKENS.primaryAlt,
-    },
     headerInfo: {
         gap: 4,
         flex: 1,
     },
-    // Radius presets — same chip recipe as the map header's filter chips.
+    // Radius presets — same pill recipe as the map header's filter chips.
     radiusRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
+        flexWrap: 'wrap',
         paddingHorizontal: 20,
         marginTop: 12,
     },
@@ -446,9 +416,9 @@ const styles = StyleSheet.create({
         marginRight: 2,
     },
     radiusChip: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+        borderRadius: 999,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
@@ -458,7 +428,8 @@ const styles = StyleSheet.create({
         borderColor: TOKENS.primary,
     },
     radiusChipPressed: {
-        opacity: 0.6,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.9,
     },
     radiusChipText: {
         fontSize: 12,
@@ -473,9 +444,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
-        paddingHorizontal: 12,
+        paddingHorizontal: 14,
         paddingVertical: 8,
-        borderRadius: 10,
+        borderRadius: 999,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.primaryBorder,
@@ -522,7 +493,7 @@ const styles = StyleSheet.create({
     emptyIconContainer: {
         width: 48,
         height: 48,
-        borderRadius: 12,
+        borderRadius: 24,
         backgroundColor: TOKENS.surfaceMuted,
         alignItems: 'center',
         justifyContent: 'center',

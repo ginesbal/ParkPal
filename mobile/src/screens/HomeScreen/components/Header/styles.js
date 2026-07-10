@@ -114,7 +114,7 @@ export const styles = StyleSheet.create({
         minHeight: 44,
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 10,
+        borderRadius: 999,
         backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
@@ -125,7 +125,8 @@ export const styles = StyleSheet.create({
         borderColor: TOKENS.primary,
     },
     filterChipPressed: {
-        opacity: 0.6,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.9,
     },
     filterChipText: {
         fontSize: 13,
@@ -159,7 +160,7 @@ export const styles = StyleSheet.create({
         minHeight: 44,
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 10,
+        borderRadius: 999,
         backgroundColor: TOKENS.surfaceMuted,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
@@ -170,7 +171,8 @@ export const styles = StyleSheet.create({
         borderColor: TOKENS.primary,
     },
     distanceOptionPressed: {
-        opacity: 0.6,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.9,
     },
     distanceOptionText: {
         fontSize: 12,

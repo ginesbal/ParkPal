@@ -323,8 +323,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: RADIUS.md,
-    paddingHorizontal: 14,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: 16,
     height: 44,
     gap: 10,
     borderWidth: 1,
@@ -371,8 +371,8 @@ const styles = StyleSheet.create({
   },
 
   suggestionsContainer: {
-    marginTop: 6,
-    borderRadius: RADIUS.lg,
+    marginTop: 8,
+    borderRadius: RADIUS.xl,
     backgroundColor: TOKENS.surface,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   suggestionIcon: {
     width: 36,
     height: 36,
-    borderRadius: 10,
+    borderRadius: 18,
     backgroundColor: TOKENS.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
@@ -441,13 +441,13 @@ const styles = StyleSheet.create({
   },
 
   emptyStateContainer: {
-    marginTop: 6,
+    marginTop: 8,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.xl,
     backgroundColor: TOKENS.surface,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TOKENS.hairline,
@@ -462,10 +462,10 @@ const styles = StyleSheet.create({
   },
 
   errorContainer: {
-    marginTop: 6,
-    paddingHorizontal: 14,
+    marginTop: 8,
+    paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.xl,
     backgroundColor: TOKENS.dangerSoft,
     borderWidth: 1,
     borderColor: alpha(TOKENS.danger, 0.18),

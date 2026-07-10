@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { TOKENS, alpha } from '../../constants/theme';
+import { TOKENS } from '../../constants/theme';
 import { SHEET_MIN_HEIGHT } from './constants';
 
 export const styles = StyleSheet.create({
@@ -29,19 +29,10 @@ export const styles = StyleSheet.create({
         elevation: 10,
     },
 
+    // No containing slab — the search pill, circular buttons, and filter
+    // pills each float directly over the map with their own quiet surface.
     headerBar: {
-        backgroundColor: TOKENS.surfaceOverlay,
-        borderRadius: 16,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
         gap: 8,
-        shadowColor: TOKENS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.04,
-        shadowRadius: 12,
-        elevation: 3,
     },
 
     searchContainer: {
@@ -51,7 +42,7 @@ export const styles = StyleSheet.create({
     quickActions: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        gap: 6,
+        gap: 8,
     },
 
     // Used to fade out the quick actions while keeping them mounted, so we
@@ -63,12 +54,17 @@ export const styles = StyleSheet.create({
     quickAction: {
         width: 44,
         height: 44,
-        borderRadius: 12,
+        borderRadius: 22,
         backgroundColor: TOKENS.surface,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         justifyContent: 'center',
         alignItems: 'center',
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
 
     quickActionActive: {
@@ -77,14 +73,15 @@ export const styles = StyleSheet.create({
     },
 
     quickActionPressed: {
-        opacity: 0.6,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.9,
     },
 
     // Small count badge on the filter button
     filterBadge: {
         position: 'absolute',
-        top: 2,
-        right: 2,
+        top: 1,
+        right: 1,
         minWidth: 16,
         height: 16,
         paddingHorizontal: 4,
@@ -103,25 +100,28 @@ export const styles = StyleSheet.create({
         letterSpacing: -0.2,
     },
 
-    // Inline filter chips row (expandable)
+    // Inline filter pills (expandable) — right-aligned so they read as
+    // belonging to the filter button that opened them.
     filtersInline: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        justifyContent: 'flex-end',
+        gap: 8,
         flexWrap: 'wrap',
-        paddingTop: 8,
-        marginTop: 2,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: TOKENS.hairline,
     },
 
     miniChip: {
-        paddingHorizontal: 12,
+        paddingHorizontal: 14,
         paddingVertical: 7,
-        borderRadius: 10,
-        backgroundColor: TOKENS.surface,
+        borderRadius: 999,
+        backgroundColor: TOKENS.surfaceOverlay,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
 
     miniChipActive: {
@@ -141,7 +141,8 @@ export const styles = StyleSheet.create({
     },
 
     filterChipPressed: {
-        opacity: 0.6,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.9,
     },
 
     // ===== Markers =====
@@ -234,51 +235,61 @@ export const styles = StyleSheet.create({
     },
 
     fabPressed: {
-        opacity: 0.6,
+        transform: [{ scale: 0.97 }],
+        opacity: 0.9,
     },
 
-    // ===== Placement panel — shown while setting the search pin =====
-    placementPanel: {
+    // ===== Placement controls — shown while setting the search pin =====
+    // No containing panel: a floating hint capsule and two pill buttons that
+    // hug their content, centered over the map.
+    placementDock: {
         position: 'absolute',
         left: 14,
         right: 14,
+        alignItems: 'center',
+        gap: 12,
+        zIndex: 700,
+    },
+
+    placementHintPill: {
         backgroundColor: TOKENS.surfaceOverlay,
-        borderRadius: 18,
+        borderRadius: 999,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: TOKENS.hairline,
         paddingHorizontal: 16,
-        paddingTop: 14,
-        paddingBottom: 14,
-        gap: 14,
-        zIndex: 700,
+        paddingVertical: 8,
         shadowColor: TOKENS.shadow,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.06,
-        shadowRadius: 16,
-        elevation: 6,
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
 
-    placementHint: {
+    placementHintText: {
         fontSize: 13,
         fontWeight: '500',
         color: TOKENS.textMuted,
-        textAlign: 'center',
-        lineHeight: 18,
     },
 
     placementActions: {
         flexDirection: 'row',
-        gap: 10,
+        justifyContent: 'center',
+        gap: 8,
     },
 
     placementBtn: {
-        flex: 1,
-        height: 46,
-        borderRadius: 12,
+        height: 48,
+        borderRadius: 999,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
         gap: 6,
+        paddingHorizontal: 24,
+        shadowColor: TOKENS.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+        elevation: 3,
     },
 
     placementBtnGhost: {
@@ -292,8 +303,8 @@ export const styles = StyleSheet.create({
     },
 
     placementBtnPressed: {
-        opacity: 0.85,
-        transform: [{ scale: 0.98 }],
+        transform: [{ scale: 0.97 }],
+        opacity: 0.9,
     },
 
     placementBtnGhostText: {
@@ -306,148 +317,5 @@ export const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: '600',
         color: '#fff',
-    },
-
-    // ===== Bottom sheet =====
-    bottomSheet: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: TOKENS.surface,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: TOKENS.hairline,
-        zIndex: 100,
-    },
-
-    sheetHandle: {
-        alignItems: 'center',
-        paddingTop: 10,
-        paddingBottom: 6,
-    },
-
-    handleBar: {
-        width: 36,
-        height: 3,
-        backgroundColor: alpha(TOKENS.text, 0.12),
-        borderRadius: 2,
-    },
-
-    sheetHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingBottom: 12,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.hairline,
-    },
-
-    sheetStats: {
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        gap: 4,
-    },
-
-    sheetTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        letterSpacing: -0.3,
-        color: TOKENS.text,
-    },
-
-    sheetSubtitle: {
-        fontSize: 14,
-        color: TOKENS.textMuted,
-    },
-
-    modeBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        gap: 4,
-        borderRadius: 999,
-        backgroundColor: TOKENS.surfaceMuted,
-    },
-
-    modeBadgeText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: TOKENS.textMuted,
-    },
-
-    // ===== Map/List toggle =====
-    topToggleBar: {
-        flexDirection: 'row',
-        gap: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: TOKENS.hairline,
-        backgroundColor: TOKENS.surface,
-        zIndex: 1,
-    },
-
-    topToggleButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 10,
-        backgroundColor: TOKENS.surfaceMuted,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
-    },
-
-    topToggleActive: {
-        backgroundColor: TOKENS.primary,
-        borderColor: TOKENS.primary,
-    },
-
-    topTogglePressed: {
-        opacity: 0.6,
-    },
-
-    topToggleText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: TOKENS.text,
-    },
-
-    topToggleTextActive: {
-        color: '#fff',
-        fontWeight: '600',
-    },
-
-    sheetContent: {
-        flex: 1,
-    },
-
-    listView: {
-        paddingBottom: 20,
-    },
-
-    emptyState: {
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 40,
-    },
-
-    emptyTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: TOKENS.text,
-        marginTop: 12,
-    },
-
-    emptyText: {
-        fontSize: 13,
-        color: TOKENS.textMuted,
-        textAlign: 'center',
-        marginTop: 4,
     },
 });

@@ -523,12 +523,17 @@ function MapScreen() {
                 </Animated.View>
             )}
 
-            {/* placement panel — shown while setting the search pin */}
+            {/* placement controls — shown while setting the search pin */}
             {placingPin && (
-                <View style={[styles.placementPanel, { bottom: BOTTOM_UI_OFFSET + 8 }]}>
-                    <Text style={styles.placementHint}>
-                        Move the map to position the pin
-                    </Text>
+                <View
+                    style={[styles.placementDock, { bottom: BOTTOM_UI_OFFSET + 8 }]}
+                    pointerEvents="box-none"
+                >
+                    <View style={styles.placementHintPill}>
+                        <Text style={styles.placementHintText}>
+                            Move the map to position the pin
+                        </Text>
+                    </View>
 
                     <View style={styles.placementActions}>
                         <Pressable
