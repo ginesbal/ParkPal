@@ -140,42 +140,8 @@ export const styles = StyleSheet.create({
         fontWeight: '600',
     },
 
-    chipDivider: {
-        width: 3,
-        height: 3,
-        borderRadius: 2,
-        backgroundColor: TOKENS.hairline,
-    },
-
     filterChipPressed: {
         opacity: 0.6,
-    },
-
-    // ===== Tooltip =====
-    tooltip: {
-        position: 'absolute',
-        left: 16,
-        backgroundColor: alpha(TOKENS.text, 0.96),
-        borderRadius: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        zIndex: 999,
-    },
-
-    tooltipArrow: {
-        position: 'absolute',
-        top: -6,
-        left: 20,
-        width: 12,
-        height: 12,
-        backgroundColor: alpha(TOKENS.text, 0.96),
-        transform: [{ rotate: '45deg' }],
-    },
-
-    tooltipText: {
-        fontSize: 12,
-        color: '#fff',
-        lineHeight: 16,
     },
 
     // ===== Markers =====
@@ -202,23 +168,6 @@ export const styles = StyleSheet.create({
         backgroundColor: TOKENS.primary,
         borderWidth: 2,
         borderColor: '#fff',
-    },
-
-    markerSelected: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    markerPulse: {
-        position: 'absolute',
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: alpha(TOKENS.primary, 0.12),
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: alpha(TOKENS.primary, 0.22),
     },
 
     // ===== Pin marker =====
@@ -286,26 +235,6 @@ export const styles = StyleSheet.create({
 
     fabPressed: {
         opacity: 0.6,
-    },
-
-    // ===== Radius dock — always-visible walk-time slider above the sheet =====
-    radiusDock: {
-        position: 'absolute',
-        left: 14,
-        right: 14,
-        backgroundColor: TOKENS.surfaceOverlay,
-        borderRadius: 16,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: TOKENS.hairline,
-        paddingHorizontal: 14,
-        paddingTop: 10,
-        paddingBottom: 8,
-        zIndex: 400,
-        shadowColor: TOKENS.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.04,
-        shadowRadius: 12,
-        elevation: 3,
     },
 
     // ===== Placement panel — shown while setting the search pin =====

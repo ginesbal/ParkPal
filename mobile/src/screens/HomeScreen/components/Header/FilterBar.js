@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { RADIUS_OPTIONS } from '../../../../constants/parking';
 import { styles } from './styles';
 
 const TYPE_FILTERS = [
@@ -9,18 +10,12 @@ const TYPE_FILTERS = [
     { key: 'residential', label: 'Permit' },
 ];
 
-const DISTANCE_OPTIONS = [150, 250, 500, 750, 1000];
-
 const FilterBar = ({
     activeFilter,
     setActiveFilter,
     searchRadius,
     setSearchRadius,
 }) => {
-    const formatDistance = useCallback((meters) => {
-        return meters >= 1000 ? `${(meters / 1000).toFixed(1)}km` : `${meters}m`;
-    }, []);
-
     const handleFilterPress = useCallback((key) => {
         setActiveFilter?.(key);
     }, [setActiveFilter]);
@@ -60,17 +55,17 @@ const FilterBar = ({
             <View style={styles.distanceRow}>
                 <Text style={styles.distanceLabel}>Radius</Text>
                 <View style={styles.distanceOptions}>
-                    {DISTANCE_OPTIONS.map((distance) => {
-                        const isActive = searchRadius === distance;
+                    {RADIUS_OPTIONS.map((option) => {
+                        const isActive = searchRadius === option.value;
                         return (
                             <Pressable
-                                key={distance}
+                                key={option.value}
                                 style={({ pressed }) => [
                                     styles.distanceOption,
                                     isActive && styles.distanceOptionActive,
                                     pressed && styles.distanceOptionPressed,
                                 ]}
-                                onPress={() => handleDistancePress(distance)}
+                                onPress={() => handleDistancePress(option.value)}
                                 accessibilityRole="button"
                                 accessibilityState={{ selected: isActive }}
                             >
@@ -78,7 +73,7 @@ const FilterBar = ({
                                     styles.distanceOptionText,
                                     isActive && styles.distanceOptionTextActive
                                 ]}>
-                                    {formatDistance(distance)}
+                                    {option.label}
                                 </Text>
                             </Pressable>
                         );

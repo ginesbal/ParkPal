@@ -3,7 +3,9 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { Animated, PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ParkingListItem from '../../../components/ParkingList/ParkingListItem';
+import { RADIUS_OPTIONS, metersToWalkMinutes } from '../../../constants/parking';
 import { TOKENS, alpha } from '../../../constants/theme';
+import { getDistanceLabel } from '../../../utils/parkingHelpers';
 import { SCREEN_HEIGHT } from '../constants';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -32,6 +34,8 @@ const ParkingBottomSheet = forwardRef(({
     spots,
     selectedSpot,
     searchMode,
+    searchRadius,
+    onRadiusChange,
     getCurrentPrice,
     onItemPress,
     onClearPin,
@@ -284,6 +288,39 @@ const ParkingBottomSheet = forwardRef(({
                         </Pressable>
                     )}
                 </View>
+
+                {/* Search radius — four familiar presets, right beside the
+                    count they change. Switching filters already-fetched spots
+                    client-side, so it responds instantly. */}
+                {onRadiusChange && (
+                    <View style={styles.radiusRow}>
+                        <Text style={styles.radiusLabel}>Within</Text>
+                        {RADIUS_OPTIONS.map((option) => {
+                            const isActive = searchRadius === option.value;
+                            return (
+                                <Pressable
+                                    key={option.value}
+                                    style={({ pressed }) => [
+                                        styles.radiusChip,
+                                        isActive && styles.radiusChipActive,
+                                        pressed && styles.radiusChipPressed,
+                                    ]}
+                                    onPress={() => onRadiusChange(option.value)}
+                                    accessibilityRole="button"
+                                    accessibilityState={{ selected: isActive }}
+                                    accessibilityLabel={`Within ${getDistanceLabel(option.value)}, about a ${metersToWalkMinutes(option.value)} minute walk`}
+                                >
+                                    <Text style={[
+                                        styles.radiusChipText,
+                                        isActive && styles.radiusChipTextActive,
+                                    ]}>
+                                        {option.label}
+                                    </Text>
+                                </Pressable>
+                            );
+                        })}
+                    </View>
+                )}
             </View>
 
             {spots.length === 0 ? (
@@ -393,6 +430,44 @@ const styles = StyleSheet.create({
     headerInfo: {
         gap: 4,
         flex: 1,
+    },
+    // Radius presets — same chip recipe as the map header's filter chips.
+    radiusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 20,
+        marginTop: 12,
+    },
+    radiusLabel: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: TOKENS.textMuted,
+        marginRight: 2,
+    },
+    radiusChip: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+        backgroundColor: TOKENS.surface,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: TOKENS.hairline,
+    },
+    radiusChipActive: {
+        backgroundColor: TOKENS.primary,
+        borderColor: TOKENS.primary,
+    },
+    radiusChipPressed: {
+        opacity: 0.6,
+    },
+    radiusChipText: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: TOKENS.text,
+    },
+    radiusChipTextActive: {
+        color: '#fff',
+        fontWeight: '600',
     },
     clearButton: {
         flexDirection: 'row',

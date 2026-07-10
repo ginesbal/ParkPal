@@ -14,10 +14,3 @@ export const DEFAULT_LOCATION = {
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
 };
-
-export const SEARCH_RADIUS_OPTIONS = [
-    { label: '250m', value: 250 },
-    { label: '500m', value: 500 },
-    { label: '1km', value: 1000 },
-    { label: '2km', value: 2000 },
-];

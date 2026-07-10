@@ -20,7 +20,7 @@ import FlippableParkingCard from '../../components/ParkingCard/FlippableParkingC
 
 // app constants/services
 import { DEFAULT_LOCATION } from '../../constants/config';
-import { RADIUS_DEFAULT, RADIUS_MAX } from '../../constants/parking';
+import { DEFAULT_SEARCH_RADIUS, FETCH_RADIUS } from '../../constants/parking';
 
 // logs
 import { logger } from '../../utils/loggers';
@@ -31,7 +31,6 @@ import MapHeader from './components/MapHeader';
 import MapOverlays from './components/MapOverlays';
 import MapReticle from './components/MapReticle';
 import ParkingBottomSheet from './components/ParkingBottomSheet';
-import WalkRadiusSlider from './components/WalkRadiusSlider';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from './constants';
 import { styles } from './styles';
 import { centerCamera, getMarkerScreenPosition } from './utils/camera';
@@ -42,7 +41,6 @@ function MapScreen() {
     // Compact header: ~70px content + safe area inset (collapsed filters)
     const [navigationHeight, setNavigationHeight] = useState(70 + insets.top);
     const [sheetPeekHeight, setSheetPeekHeight] = useState(108);
-    const [radiusDockHeight, setRadiusDockHeight] = useState(84);
 
     // Get ACTUAL tab bar height from React Navigation (includes padding + safe areas)
     const tabBarHeight = useBottomTabBarHeight();
@@ -77,7 +75,7 @@ function MapScreen() {
     const [region, setRegion] = useState(DEFAULT_LOCATION);
     const [userLocation, setUserLocation] = useState(null);
     const [filterType, setFilterType] = useState('all');
-    const [searchRadius, setSearchRadius] = useState(RADIUS_DEFAULT);
+    const [searchRadius, setSearchRadius] = useState(DEFAULT_SEARCH_RADIUS);
     const [selectedSpot, setSelectedSpot] = useState(null);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -110,9 +108,9 @@ function MapScreen() {
         (searchMode === 'pinned' && pinnedLocation) ? pinnedLocation : userLocation
     ), [searchMode, pinnedLocation, userLocation]);
 
-    // Fetch once at the MAX radius, then narrow client-side as the slider
-    // moves. Dialing the radius down is instant and never touches the network.
-    const { spots: allSpots } = useParkingSpots(searchLocation, RADIUS_MAX, filterType);
+    // Fetch once at the largest preset, then narrow client-side as the user
+    // switches presets. Changing the radius is instant and never refetches.
+    const { spots: allSpots } = useParkingSpots(searchLocation, FETCH_RADIUS, filterType);
     const spots = useMemo(() => (
         Array.isArray(allSpots)
             ? allSpots.filter(s => (typeof s.distance === 'number' ? s.distance : Infinity) <= searchRadius)
@@ -351,13 +349,6 @@ function MapScreen() {
         ));
     }, []);
 
-    const handleRadiusDockLayout = useCallback((event) => {
-        const measuredHeight = Math.ceil(event.nativeEvent.layout.height);
-        setRadiusDockHeight((currentHeight) => (
-            Math.abs(currentHeight - measuredHeight) > 1 ? measuredHeight : currentHeight
-        ));
-    }, []);
-
     // Wrap setIsSearchFocused so we stamp the focus time whenever focus is
     // gained. The stamp is read by handleMapPress to ignore the spurious
     // onPress that fires from Google Maps' native tap recognizer on iOS.
@@ -402,6 +393,29 @@ function MapScreen() {
             logger.log('search_mode_changed', { to: 'pinned' }, 'INFO');
         }
     }, []);
+
+    // Radius preset tapped in the bottom sheet. Filtering is client-side and
+    // instant; we also gently zoom so the whole search circle stays visible.
+    // Skipped while placing the pin so the reticle target never moves.
+    const handleRadiusChange = useCallback((nextRadius) => {
+        setSearchRadius(nextRadius);
+        logger.log('radius_changed', { radius: nextRadius }, 'UI_EVENT');
+
+        if (placingPinRef.current) return;
+        const center = (searchMode === 'pinned' && pinnedLocation) ? pinnedLocation : userLocation;
+        if (!center) return;
+
+        // Fit the circle's diameter with ~30% breathing room; longitude
+        // degrees shrink with latitude, so widen accordingly.
+        const latitudeDelta = Math.max(0.005, (nextRadius * 2.6) / 111320);
+        const longitudeDelta = latitudeDelta / Math.cos((center.latitude * Math.PI) / 180);
+        mapRef.current?.animateToRegion({
+            latitude: center.latitude,
+            longitude: center.longitude,
+            latitudeDelta,
+            longitudeDelta,
+        }, 250);
+    }, [searchMode, pinnedLocation, userLocation]);
 
     // The reticle points at the center of the visible band (between the header
     // and the bottom UI). mapPadding makes the reported region center align
@@ -477,7 +491,7 @@ function MapScreen() {
                         {
                             opacity: controlsOpacity,
                             transform: [{ translateY: Animated.multiply(controlsTranslateY, -1) }],
-                            bottom: BOTTOM_UI_OFFSET + radiusDockHeight + 16,
+                            bottom: BOTTOM_UI_OFFSET - 4,
                         }
                     ]}
                     pointerEvents="auto"
@@ -509,32 +523,12 @@ function MapScreen() {
                 </Animated.View>
             )}
 
-            {/* radius dock — always-visible walk-time slider (hidden while placing) */}
-            {!placingPin && (
-                <View
-                    style={[styles.radiusDock, { bottom: BOTTOM_UI_OFFSET + 8 }]}
-                    onLayout={handleRadiusDockLayout}
-                >
-                    <WalkRadiusSlider
-                        radius={searchRadius}
-                        onRadiusChange={setSearchRadius}
-                        count={spots.length}
-                    />
-                </View>
-            )}
-
             {/* placement panel — shown while setting the search pin */}
             {placingPin && (
                 <View style={[styles.placementPanel, { bottom: BOTTOM_UI_OFFSET + 8 }]}>
                     <Text style={styles.placementHint}>
-                        Move the map to set your search area
+                        Move the map to position the pin
                     </Text>
-
-                    <WalkRadiusSlider
-                        radius={searchRadius}
-                        onRadiusChange={setSearchRadius}
-                        count={spots.length}
-                    />
 
                     <View style={styles.placementActions}>
                         <Pressable
@@ -573,6 +567,8 @@ function MapScreen() {
                 spots={spots}
                 selectedSpot={selectedSpot}
                 searchMode={searchMode}
+                searchRadius={searchRadius}
+                onRadiusChange={handleRadiusChange}
                 getCurrentPrice={getCurrentPrice}
                 onPeekHeightChange={setSheetPeekHeight}
                 tabBarHeight={tabBarHeight}
